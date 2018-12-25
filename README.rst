@@ -1,8 +1,8 @@
 =====
-Idcops
+django-idcops
 =====
 
-Idcops is a simple Django app.
+django-idcops is a simple Django app.
 Detailed documentation is in the "docs" directory.
 
 Quick start

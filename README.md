@@ -24,7 +24,7 @@ django-idcops is a data center inventory management software.
 
 5. Visit http://127.0.0.1:8000/idcops/ to participate in the build.
 
-6. settings extra setup example:
+6. Project configuration options in settings.py:
 ```
 STATIC_URL = '/static/'
 

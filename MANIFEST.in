@@ -1,0 +1,9 @@
+include LICENSE
+include README.rst
+include README.md
+include requirements.txt
+recursive-include idcops/lib *
+recursive-include idcops/static *
+recursive-include idcops/templates *
+recursive-include idcops/migrations *
+recursive-include idcops/templatetags *

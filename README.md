@@ -1,22 +1,22 @@
 # django-idcops
 
-django-idcops is a data center infrastructure management software.
-Detailed documentation is in the "docs" directory.
+django-idcops is a data center inventory management software.
 
-Quick start
------------
 
-1. Add "idcops" to your INSTALLED_APPS setting like this::
+# Quick start
 
+1. Add `idcops` and `notifications` to your INSTALLED_APPS setting like this:
+    ```
     INSTALLED_APPS = [
         ...
         'notifications',
         'idcops',
     ]
+    ```
 
-2. Include the idcops URLconf in your project urls.py like this::
+2. Include the idcops URLconf in your project urls.py like this:
 
-    path('idcops/', include('idcops.urls')),
+    `path('idcops/', include('idcops.urls')),`
 
 3. Run `python manage.py migrate` to create the polls models.
 
@@ -24,8 +24,8 @@ Quick start
 
 5. Visit http://127.0.0.1:8000/idcops/ to participate in the build.
 
-6. settings extra setup example::
-
+6. settings extra setup example:
+```
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -41,3 +41,4 @@ AUTH_USER_MODEL = 'idcops.User'
 COLOR_BADGE = False
 
 DELELE_SOFT = True
+```

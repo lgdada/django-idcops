@@ -7,12 +7,20 @@
 {%else%}
 {% rack_overview object.rack_id object.units.all %}
 {%endif%}
+<<<<<<< HEAD
 {% endblock page-extra %}
+=======
+{% endblock %}
+>>>>>>> 9d286282c5d310c05c8c9504eb7ac81fabaf3405
 
 {% block SubScript %}
 <script>
 $(document).ready(function (){
 
+<<<<<<< HEAD
+=======
+//选择机柜跳转
+>>>>>>> 9d286282c5d310c05c8c9504eb7ac81fabaf3405
 $("#id_rack").change(function(){
   var selected=$(this).children('option:selected').val();
   if (selected > 0){

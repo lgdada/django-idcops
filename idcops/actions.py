@@ -38,8 +38,7 @@ from idcops.exports import make_to_excel
 from idcops.models import Comment, Online, Client, Rack, Option
 
 
-DELELE_SOFT = getattr(settings, 'DELELE_SOFT', False)
-
+SOFT_DELELE = getattr(settings, 'SOFT_DELELE', False)
 
 general = ['download', 'actived', 'reactive', ]
 inventory = user = idc = unit = pdu = ['download']
@@ -557,7 +556,7 @@ def delete(request, queryset):
                     object_id=obj.pk,
                     action_flag="删除"
                 )
-            if not DELELE_SOFT:
+            if not SOFT_DELELE:
                 queryset.delete()
             else:
                 queryset.update(deleted=True, actived=False)

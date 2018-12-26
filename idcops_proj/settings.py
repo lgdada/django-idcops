@@ -132,15 +132,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 AUTH_USER_MODEL = 'idcops.User'
 
 
-# idcops settings
+# idcops options
 
-## global settings.
-DELELE_SOFT = True
+SOFT_DELELE = True
 
-## idc options settings first by db.
-
-COLOR_BADGE = False
-
-ONLINE_NUMBER_AUTO = True
-
-DEVICE_STATISTICS_ITEMS = 12
+COLOR_TAGS = False

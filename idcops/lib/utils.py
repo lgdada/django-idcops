@@ -25,7 +25,8 @@ from django.views.generic.base import logger
 
 from idcops.models import Option
 
-COLOR_BADGE = getattr(settings, 'COLOR_BADGE', True)
+
+COLOR_TAGS = getattr(settings, 'COLOR_TAGS', True)
 
 
 def get_content_type_for_model(obj, fcm=False):
@@ -190,7 +191,7 @@ def display_for_field(value, field, html=True, only_date=True):
         return formats.number_format(value)
     elif isinstance(field, models.ForeignKey) and value:
         rel_obj = field.related_model.objects.get(pk=value)
-        if html and COLOR_BADGE and isinstance(rel_obj, Option):
+        if html and COLOR_TAGS and isinstance(rel_obj, Option):
             hf = '<span class="badge bg-{}">{}</span>'
             return format_html(hf, rel_obj.color, rel_obj.text)
         return force_text(rel_obj)

@@ -17,8 +17,11 @@ from idcops.models import (
 
 from idcops.lib.utils import can_create, shared_queryset
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+try:
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+except Exception as e:
+    pass
 
 STATICROOT = '/static/idcops/'
 

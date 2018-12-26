@@ -7,33 +7,11 @@
 {% rack_overview object.rack_id object.units.all %}
 {%endif%}
 {% endblock %}
-{% block extra-js %}
-{{form.media.js}}
+
+{% block SubScript %}
 <script>
 $(document).ready(function (){
-// Select2
-$("select").select2({language: "zh-CN"});
 
-//DateTimeField
-$("input[data-datetime='true']").daterangepicker({
-  timePicker: true,
-  timePickerIncrement: 5,
-  timePicker24Hour: true,
-  locale:{
-    format: 'YYYY-MM-DD H:mm:ss',
-    applyLabel: '确认',
-    cancelLabel: '取消',
-    fromLabel: '从',
-    toLabel: '到',
-    weekLabel: 'W',
-    customRangeLabel: '选择时间',
-    daysOfWeek:["日","一","二","三","四","五","六"],
-    monthNames: ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
-  },
-  singleDatePicker: true
-});
-
-//document.location.href=this.options[this.selectedIndex].value;
 //选择机柜跳转
 $("#id_rack").change(function(){
   var selected=$(this).children('option:selected').val();
@@ -50,4 +28,4 @@ $("#id_rack").val(rack_id).trigger('change.select2');
 
 });
 </script>
-{% endblock %}
+{% endblock SubScript %}

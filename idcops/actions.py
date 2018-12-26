@@ -129,9 +129,12 @@ download.required = 'view'
 
 @check_multiple_clients
 def removeup(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "取消下架"
+    if exclude.exists():
+        mesg = "设备所在机柜未使用, 无法取消下架"
+        return mesg
+
     if request.POST.get('post'):
         for obj in queryset:
             o = copy.deepcopy(obj)
@@ -181,7 +184,6 @@ removeup.icon = 'fa fa-level-up'
 
 @check_multiple_clients
 def movedown(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "下架"
     if request.POST.get('post'):
@@ -212,7 +214,6 @@ movedown.icon = 'fa fa-level-down'
 
 @check_multiple_clients
 def actived(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "停用"
     if request.POST.get('post'):
@@ -240,7 +241,6 @@ actived.icon = 'fa fa-ban'
 
 @check_multiple_clients
 def reclaim(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "回收"
     if request.POST.get('post'):
@@ -268,7 +268,6 @@ reclaim.icon = 'fa fa-ban'
 
 @check_multiple_clients
 def cancel_reclaim(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "取消回收"
     if request.POST.get('post'):
@@ -296,7 +295,6 @@ cancel_reclaim.icon = 'fa fa-check-circle-o'
 
 @check_multiple_clients
 def reactive(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "启用"
     if request.POST.get('post'):
@@ -324,7 +322,6 @@ reactive.icon = 'fa fa-check-circle-o'
 
 @check_multiple_clients
 def outbound(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "出库"
     queryset = queryset.filter(actived=True)
@@ -389,7 +386,6 @@ outbound.icon = 'fa fa-check'
 
 @check_multiple_clients
 def reoutbound(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "取消出库"
     queryset = queryset.filter(actived=False)
@@ -418,7 +414,6 @@ reoutbound.icon = 'fa fa-undo'
 
 @check_multiple_clients
 def release(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "释放机柜"
     if Online.objects.filter(rack=queryset).exists():
@@ -476,7 +471,6 @@ release.icon = 'fa fa-recycle'
 
 @check_multiple_clients
 def distribution(request, queryset):
-
     action = sys._getframe().f_code.co_name
     action_name = "分配机柜"
     queryset = queryset.filter(actived=False)

@@ -15,13 +15,15 @@ from django.utils.module_loading import import_string
 from django.utils.html import format_html
 from django.utils.encoding import force_text
 from django.contrib.auth.views import redirect_to_login
+from django.views.generic.base import logger
 from django.views.generic.edit import CreateView, UpdateView
 # Create your views here.
 
 from idcops.models import User, Device
 from idcops.mixins import BaseRequiredMixin, PostRedirect
 from idcops.lib.utils import make_dict, diff_dict, get_content_type_for_model
-from idcops.lib.tasks import log_action
+from threading import Thread
+from idcops.lib.tasks import log_action, device_post_save
 
 
 class NewModelView(BaseRequiredMixin, PermissionRequiredMixin,
@@ -93,6 +95,9 @@ class NewModelView(BaseRequiredMixin, PermissionRequiredMixin,
             object_id=self.object.pk,
             action_flag="新增"
         )
+        if self.model_name == 'online':
+            verify = Thread(target=device_post_save, args=(self.object.pk))
+            verify.start()
         if self.request.is_ajax():
             data = {
                 'message': "Successfully submitted form data.",
@@ -177,6 +182,9 @@ class EditModelView(BaseRequiredMixin, PermissionRequiredMixin,
             object_id=self.object.pk,
             action_flag="修改", message=message, content=content
         )
+        if self.model_name == 'online':
+            verify = Thread(target=device_post_save, args=(self.object.pk,))
+            verify.start()
         if self.request.is_ajax():
             data = {
                 'message': "Successfully submitted form data.",

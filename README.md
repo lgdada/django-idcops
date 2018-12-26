@@ -6,9 +6,10 @@ django-idcops 通过“数据中心”来分类管理每个数据中心下面的
 软件许可协议
 django-idcops 遵循 Apache License 2.0。
 
-关于
-“源码”托管在Github [django-idcops](https://github.com/Wenvki/django-idcops)
-
+联系：
+[iloxp](https://www.iloxp.com)
+email: 294060408@qq.com
+qq群：185964462
 
 # 快速开始
 

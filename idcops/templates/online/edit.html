@@ -1,5 +1,6 @@
 {% extends 'base/edit.html' %}
 {% load app_extras %}
+
 {% block page-extra %}
 {%if request.GET.rack_id%}
 {% rack_overview request.GET.rack_id object.units.all %}

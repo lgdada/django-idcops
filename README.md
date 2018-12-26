@@ -5,7 +5,8 @@ django-idcops is a data center inventory management software.
 
 # 快速开始
 
-一、安装：
+### 一、安装：
+
 ```
 cd /home
 git clone https://github.com/Wenvki/django-idcops.git mysite
@@ -17,21 +18,31 @@ python manage.py migrate
 python manage.py createsuperuser # 创建一个超级管理员用户
 python manage.py  runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 ```
-二、初始化配置：
+
+
+### 二、初始化配置：
+
 1、访问 http://your_ip:8000/ 
+
 ![login](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0001.png)
 
-2、首次使用，系统还没有数据中，需新建一个数据中心
+2、首次使用，系统还没有数据中心，需新建一个数据中心
+
 ![create idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0002.png)
+
 ![create idc 02](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0003.png)
 
 3、将用户关联至数据中心
+
 ![user related to idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0004.png)
 
 4、重新访问首页 http://your_ip:8000/ 
+
 ![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0005.png)
 
-三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：
+
+### 三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：
+
 ```
 STATIC_URL = '/static/'
 
@@ -53,7 +64,8 @@ COLOR_TAGS = False
 
 # 说明与项目截图
 
-模块说明：
+### 模块说明：
+
 ```
 [
 ('syslog', 'log entries'), # 日志记录，核心内容，用于报表统计，日志分析等
@@ -76,7 +88,8 @@ COLOR_TAGS = False
 ]
 ```
 
-项目截图：
+
+### 项目截图：
 
 ![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
 

@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from __future__ import unicode_literals
 from django import template
 from django.utils.http import urlencode
 from django.utils.encoding import force_str

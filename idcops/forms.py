@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import sys
+
 from django import forms
 from django.utils.six import text_type
 from django.utils.html import format_html
@@ -13,6 +17,8 @@ from idcops.models import (
 
 from idcops.lib.utils import can_create, shared_queryset
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 STATICROOT = '/static/idcops/'
 

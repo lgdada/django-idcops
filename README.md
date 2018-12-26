@@ -36,11 +36,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'idcops.User'
 
-# idcops settings
+# idcops options
 
-COLOR_BADGE = False
+SOFT_DELELE = True
 
-DELELE_SOFT = True
+COLOR_TAGS = False
+
 ```
 
 模块说明：

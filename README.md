@@ -3,28 +3,35 @@
 django-idcops is a data center inventory management software.
 
 
-# Quick start
+# 快速开始
 
-1. Add `idcops` and `notifications` to your INSTALLED_APPS setting like this:
-    ```
-    INSTALLED_APPS = [
-        ...
-        'notifications',
-        'idcops',
-    ]
-    ```
+一、安装：
+```
+cd /home
+git clone https://github.com/Wenvki/django-idcops.git mysite
+cd mysite/
+mkvirtualenv env # python虚拟环境
+pip install -U pip # 升级pip
+pip install -r requirements.txt 
+python manage.py migrate
+python manage.py createsuperuser # 创建一个超级管理员用户
+python manage.py  runserver 0.0.0.0:8000 # 以django开发服务器运行软件
+```
+二、初始化配置：
+1、访问 http://your_ip:8000/ 
+![login](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0001.png)
 
-2. Include the idcops URLconf in your project urls.py like this:
+2、首次使用，系统还没有数据中，需新建一个数据中心
+![create idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0002.png)
+![create idc 02](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0003.png)
 
-    `path('idcops/', include('idcops.urls')),`
+3、将用户关联至数据中心
+![user related to idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0004.png)
 
-3. Run `python manage.py migrate` to create the polls models.
+4、重新访问首页 http://your_ip:8000/ 
+![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0005.png)
 
-4. Start the development server and visit http://127.0.0.1:8000/admin/
-
-5. Visit http://127.0.0.1:8000/idcops/ to participate in the build.
-
-6. Project configuration options in settings.py:
+三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：
 ```
 STATIC_URL = '/static/'
 
@@ -44,11 +51,13 @@ COLOR_TAGS = False
 
 ```
 
+# 说明与项目截图
+
 模块说明：
 ```
 [
 ('syslog', 'log entries'), # 日志记录，核心内容，用于报表统计，日志分析等
-('user', '用户信息'),  #用户信息
+('user', '用户信息'), 
 ('idc', '数据中心'),  
 ('option', '机房选项'), # 机房选项，核心内容 ，系统元数据
 ('client', '客户信息'), 

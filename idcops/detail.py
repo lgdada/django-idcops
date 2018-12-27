@@ -48,6 +48,7 @@ class DetailModelView(
         else:
             return self.form_invalid(form)
 
+    @property
     def make_info_panel(self):
         pin_fields = [
             'actived', 'deleted', 'created', 'creator',
@@ -93,7 +94,7 @@ class DetailModelView(
         context = super(DetailModelView, self).get_context_data(**kwargs)
         _extra = {
             'form': self.get_form(),
-            'object_as_table': self.make_info_panel(),
+            'object_as_table': self.make_info_panel,
             'actions': get_actions(self.opts, self.request.user),
             'can_change': can_change(self.opts, self.request.user),
         }

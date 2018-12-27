@@ -14,6 +14,7 @@ from django.utils import formats, timezone
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.base import logger
 
 from django.db.models import options
 
@@ -74,7 +75,7 @@ class Mark(models.Model):
     @cached_property
     def get_absolute_url(self):
         opts = self._meta
-        #if opts.proxy:
+        # if opts.proxy:
         #    opts = opts.concrete_model._meta
         url = reverse_lazy('idcops:detail', args=[opts.model_name, self.pk])
         return url
@@ -834,7 +835,6 @@ class Pdu(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
 @python_2_unicode_compatible
 class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
-
     name = models.SlugField(
         max_length=32,
         unique=True,
@@ -937,8 +937,15 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
                 swap['type'] = move_type
                 history.append(swap)
             except Exception as e:
-                print('rebuliding device history error: {}'.format(e))
+                logger.warning(
+                    'rebuliding device history warning: {}'.format(e))
         return history
+
+    def last_rack(self):
+        try:
+            return self.move_history[0].get('rack')
+        except Exception as e:
+            logger.warning('Get device last rack warning: {}'.format(e))
 
     class Meta(Mark.Meta):
         level = 1

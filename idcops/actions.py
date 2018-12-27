@@ -46,8 +46,11 @@ inventory = user = idc = unit = pdu = ['download']
 device = ['download', 'html_print', ]
 online = ['download', 'html_print', 'movedown']
 offline = ['download', 'html_print', 'removeup', 'delete']
+
 jumpline = client = ['download', 'actived', 'reactive', 'delete']
+
 inventory = ['download', 'outbound', 'reoutbound']
+
 syslog = comment = ['download', 'actived', ]
 rack = ['download', 'release', 'distribution']
 

@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from itertools import chain
-from django.utils.functional import cached_property
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
 # Create your views here.
-from django.utils.html import format_html
+
 from django.utils.safestring import mark_safe
-#from idcops import utils as idcops_utils
-from idcops.list import get_user_config
 from django.contrib.admin.utils import label_for_field, lookup_field
 from idcops.lib.utils import (
-    display_for_field, fields_for_model, can_change,
-    make_cache_key, get_actions
+    display_for_field, fields_for_model, can_change, get_actions
 )
 from idcops.forms import CommentNewForm
 from idcops.mixins import BaseRequiredMixin, PostRedirect

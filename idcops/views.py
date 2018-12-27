@@ -22,12 +22,9 @@ from django.utils.module_loading import import_string
 
 from idcops.lib.utils import shared_queryset
 from idcops.mixins import BaseRequiredMixin
-from idcops.list import ListModelView
-from idcops.detail import DetailModelView
-from idcops.edit import NewModelView, EditModelView
+
 from idcops.models import (
-    Option, Rack, Device, Online, Offline,
-    Syslog, ContentType, Zonemap
+    Option, Rack, Device, Online, Syslog, ContentType, Zonemap
 )
 
 

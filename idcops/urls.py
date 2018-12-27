@@ -2,7 +2,9 @@
 from django.conf import settings
 from django.conf.urls import url, include, static
 from idcops import views
-
+from idcops.list import ListModelView
+from idcops.detail import DetailModelView
+from idcops.edit import NewModelView, EditModelView
 
 app_name = 'idcops'
 
@@ -25,10 +27,10 @@ urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^accounts/', include(accounts_urls)),
     url(r'^list/zonemap/', views.ZonemapView.as_view(), name='zonemap'),
-    url(r'^(?:new/(?P<model>\w+))/$', views.NewModelView.as_view(), name='new'),
-    url(r'^(?:list/(?P<model>\w+))/$', views.ListModelView.as_view(), name='list'),
-    url(r'^(?:detail/(?:(?P<model>\w+)-(?P<pk>\d+)))/$', views.DetailModelView.as_view(), name='detail'),
-    url(r'^(?:update/(?:(?P<model>\w+)-(?P<pk>\d+)))/$', views.EditModelView.as_view(), name='update'),
+    url(r'^(?:new/(?P<model>\w+))/$', NewModelView.as_view(), name='new'),
+    url(r'^(?:list/(?P<model>\w+))/$', ListModelView.as_view(), name='list'),
+    url(r'^(?:detail/(?:(?P<model>\w+)-(?P<pk>\d+)))/$', DetailModelView.as_view(), name='detail'),
+    url(r'^(?:update/(?:(?P<model>\w+)-(?P<pk>\d+)))/$', EditModelView.as_view(), name='update'),
 ]
 
 

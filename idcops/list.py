@@ -1,35 +1,27 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import copy
 import json
 import operator
 from functools import reduce
 
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
-from django.contrib.admin.utils import label_for_field, help_text_for_field
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth import get_permission_codename
+from django.contrib.admin.utils import label_for_field
 from django.db import models
 from django.http import HttpResponseRedirect
-from django.utils import timezone
-from django.utils.text import slugify
 from django.utils.http import urlencode
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
-from django.views.generic.base import logger
-from django.views.generic import TemplateView, ListView
+from django.views.generic import ListView
 
 # Create your views here.
 
-from idcops.exports import make_to_excel
 from idcops.mixins import BaseRequiredMixin, get_user_config
 from idcops.models import Configure
 from idcops.lib.utils import (
-    can_create, can_change, nature_field_name,
+    can_create, nature_field_name,
     fields_for_model, make_tbody_tr,
     get_content_type_for_model, get_actions
 )
@@ -174,10 +166,6 @@ class ListModelView(BaseRequiredMixin, ListView):
         return ordering
 
     def get_filter_by(self):
-        if hasattr(self.opts, 'default_filters'):
-            effective = self.opts.default_filters
-        else:
-            effective = {'deleted': False, 'actived': True}
         effective = {'deleted': False}
         _fields = dict((f.name, f.attname) for f in self.model._meta.fields)
         for item in _fields:
@@ -204,7 +192,6 @@ class ListModelView(BaseRequiredMixin, ListView):
     @property
     def allow_search_fields(self, exclude=None, include=None):
         opts = self.opts
-        fields = []
 
         def construct_search(model):
             exclude = [f.name for f in opts.fields if getattr(f, 'choices')]
@@ -214,9 +201,11 @@ class ListModelView(BaseRequiredMixin, ListView):
                 if isinstance(f, models.CharField) and f.name not in exclude:
                     _fields.append(f.name + '__icontains')
             return _fields
+
         if not exclude:
             exclude = ['onidc', 'slug', 'created', 'modified']
         exclude.extend([f.name for f in opts.fields if getattr(f, 'choices')])
+
         fields = construct_search(self.model)
         for f in opts.fields:
             if exclude and f.name in exclude:

@@ -4,10 +4,7 @@ from __future__ import unicode_literals
 from django.dispatch import receiver
 from django.db.models import signals
 from idcops.lib.utils import get_content_type_for_model, fields_for_model
-from idcops.models import (
-    Device, Online, Offline,
-    Rack, Unit, Pdu, User, Configure
-)
+from idcops.models import Device, Rack, Unit, Pdu, User, Configure
 
 
 def pdus_units_changed(sender, **kwargs):

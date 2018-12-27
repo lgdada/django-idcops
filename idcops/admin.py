@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.db import models
 from django.apps import apps
 from idcops.models import User
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from idcops.lib.utils import nature_field_name

@@ -46,11 +46,6 @@ class ListModelView(BaseRequiredMixin, ListView):
     config is by user configured or default.
     """
 
-    def zonemap(self):
-        if self.model_name == 'zonemap':
-            from idcops.views import ZonemapView
-            return ZonemapView.as_view(self.request)
-
     def get_template_names(self):
         return ["{0}/list.html".format(self.model_name), "base/list.html"]
 

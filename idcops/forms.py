@@ -6,7 +6,7 @@ import sys
 from django import forms
 from django.utils.six import text_type
 from django.utils.html import format_html
-from django.utils.text import capfirst, get_text_list
+from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from idcops.models import (
@@ -27,7 +27,6 @@ STATICROOT = '/static/idcops/'
 
 
 class CalendarMedia(object):
-
     class Media:
         extend = True
         css = {
@@ -43,7 +42,6 @@ class CalendarMedia(object):
 
 
 class Select2Media(object):
-
     class Media:
         css = {
             'all': (
@@ -114,9 +112,9 @@ class FormBaseMixin(Select2Media, CheckUniqueTogether):
             for field_name in self.fields:
                 field = self.fields.get(field_name)
                 if isinstance(
-                    field,
-                    (forms.fields.SlugField,
-                     forms.fields.CharField)):
+                        field,
+                        (forms.fields.SlugField,
+                         forms.fields.CharField)):
                     self.fields[field_name].widget.attrs.update(
                         {'autocomplete': "off"})
                 if isinstance(field, forms.fields.DateTimeField):
@@ -264,7 +262,6 @@ class RackNewForm(FormBaseMixin, forms.ModelForm):
         model = Rack
         fields = ['name', 'cname', 'zone', 'unitc', 'pduc', 'tags', 'actived']
 
-
     def __init__(self, *args, **kwargs):
         super(RackNewForm, self).__init__(*args, **kwargs)
         self.fields['actived'].initial = False
@@ -310,7 +307,7 @@ class OnlineNewForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
         model = Device
         fields = [
             'rack', 'client', 'created', 'style', 'name',
-             'ipaddr', 'model', 'sn', 'units', 'pdus', 'tags'
+            'ipaddr', 'model', 'sn', 'units', 'pdus', 'tags'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -337,8 +334,8 @@ class OnlineNewForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
                 name = 'IS020123456-0000'
             try:
                 pre, lnk, ext = name.rpartition('-')
-                ext = "%05d" %(int(ext)+1)
-                self.fields['name'].initial = pre+lnk+ext
+                ext = "%05d" % (int(ext) + 1)
+                self.fields['name'].initial = pre + lnk + ext
             except:
                 self.fields['name'].initial = name
             try:
@@ -367,7 +364,7 @@ class OnlineEditForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
             rack_id = self.instance.rack_id
         self.fields['rack'].queryset = self.fields['rack'].queryset.order_by(
             'name')
-        #rack = self.fields['rack'].queryset.get(pk=rack_id)
+        # rack = self.fields['rack'].queryset.get(pk=rack_id)
         self.fields['units'].queryset = self.fields['units'].queryset.filter(
             rack_id=rack_id) | self.instance.units.all()
         self.fields['pdus'].queryset = self.fields['pdus'].queryset.filter(
@@ -418,7 +415,6 @@ class DocumentForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Document
         fields = ['title', 'body', 'category', 'status', 'tags']
-
 
     class Media:
         extend = True

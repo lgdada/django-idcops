@@ -1,22 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import copy
-import json
 import datetime
 import decimal
 
 from collections import OrderedDict
 from itertools import chain
 
-from django.contrib.admin.utils import label_for_field, lookup_field
-from django.core.cache import cache, utils as cache_key
+from django.contrib.admin.utils import lookup_field
+from django.core.cache import utils as cache_key
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_permission_codename
 from django.utils import formats, six, timezone
-from django.utils.encoding import python_2_unicode_compatible, force_text
-from django.utils.functional import cached_property
+from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -46,6 +43,7 @@ def user_cache_key(user, mark):
 
 
 def has_form_class(model_name):
+    from idcops import forms
     name = model_name.capitalize()
     has_add_form = "{}NewForm".format(name) in dir(forms)
     has_edit_form = "{}Form".format(name) in dir(forms)

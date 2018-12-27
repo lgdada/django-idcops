@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import xlwt
 from io import BytesIO
 
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import HttpResponse
 from django.utils import formats, timezone
 from django.utils.http import urlquote
 from django.utils.text import slugify

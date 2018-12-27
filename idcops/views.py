@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from django.shortcuts import render
 
 # Create your views here.
 from django.apps import apps
 from django.views.generic import View, TemplateView
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.urlresolvers import reverse_lazy
-from django.contrib import messages
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView,
@@ -18,18 +16,17 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
-from django.utils.module_loading import import_string
 
 from idcops.lib.utils import shared_queryset
 from idcops.mixins import BaseRequiredMixin
-
 from idcops.models import (
     Option, Rack, Device, Online, Syslog, ContentType, Zonemap
 )
 
 
 login = LoginView.as_view(template_name='accounts/login.html')
-logout = LoginView.as_view(template_name='accounts/logout.html')
+
+logout = LogoutView.as_view(template_name='accounts/logout.html')
 
 password_reset = PasswordResetView.as_view(
     template_name='accounts/password_reset_form.html',

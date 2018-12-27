@@ -9,7 +9,7 @@ class NullableFormFieldMixin(object):
         """Returns a Unicode object."""
         if value in self.empty_values:
             return None
-        return super().to_python(value)
+        return super(NullableFormFieldMixin, self).to_python(value)
 
 
 class NullableCharFormField(NullableFormFieldMixin, forms.CharField):
@@ -32,14 +32,14 @@ class NullableCharFieldMixin(object):
     _formfield_class = NullableCharFormField
 
     def get_prep_value(self, value):
-        return super().get_prep_value(value) or None
+        return super(NullableCharFieldMixin, self).get_prep_value(value) or None
 
     def formfield(self, **kwargs):
         defaults = {}
         if self._formfield_class:
             defaults['form_class'] = self._formfield_class
         defaults.update(kwargs)
-        return super().formfield(**defaults)
+        return super(NullableCharFieldMixin, self).formfield(**defaults)
 
 
 class NullableCharField(NullableCharFieldMixin, models.CharField):

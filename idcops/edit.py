@@ -3,26 +3,22 @@ from __future__ import unicode_literals
 
 import json
 
+from threading import Thread
+
 from django.db import models
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse_lazy
 from django.http import JsonResponse
 from django.contrib import messages
 from django.forms.models import model_to_dict, construct_instance
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.module_loading import import_string
-from django.utils.html import format_html
 from django.utils.encoding import force_text
-from django.contrib.auth.views import redirect_to_login
-from django.views.generic.base import logger
 from django.views.generic.edit import CreateView, UpdateView
 # Create your views here.
 
-from idcops.models import User, Device
+from idcops.models import User
 from idcops.mixins import BaseRequiredMixin, PostRedirect
 from idcops.lib.utils import make_dict, diff_dict, get_content_type_for_model
-from threading import Thread
 from idcops.lib.tasks import log_action, device_post_save
 
 

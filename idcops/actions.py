@@ -11,13 +11,8 @@ from functools import wraps
 
 from django.contrib import admin
 from django.conf import settings
-from django.contrib.admin.actions import delete_selected
-from django.contrib.admin import helpers
-from django.db.models.fields import BLANK_CHOICE_DASH
 
-from django.contrib.admin.utils import (
-    label_for_field, get_deleted_objects, model_ngettext
-)
+from django.contrib.admin.utils import get_deleted_objects
 
 from django.core.exceptions import PermissionDenied
 from django.db import router
@@ -25,18 +20,16 @@ from django.db.models import Sum
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.encoding import force_text
-from django.utils.translation import ugettext as _, ugettext_lazy
 from django.forms.models import model_to_dict
 from notifications.signals import notify
 
 from idcops.lib.tasks import log_action
 from idcops.lib.utils import (
-    diff_dict, get_content_type_for_model,
-    fields_for_model, shared_queryset
+    diff_dict, get_content_type_for_model, shared_queryset
 )
 from idcops.mixins import system_menus
 from idcops.exports import make_to_excel
-from idcops.models import Comment, Online, Client, Rack, Option
+from idcops.models import Comment, Online, Client, Option
 
 
 SOFT_DELELE = getattr(settings, 'SOFT_DELELE', False)

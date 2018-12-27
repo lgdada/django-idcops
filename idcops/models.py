@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
-import datetime
-from itertools import chain
-from collections import OrderedDict
-
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
@@ -15,11 +10,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils import formats, six, timezone
-from django.utils.html import format_html
+from django.utils import formats, timezone
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from django.db.models import options
@@ -75,7 +68,7 @@ class Mark(models.Model):
         icon_color = ''
         default_filters = {'deleted': False}
         list_display = '__all__'
-        extra_fields = ['create_info', 'update_info']
+        extra_fields = []
         abstract = True
 
     @cached_property
@@ -91,19 +84,6 @@ class Mark(models.Model):
         opts = self._meta
         url = reverse_lazy('idcops:update', args=[opts.model_name, self.pk])
         return url
-
-    def create_info(self):
-        time = formats.localize(timezone.template_localtime(self.created))
-        return format_html('{}<small> {}</small>', time, self.creator)
-    create_info.short_description = "创建信息"
-
-    def update_info(self):
-        time = formats.localize(timezone.template_localtime(self.modified))
-        if self.operator:
-            return format_html('{}<small> {}</small>', time, self.operator)
-        else:
-            return format_html('{}', time)
-    update_info.short_description = "更新信息"
 
     def title_description(self):
         return self.__str__()
@@ -500,7 +480,7 @@ class Option(Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark):
         return maps
 
     def clean_fields(self, exclude=None):
-        super().clean_fields(exclude=exclude)
+        super(Option, self).clean_fields(exclude=exclude)
         if not self.pk:
             verify = self._meta.model.objects.filter(
                 onidc=self.onidc, master=self.master, flag=self.flag)
@@ -514,9 +494,7 @@ class Option(Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark):
         return self.text
 
     def title_description(self):
-        text = '{} > {} '.format(
-            self.get_flag_display(), self.text
-        )
+        text = '{} > {}'.format(self.get_flag_display(), self.text)
         return text
 
     def save(self, *args, **kwargs):
@@ -964,7 +942,7 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
 
     class Meta(Mark.Meta):
         level = 1
-        extra_fields = ['create_info', 'update_info', 'list_units']
+        extra_fields = ['list_units']
         icon = 'fa fa-server'
         metric = "台"
         list_display = [

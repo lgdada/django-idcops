@@ -123,7 +123,7 @@ Highcharts.chart('rack_statistics', {
 	series: [{
 		name: '按机柜类型统计',
 		colorByPoint: true,
-		data: {{rack_statistics|safe}}
+		data: [{% for rs in rack_statistics %}['{{rs.0}}',{{ rs.1 }}],{% endfor %}]
 	}]
 });
 Highcharts.chart('online_statistics', {
@@ -159,7 +159,7 @@ Highcharts.chart('online_statistics', {
 	series: [{
 		name: '按设备类型统计',
 		colorByPoint: true,
-		data: {{online_statistics|safe}}
+		data: [{% for os in online_statistics %}["{{os.0}}",{{ os.1 }}],{% endfor %}]
 	}]
 });
 

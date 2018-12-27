@@ -132,6 +132,7 @@ download.required = 'view'
 def removeup(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "取消下架"
+    exclude = queryset.filter(rack__name=False)
     if exclude.exists():
         mesg = "设备所在机柜未使用, 无法取消下架"
         return mesg

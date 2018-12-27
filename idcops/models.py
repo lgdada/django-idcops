@@ -741,7 +741,7 @@ class Unit(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
         if not self.pk:
             try:
                 self.name = "%02d" % (int(self.name))
-            except BaseException:
+            except Exception:
                 raise ValidationError("必须是数字字符串,例如：01, 46, 47")
         else:
             if not self.online and not self.actived:
@@ -754,7 +754,7 @@ class Unit(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
         if not self.pk:
             try:
                 int(self.name)
-            except BaseException:
+            except Exception:
                 raise ValidationError("必须是数字字符串,例如：01, 46, 47")
         else:
             if not self.online and not self.actived:
@@ -768,7 +768,7 @@ class Unit(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
         last_name = "%02d" % (int(name) + 1)
         try:
             last = Unit.objects.get(rack=self.rack, name=last_name)
-        except BaseException:
+        except Exception:
             last = None
         if last:
             if (last.actived == self.actived) and (last.online == self.online):
@@ -1093,12 +1093,12 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     def save(self, *args, **kwargs):
         if self.pk is None:
             cls = ContentType.objects.get_for_model(self)
-            cls_id = "%02d" % (cls.id)
+            cls_id = "%02d" % cls.id
             try:
                 object_id = cls.model_class().objects.order_by('pk').last().pk + 1
-            except BaseException:
+            except Exception:
                 object_id = 1
-            object_id = "%02d" % (object_id)
+            object_id = "%02d" % object_id
             self.linenum = str(
                 timezone.datetime.now().strftime('%Y%m%d') + cls_id + object_id
             )
@@ -1312,7 +1312,7 @@ class Inventory(
     def get_serials_list(self):
         try:
             s = [i for i in self.serials.split(',') if i != '']
-        except BaseException:
+        except Exception:
             s = None
         return s
 
@@ -1327,7 +1327,7 @@ class Inventory(
             cls_id = "%02d" % (cls.id)
             try:
                 object_id = cls.model_class().objects.order_by('pk').last().pk + 1
-            except BaseException:
+            except Exception:
                 object_id = 1
             object_id = "%02d" % (object_id)
             self.kcnum = str(

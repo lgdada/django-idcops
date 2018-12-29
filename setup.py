@@ -17,7 +17,7 @@ def get_requirements():
 
 setup(
     name='django-idcops',
-    version='0.1',
+    version='2.0',
     packages=['idcops',
               'idcops.lib',
               'idcops.static',

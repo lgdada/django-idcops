@@ -57,7 +57,7 @@ class ListModelView(BaseRequiredMixin, ListView):
         try:
             config = self._config().get('list_only_date', 1)
             only_date = bool(int(config))
-        except BaseException:
+        except Exception:
             only_date = True
         return only_date
 
@@ -360,7 +360,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                 continue
             try:
                 text = label_for_field(name=field_name, model=self.model)
-            except BaseException:
+            except Exception:
                 continue
             if field_name not in can_sorted_fields:
                 # Not sortable

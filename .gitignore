@@ -8,7 +8,7 @@ __pycache__/
 
 #Sub project source file.
 django-idcops
-
+.idea
 # Distribution / packaging
 .Python
 build/

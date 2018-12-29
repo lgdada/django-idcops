@@ -6,7 +6,6 @@ import copy
 import json
 import time
 
-
 from functools import wraps
 
 from django.contrib import admin
@@ -21,7 +20,7 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.forms.models import model_to_dict
-from notifications.signals import notify
+from notifications.signals import notify as notify_user
 
 from idcops.lib.tasks import log_action
 from idcops.lib.utils import (
@@ -144,7 +143,7 @@ def removeup(request, queryset):
                 obj.units.all().update(actived=False, operator=obj.operator)
             else:
                 verb = "无法恢复 {} 的U位".format(force_text(obj))
-                notify.send(
+                notify_user.send(
                     request.user,
                     recipient=request.user,
                     target=obj,
@@ -421,7 +420,7 @@ def release(request, queryset):
             o = copy.deepcopy(obj)
             if obj.client.onlinenum() == 0:
                 verb = "客户 {} 没有在线设备, 是否终止".format(force_text(obj.client))
-                notify.send(
+                notify_user.send(
                     request.user,
                     recipient=request.user,
                     target=obj,
@@ -438,7 +437,7 @@ def release(request, queryset):
 
             if obj.jnum() != 0:
                 verb = "机柜 {} 还有跳线存在, 请回收".format(force_text(obj))
-                notify.send(
+                notify_user.send(
                     request.user,
                     recipient=request.user,
                     target=obj,

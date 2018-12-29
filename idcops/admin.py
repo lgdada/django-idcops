@@ -15,7 +15,7 @@ admin.AdminSite.site_title = '数据中心运维平台 - IDCOPS'
 
 try:
     app_models = apps.get_app_config('idcops').get_models()
-except BaseException:
+except Exception:
     app_models = None
 
 if app_models:

@@ -74,7 +74,9 @@ AUTH_USER_MODEL = 'idcops.User'
 
 SOFT_DELELE = True
 
-COLOR_TAGS = False
+COLOR_TAGS = True
+
+COLOR_FK_FIELD = False
 
 ```
 

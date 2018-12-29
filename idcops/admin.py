@@ -14,8 +14,7 @@ admin.AdminSite.site_header = '数据中心运维管理后台'
 admin.AdminSite.site_title = '数据中心运维平台 - IDCOPS'
 
 try:
-    #app_models = apps.get_app_config('idcops').get_models()
-    app_models = apps.get_models()
+    app_models = apps.get_app_config('idcops').get_models()
 except BaseException:
     app_models = None
 

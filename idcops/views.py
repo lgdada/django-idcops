@@ -293,10 +293,12 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         return cells
 
     def get_clients(self):
-        exc = list(self.get_racks().values_list(
-            'client_id', flat=True).exclude(client=None))
-        clients = Client.objects.filter(pk__in=exc)
-        return clients
+        if self.get_racks() is not None:
+            exc = list(self.get_racks().values_list(
+                'client_id', flat=True).exclude(client=None))
+            clients = Client.objects.filter(pk__in=exc)
+            return clients
+        return None
 
     @cached_property
     def max_col(self):

@@ -434,3 +434,32 @@ class ConfigureNewForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Configure
         fields = ['mark', 'content']
+
+
+class ZonemapNewForm(Select2Media, forms.Form):
+    zone_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
+    rows = forms.IntegerField(
+        required=True, max_value=50, min_value=1, label="行数")
+    cols = forms.IntegerField(
+        required=True, max_value=50, min_value=1, label="列数")
+
+    def __init__(self, *args, **kwargs):
+        self.zone_id = kwargs.pop('zone_id', None)
+        super(ZonemapNewForm, self).__init__(*args, **kwargs)
+        if self.zone_id is not None:
+            from django.db.models import Max
+            from idcops.models import Zonemap
+            cells = Zonemap.objects.filter(zone_id=self.zone_id).order_by(
+                "row", "col").values("row", "col")
+            if cells.exists():
+                LAST_ROWS = cells.aggregate(Max('row'))['row__max']
+                LAST_COLS = cells.aggregate(Max('col'))['col__max']
+            else:
+                LAST_ROWS = LAST_COLS = 0
+            self.fields['zone_id'].initial = self.zone_id
+            self.fields['rows'].initial = LAST_ROWS + 1
+            self.fields['cols'].initial = LAST_COLS + 1
+            self.fields['rows'].help_text = "类似Excel表格,行列从0开始标记,当前已有 %s行" % (
+                LAST_ROWS+1)
+            self.fields['cols'].help_text = "类似Excel表格,行列从0开始标记,当前已有 %s列" % (
+                LAST_COLS+1)

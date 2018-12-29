@@ -11,24 +11,24 @@ from idcops.models import Client, Syslog, User
 from idcops.lib.utils import display_for_field
 
 
-
 def get_related_client_name(obj):
     related_clients = []
     for f in obj._meta.fields:
         if f.related_model is Client or (
-            f.name == 'client' and isinstance(f, models.CharField)):
+                f.name == 'client' and isinstance(f, models.CharField)):
             value = display_for_field(f.value_from_object(obj), f, html=False)
             related_clients.append(value)
     return '{}'.format(", ".join(c for c in list(set(related_clients))))
 
 
 def log_action(
-    user_id, content_type_id, object_id,
-    action_flag, message='', content='', actived=True
-    ):
+        user_id, content_type_id, object_id,
+        action_flag, message='', content='',
+        actived=True, related_client=None):
     model = ContentType.objects.get_for_id(content_type_id).model_class()
     object = model.objects.get(pk=object_id)
-    related_client = get_related_client_name(object) or '-'
+    if related_client is None:
+        related_client = get_related_client_name(object) or '-'
     user = User.objects.get(pk=user_id)
     onidc_id = user.onidc_id
     log = Syslog.objects.create(
@@ -50,13 +50,14 @@ def get_dell_model(sn, model):
     """
     query_url = "http://www.dell.com/support/home/cn/zh/cnbsdt1/product-support/servicetag/"
     pattern = "deel|dell|PowerEdge|R7|R8|R6|R4|戴尔"
-    if re.findall(pattern, model, re.M|re.I|re.U):
+    if re.findall(pattern, model, re.M | re.I | re.U):
         try:
             url = "{0}{1}".format(query_url, sn)
             response = urllib.request(url, timeout=30)
             html = response.read()
             _model = ''.join(re.findall(r'productName:"(.*?)"', html))
-            _code = ''.join(re.findall(r'<span class="beforeCaptcha">(.*?)</span>', html))
+            _code = ''.join(re.findall(
+                r'<span class="beforeCaptcha">(.*?)</span>', html))
         except:
             _model = model
             _code = None

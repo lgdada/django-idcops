@@ -25,6 +25,8 @@ from idcops.models import Option
 
 COLOR_TAGS = getattr(settings, 'COLOR_TAGS', True)
 
+COLOR_FK_FIELD = getattr(settings, 'COLOR_FK_FIELD', False)
+
 
 def get_content_type_for_model(obj, fcm=False):
     # Since this module gets imported in the application's root package,
@@ -165,8 +167,17 @@ def display_for_value(value):
     elif isinstance(value, (datetime.date, datetime.time)):
         return formats.localize(value)
     elif isinstance(value, models.query.QuerySet):
-        value = [force_text(i) for i in value]
-        return display_for_value(value)
+        if value.model is Option and COLOR_TAGS:
+            html = ''
+            for v in value:
+                item = '<span class="badge bg-{}">{}</span>&nbsp'.format(
+                    v.color, v.text
+                )
+                html += item
+            return mark_safe(html)
+        else:
+            value = [force_text(i) for i in value]
+            return display_for_value(value)
     else:
         return force_text(value)
 
@@ -189,7 +200,7 @@ def display_for_field(value, field, html=True, only_date=True):
         return formats.number_format(value)
     elif isinstance(field, models.ForeignKey) and value:
         rel_obj = field.related_model.objects.get(pk=value)
-        if html and COLOR_TAGS and isinstance(rel_obj, Option):
+        if html and COLOR_FK_FIELD and isinstance(rel_obj, Option):
             hf = '<span class="badge bg-{}">{}</span>'
             return format_html(hf, rel_obj.color, rel_obj.text)
         return force_text(rel_obj)
@@ -272,8 +283,8 @@ def make_tbody_tr(
                         opts.verbose_name, force_text(obj))
                     td_text = mark_safe('<a title="{}" href="{}">{}</a>'.format(
                         title, detail_link, td_text))
-                if getattr(field, 'flatchoices', None) \
-                        or isinstance(field, models.ForeignKey) \
+                if getattr(field, 'flatchoices', None)\
+                        or isinstance(field, models.ForeignKey)\
                         or isinstance(field, models.NullBooleanField):
                     link = lmv.get_query_string(
                         {'{}'.format(field.name): '{}'.format(value)}, ['page']
@@ -347,7 +358,8 @@ def can_change(opts, user):
 def diff_dict(d1, d2, exclude=None):
     if exclude is None:
         exclude = ['operator', 'creator', 'modified', 'created']
-    diffs = [(k, (v, d2[k])) for k, v in d1.items() if v != d2[k] and k not in exclude]
+    diffs = [(k, (v, d2[k]))
+             for k, v in d1.items() if v != d2[k] and k not in exclude]
     return dict(diffs)
 
 

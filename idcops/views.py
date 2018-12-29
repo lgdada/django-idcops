@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 # Create your views here.
 from django.apps import apps
 from django.views.generic import View, TemplateView
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
@@ -20,8 +20,9 @@ from django.utils.functional import cached_property
 from idcops.lib.utils import shared_queryset
 from idcops.mixins import BaseRequiredMixin
 from idcops.models import (
-    Option, Rack, Device, Online, Syslog, ContentType, Zonemap
+    Option, Rack, Device, Online, Syslog, ContentType, Zonemap, Client
 )
+from idcops.forms import ZonemapNewForm
 
 
 login = LoginView.as_view(template_name='accounts/login.html')
@@ -50,6 +51,7 @@ reset_done = PasswordResetCompleteView.as_view(
 class PasswordChangeView(BaseRequiredMixin, PasswordChangeView):
     template_name = 'accounts/password_change_form.html'
     success_url = reverse_lazy('idcops:index')
+
 
 password_change = PasswordChangeView.as_view()
 
@@ -120,11 +122,12 @@ class IndexView(BaseRequiredMixin, TemplateView):
         return years
 
     def make_device_dynamic_change(self):
-        content_type=ContentType.objects.get_for_model(Device)
+        content_type = ContentType.objects.get_for_model(Device)
         logs = Syslog.objects.filter(
             onidc_id=self.onidc_id, content_type=content_type)
         data = {}
-        data['categories'] = [m.strftime("%Y-%m") for m in self.make_years(logs)]
+        data['categories'] = [m.strftime("%Y-%m")
+                              for m in self.make_years(logs)]
         data['moveup'] = []
         data['moving'] = []
         data['movedown'] = []
@@ -142,11 +145,12 @@ class IndexView(BaseRequiredMixin, TemplateView):
         return data
 
     def make_rack_dynamic_change(self):
-        content_type=ContentType.objects.get_for_model(Rack)
+        content_type = ContentType.objects.get_for_model(Rack)
         logs = Syslog.objects.filter(
             onidc_id=self.onidc_id, content_type=content_type)
         data = {}
-        data['categories'] = [m.strftime("%Y-%m") for m in self.make_years(logs)]
+        data['categories'] = [m.strftime("%Y-%m")
+                              for m in self.make_years(logs)]
         data['renew'] = []
         data['release'] = []
         for y in self.make_years(logs):
@@ -159,13 +163,14 @@ class IndexView(BaseRequiredMixin, TemplateView):
         data = []
         robjects = Rack.objects.filter(onidc_id=self.onidc_id, actived=True)
         keys = Option.objects.filter(
-            flag__in=['Rack-Style','Rack-Status'],
+            flag__in=['Rack-Style', 'Rack-Status'],
             actived=True)
         keys = shared_queryset(keys, self.onidc_id)
         for k in keys:
             d = []
-            query = {}
-            query[k.flag.split('-')[1].lower()] = k
+            query = {
+                k.flag.split('-')[1].lower(): k
+            }
             c = robjects.filter(**query).count()
             if c > 0:
                 d.append(force_text(k))
@@ -223,13 +228,13 @@ class ProfileView(BaseRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
 
     def get(self, *args, **kwargs):
-        #messages.success(self.request, u"accounts/profile.html")
+        # messages.success(self.request, u"accounts/profile.html")
         return super(ProfileView, self).get(*args, **kwargs)
 
 
 class ZonemapView(BaseRequiredMixin, TemplateView):
 
-    #template_name = 'Zonemap/detail.html'
+    template_name = 'zonemap/detail.html'
 
     @cached_property
     def get_options(self):
@@ -254,12 +259,8 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         return zone
 
     def get_mode(self):
-        '''action in `show`, `config`, `layout` '''
         action = self.request.GET.get('action', 'show')
         return action
-
-    def get_template_names(self):
-        return ["zonemap/{}.html".format(self.get_mode())]
 
     def get_racks(self):
         if self.get_zone:
@@ -267,7 +268,23 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         return None
 
     def get_rack_statistics(self):
-        data = self.get_options.filter(flag__in=['Rack-Status', 'Rack-Style'])
+        data = []
+        keys = self.get_options.filter(flag__in=['Rack-Style', 'Rack-Status'])
+        ''' id, color, text, flag, description, count '''
+        for k in keys:
+            query = {
+                k.flag.split('-')[1].lower(): k
+            }
+            c = self.get_racks().filter(**query).count()
+            item = dict(
+                id=k.id,
+                color=k.color,
+                count=c,
+                flag=k.flag,
+                text=k.text,
+                description=k.description,
+            )
+            data.append(item)
         return data
 
     def get_cells(self):
@@ -275,10 +292,64 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         cells = Zonemap.objects.filter(**filters).order_by("row", "col")
         return cells
 
+    def get_clients(self):
+        exc = list(self.get_racks().values_list(
+            'client_id', flat=True).exclude(client=None))
+        clients = Client.objects.filter(pk__in=exc)
+        return clients
+
     @cached_property
     def max_col(self):
         from django.db.models import Max
         return self.get_cells().aggregate(Max('col'))['col__max']
+
+    def post(self, request, *args, **kwargs):
+        if self.get_zone and self.get_mode() == 'layout':
+            form = ZonemapNewForm(request.POST)
+            if form.is_valid():
+                zone_id = form.cleaned_data.get('zone_id')
+                rows = form.cleaned_data.get('rows')
+                cols = form.cleaned_data.get('cols')
+                onidc_id = request.user.onidc.id
+                zone_id = self.get_zone.id
+                creator_id = request.user.id
+                cells = []
+                for row in range(rows):
+                    for col in range(cols):
+                        point = Zonemap.objects.filter(
+                            zone_id=zone_id, row=row, col=col)
+                        if not point.exists():
+                            cells.append(Zonemap(
+                                onidc_id=onidc_id,
+                                zone_id=zone_id,
+                                creator_id=creator_id,
+                                row=row,
+                                col=col,
+                            ))
+                Zonemap.objects.bulk_create(cells)
+            redirect_to = reverse_lazy('idcops:zonemap')
+            return HttpResponseRedirect('{}?zone_id={}'.format(
+                redirect_to, self.get_zone.id))
+        if self.get_zone and self.get_mode() == 'config':
+            if request.is_ajax():
+                cell_id = request.POST.get('cell_id', None)
+                rack_id = request.POST.get('rack_id', None)
+                cell_desc = request.POST.get('cell_desc', None)
+                try:
+                    cell = Zonemap.objects.get(pk=cell_id)
+                except:
+                    cell = None
+                if cell is not None:
+                    cell.rack_id = rack_id
+                    cell.desc = cell_desc
+                    cell.save()
+                    data = {
+                        'cell_id': cell.pk,
+                        'rack_id': cell.rack_id,
+                        'cell_desc': cell.desc,
+                        'messages': u"更新成功",
+                    }
+                    return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super(ZonemapView, self).get_context_data(**kwargs)
@@ -287,14 +358,32 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         model = apps.get_model('idcops', 'zonemap')
         title = self.get_zone
         meta, _ = construct_model_meta(self.request, model, title)
+        if self.get_mode() == 'layout':
+            form = ZonemapNewForm(zone_id=self.get_zone.id)
+        else:
+            form = None
+        if self.get_mode() == 'config':
+            incells = list(Zonemap.objects.filter(
+                zone_id=self.get_zone.id).values_list(
+                    'rack_id', flat=True).exclude(rack=None))
+            rackswap = Rack.objects.filter(zone_id=self.get_zone.id).exclude(
+                pk__in=incells).order_by('-name')
+        else:
+            incells = rackswap = None
         _extra_cxt = {
             'zones': self.get_zones,
             'current_zone': self.get_zone,
             'meta': meta,
+            'form': form,
+            'incells': incells,
+            'clients': self.get_clients(),
+            'rackswap': rackswap,
+            'config': self.get_mode() == 'config',
             'racks': self.get_racks(),
             'cells': self.get_cells(),
             'statistics': self.get_rack_statistics(),
             'max_col': self.max_col,
         }
-        context.update(**_extra_cxt)
+        print(self.get_mode() is 'config')
+        context.update(_extra_cxt)
         return context

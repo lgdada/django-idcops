@@ -263,19 +263,23 @@ class ListModelView(BaseRequiredMixin, ListView):
             return mark_safe(html)
 
     def user_config(self, data):
-        newd = {}
-        for k in data:
-            if k not in ['csrfmiddlewaretoken', 'action']:
-                if len(data.getlist(k)) > 1:
-                    newd[k] = data.getlist(k)
-                else:
-                    newd[k] = data.getlist(k)[0]
-        content = json.dumps(newd)
-        return Configure.objects.create(
-            content_type=get_content_type_for_model(self.model),
-            onidc=self.request.user.onidc, creator=self.request.user,
-            mark='list', content=content, object_id=0
+        newd = dict(
+            list_display=data.getlist('list_display'),
+            list_only_date=data.get('list_only_date', 1)
         )
+        content = json.dumps(newd)
+        config = Configure.objects.filter(
+            content_type=get_content_type_for_model(self.model),
+            onidc_id=self.onidc_id, creator=self.request.user,
+            mark='list').order_by('-pk')
+        if config.exists():
+            config = config.update(content=content)
+        else:
+            config = Configure.objects.create(
+                content_type=get_content_type_for_model(self.model),
+                onidc_id=self.onidc_id, creator=self.request.user,
+                mark='list', content=content)
+        return config
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')

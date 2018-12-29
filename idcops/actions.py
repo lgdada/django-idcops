@@ -39,12 +39,9 @@ inventory = user = idc = unit = pdu = ['download']
 device = ['download', 'html_print', ]
 online = ['download', 'html_print', 'movedown']
 offline = ['download', 'html_print', 'removeup', 'delete']
-
 jumpline = client = ['download', 'actived', 'reactive', 'delete']
-
 inventory = ['download', 'outbound', 'reoutbound']
-
-syslog = comment = ['download', 'actived', ]
+syslog = comment = ['download', 'actived']
 rack = ['download', 'release', 'distribution']
 
 
@@ -128,9 +125,9 @@ download.required = 'view'
 def removeup(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "取消下架"
-    exclude = queryset.filter(rack__name=False)
+    exclude = queryset.filter(rack__actived=False)
     if exclude.exists():
-        mesg = "设备所在机柜未使用, 无法取消下架"
+        mesg = "有设备所在机柜未使用, 无法取消下架"
         return mesg
 
     if request.POST.get('post'):
@@ -422,6 +419,15 @@ def release(request, queryset):
     if request.POST.get('post'):
         for obj in queryset:
             o = copy.deepcopy(obj)
+            if obj.client.onlinenum() == 0:
+                verb = "客户 {} 没有在线设备, 是否终止".format(force_text(obj.client))
+                notify.send(
+                    request.user,
+                    recipient=request.user,
+                    target=obj,
+                    verb=verb,
+                )
+
             obj.actived = False
             obj.client = None
             obj.cpower = 0
@@ -439,16 +445,8 @@ def release(request, queryset):
                     verb=verb,
                 )
 
-            if obj.client.onlinenum() == 0:
-                verb = "客户 {} 没有在线设备, 是否终止".format(force_text(obj.client))
-                notify.send(
-                    request.user,
-                    recipient=request.user,
-                    target=obj,
-                    verb=verb,
-                )
             obj.save()
-
+            from idcops.lib.tasks import get_related_client_name
             diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
             log_action(
                 user_id=request.user.pk,
@@ -456,7 +454,8 @@ def release(request, queryset):
                 object_id=obj.pk,
                 action_flag=action_name,
                 message=json.dumps(list(diffs.keys())),
-                content=json.dumps(diffs)
+                content=json.dumps(diffs),
+                related_client=get_related_client_name(o)
             )
         return None
     context = construct_context(request, queryset, action, action_name)

@@ -13,12 +13,13 @@ def get_requirements():
     return requirements_list
 
 setup(
-    name='django-idcops',
+    name='django-idcopsx1',
     version='0.1',
-    packages=find_packages(),
+    #packages=find_packages(),
+    packages=['idcops'],
     include_package_data=True,
     license='BSD License',
-    description='Data center infrastructure management software',
+    description='A data center inventory management software',
     long_description=README,
     url='https://www.iloxp.com/',
     author='Vivian Cheung',

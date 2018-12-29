@@ -1,7 +1,4 @@
-include LICENSE
-include README.rst
-include README.md
-include requirements.txt
+include LICENSE README.rst README.md setup.py requirements.txt
 recursive-include idcops/lib *
 recursive-include idcops/static *
 recursive-include idcops/templates *

@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+#Sub project source file.
+django-idcops
+
 # Distribution / packaging
 .Python
 build/

@@ -110,11 +110,3 @@ COLOR_TAGS = False
 #### 项目截图：
 
 ![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
-
-![机房选项](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173634.jpg)
-
-![日志记录](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173652.jpg)
-
-![在线设备](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173828.jpg)
-
-![新建设备](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173851.jpg)

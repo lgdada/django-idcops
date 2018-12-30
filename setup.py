@@ -1,4 +1,5 @@
 import os
+import setuptools
 from distutils.core import setup
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
@@ -16,7 +17,7 @@ def get_requirements():
 
 setup(
     name='django-idcops',
-    version='0.1',
+    version='2.0',
     packages=['idcops',
               'idcops.lib',
               'idcops.static',

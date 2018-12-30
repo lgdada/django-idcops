@@ -11,10 +11,10 @@ django-idcops 遵循 Apache License 2.0。
 
 [作者博客](https://www.iloxp.com)
 
-email: 294060408@qq.com
+Email: 294060408@qq.com
 
-qq群：185964462 
-点击进入QQ群： [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
+QQ群：185964462
+[数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
 
 微信公众号:
 

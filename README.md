@@ -9,6 +9,9 @@ django-idcops 遵循 Apache License 2.0。
 
 联系
 
+微信公众号:
+![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
+
 [作者博客](https://www.iloxp.com)
 
 email: 294060408@qq.com
@@ -29,7 +32,7 @@ cd mysite/
 mkvirtualenv env # python虚拟环境
 source env/bin/activate # 激活python虚拟环境
 pip install -U pip # 升级pip
-pip install -r requirements.txt 
+pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser # 创建一个超级管理员用户
 python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
@@ -38,7 +41,7 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 
 #### 二、初始化配置：
 
-1、访问 http://your_ip:8000/ 
+1、访问 http://your_ip:8000/
 
 ![login](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0001.png)
 
@@ -52,7 +55,7 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 
 ![user related to idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0004.png)
 
-4、重新访问首页 http://your_ip:8000/ 
+4、重新访问首页 http://your_ip:8000/
 
 ![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0005.png)
 
@@ -89,21 +92,21 @@ COLOR_FK_FIELD = False
 ```
 [
 ('syslog', 'log entries'), # 日志记录，核心内容，用于报表统计，日志分析等
-('user', '用户信息'), 
+('user', '用户信息'),
 ('idc', '数据中心'),  
 ('option', '机房选项'), # 机房选项，核心内容 ，系统元数据
-('client', '客户信息'), 
-('rack', '机柜信息'), 
-('unit', 'U位信息'), 
-('pdu', 'PDU信息'), 
-('device', '设备信息'), 
-('online', '在线设备'), 
-('offline', '下线设备'), 
-('jumpline', '跳线信息'), 
-('testapply', '测试信息'), 
-('zonemap', '区域视图'), 
-('goods', '物品分类'), 
-('inventory', '库存物品'), 
+('client', '客户信息'),
+('rack', '机柜信息'),
+('unit', 'U位信息'),
+('pdu', 'PDU信息'),
+('device', '设备信息'),
+('online', '在线设备'),
+('offline', '下线设备'),
+('jumpline', '跳线信息'),
+('testapply', '测试信息'),
+('zonemap', '区域视图'),
+('goods', '物品分类'),
+('inventory', '库存物品'),
 ('document', '文档资料')
 ]
 ```

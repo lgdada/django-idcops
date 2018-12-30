@@ -9,9 +9,6 @@ django-idcops 遵循 Apache License 2.0。
 
 联系
 
-微信公众号:
-![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
-
 [作者博客](https://www.iloxp.com)
 
 email: 294060408@qq.com
@@ -19,6 +16,10 @@ email: 294060408@qq.com
 qq群：185964462
 
 点击进入QQ群： [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
+
+微信公众号:
+
+![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
 
 # 快速开始

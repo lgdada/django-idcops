@@ -481,7 +481,7 @@ def distribution(request, queryset):
             try:
                 client = int(request.POST.get('client-' + str(index)))
             except BaseException:
-                client = None
+                client = 0
             status = int(request.POST.get('status-' + str(index)))
             style = int(request.POST.get('style-' + str(index)))
             cpower = request.POST.get('cpower-' + str(index))
@@ -491,7 +491,7 @@ def distribution(request, queryset):
         for item in request.POST.getlist('items'):
             obj, client, status, style, cpower, _comment = construct_item(item)
             o = copy.deepcopy(obj)
-            if client is not None:
+            if client != 0:
                 obj.client_id = client
             obj.status_id = status
             obj.style_id = style
@@ -537,8 +537,7 @@ def delete(request, queryset):
     if request.POST.get('post') and not protected:
         if perms_needed:
             raise PermissionDenied
-        n = queryset.count()
-        if n:
+        if queryset.count():
             for obj in queryset:
                 log_action(
                     user_id=request.user.pk,

@@ -201,8 +201,9 @@ def display_for_field(value, field, html=True, only_date=True):
     elif isinstance(field, models.ForeignKey) and value:
         rel_obj = field.related_model.objects.get(pk=value)
         if html and COLOR_FK_FIELD and isinstance(rel_obj, Option):
-            hf = '<span class="badge bg-{}">{}</span>'
-            return format_html(hf, rel_obj.color, rel_obj.text)
+            safe_value = format_html(
+                '<span class="text-{}">{}</span>', rel_obj.color, rel_obj.text)
+            return safe_value
         return force_text(rel_obj)
     elif isinstance(field, models.TextField) and value:
         return force_text(value)

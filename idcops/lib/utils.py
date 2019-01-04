@@ -18,7 +18,8 @@ from django.utils.module_loading import import_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
-from django.views.generic.base import logger
+
+#from django.views.generic.base import logger
 
 from idcops.models import Option
 
@@ -201,8 +202,11 @@ def display_for_field(value, field, html=True, only_date=True):
     elif isinstance(field, models.ForeignKey) and value:
         rel_obj = field.related_model.objects.get(pk=value)
         if html and COLOR_FK_FIELD and isinstance(rel_obj, Option):
+            text_color = rel_obj.color
+            if not text_color:
+                text_color = 'text-info'
             safe_value = format_html(
-                '<span class="text-{}">{}</span>', rel_obj.color, rel_obj.text)
+                '<span class="text-{}">{}</span>', text_color, rel_obj.text)
             return safe_value
         return force_text(rel_obj)
     elif isinstance(field, models.TextField) and value:
@@ -301,20 +305,17 @@ def make_tbody_tr(
                             classes, title, link, td_text
                         )
                     )
-            except BaseException:
-                try:
-                    f, _, td_text = lookup_field(
-                        field_name, obj, obj._meta.model)
-                    td_text = mark_safe(td_text)
-                except Exception as e:
-                    logger.error('May be error. as error: {}'.format(e))
+            except:
+                _, _, td_text = lookup_field(
+                    field_name, obj, obj._meta.model)
+                td_text = mark_safe(td_text)
         rowdata += format_html(td_format, td_class, td_text)
     return mark_safe(rowdata)
 
 
-def make_dict(dict):
+def make_dict(data_dict):
     data = {}
-    for k, v in dict.items():
+    for k, v in data_dict.items():
         if isinstance(v, list):
             data[k] = [(i.pk) for i in v]
         else:

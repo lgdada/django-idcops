@@ -260,7 +260,10 @@ class ClientForm(FormBaseMixin, forms.ModelForm):
 class RackNewForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Rack
-        fields = ['name', 'cname', 'zone', 'unitc', 'pduc', 'tags', 'actived']
+        fields = [
+            'name', 'cname', 'zone', 'unitc', 'pduc',
+            'status', 'style','tags', 'actived'
+        ]
 
     def __init__(self, *args, **kwargs):
         super(RackNewForm, self).__init__(*args, **kwargs)

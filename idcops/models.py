@@ -1245,7 +1245,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
     )
 
     def __str__(self):
-        return "{} {}".format(self.brand, self.name)
+        return "{} {}".format(self.brand if self.brand else '', self.name)
 
     class Meta(Mark.Meta):
         level = 1

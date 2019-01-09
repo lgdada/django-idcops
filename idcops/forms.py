@@ -386,7 +386,7 @@ class TestapplyForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
 class GoodsForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Goods
-        fields = ['name', 'brand', 'unit', 'mark']
+        fields = ['name', 'unit', 'brand', 'mark']
 
 
 class InventoryForm(FormBaseMixin, forms.ModelForm):

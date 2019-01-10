@@ -275,16 +275,17 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
             query = {
                 k.flag.split('-')[1].lower(): k
             }
-            c = self.get_racks().filter(**query).count()
-            item = dict(
-                id=k.id,
-                color=k.color,
-                count=c,
-                flag=k.flag,
-                text=k.text,
-                description=k.description,
-            )
-            data.append(item)
+            if self.get_racks():
+                c = self.get_racks().filter(**query).count()
+                item = dict(
+                    id=k.id,
+                    color=k.color,
+                    count=c,
+                    flag=k.flag,
+                    text=k.text,
+                    description=k.description,
+                )
+                data.append(item)
         return data
 
     def get_cells(self):

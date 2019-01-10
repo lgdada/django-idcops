@@ -10,7 +10,7 @@ __pycache__/
 django-idcops
 .idea
 .vscode
-#screenshots
+#.screenshots
 # Distribution / packaging
 .Python
 build/

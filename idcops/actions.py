@@ -418,7 +418,7 @@ def release(request, queryset):
     if request.POST.get('post'):
         for obj in queryset:
             o = copy.deepcopy(obj)
-            if obj.client.onlinenum() == 0:
+            if obj.client and obj.client.onlinenum() == 0:
                 verb = "客户 {} 没有在线设备, 是否终止".format(force_text(obj.client))
                 notify_user.send(
                     request.user,

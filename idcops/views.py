@@ -118,8 +118,12 @@ class IndexView(BaseRequiredMixin, TemplateView):
     template_name = 'index.html'
 
     def make_years(self, queryset):
-        years = queryset.datetimes('created', 'month')[:12]
-        return years
+        years = queryset.datetimes('created', 'month')
+        if years.count() > 12:
+            ranges = years[(years.count()-12):years.count()]
+        else:
+            ranges = years[:12]
+        return ranges
 
     def make_device_dynamic_change(self):
         content_type = ContentType.objects.get_for_model(Device)
@@ -387,6 +391,5 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
             'statistics': self.get_rack_statistics(),
             'max_col': self.max_col,
         }
-        print(self.get_mode() is 'config')
         context.update(_extra_cxt)
         return context

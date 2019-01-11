@@ -92,7 +92,7 @@ class NewModelView(BaseRequiredMixin, PermissionRequiredMixin,
             action_flag="新增"
         )
         if self.model_name == 'online':
-            verify = Thread(target=device_post_save, args=(self.object.pk))
+            verify = Thread(target=device_post_save, args=(self.object.pk,))
             verify.start()
         if self.request.is_ajax():
             data = {

@@ -86,7 +86,7 @@
 <b>1、客户名称：{{obj.client}}</b><br>
 <b>2、服务类型：{{obj.client.style}}</b></br>
 {% block operation %}
-<b>3、操作类型：{%if obj.status == 'moved'%}迁移{%else%}上架{%endif%}</b></br>
+<b>3、操作类型：{%if obj.status == 'moved'%}迁移{%elif obj.status == 'offline' %}下架{%else%}上架{%endif%}</b></br>
 {% endblock operation %}
 <b>4、设备数量：{{queryset.count}} 台</b><br>
 <b>5、打印单号：{{ticket}}</b>

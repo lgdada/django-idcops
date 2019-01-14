@@ -321,7 +321,7 @@ class Syslog(Contentable):
         icon = 'fa fa-history'
         list_display = [
             'created', 'creator', 'action_flag', 'content_type',
-            'object_desc', 'related_client', 'message'
+            'object_desc', 'related_client', 'message', 'actived',
         ]
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         ordering = ['-created', ]

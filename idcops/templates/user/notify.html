@@ -1,5 +1,6 @@
-{% load notifications_tags %}
+{% load notifications_tags cache %}
 {% notifications_unread as unread_count %}
+{% cache 180 notifications request.user.id unread_count %}
 <li class="dropdown notifications-menu">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
     <i class="fa fa-bell-o"></i>
@@ -32,3 +33,4 @@
     {%endif%}
   </ul>
 </li>
+{% endcache %}

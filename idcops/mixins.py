@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import json
 
 from django.apps import apps
+from django.core.cache import cache, utils
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
@@ -39,7 +40,7 @@ def construct_menus():
     return new_menus
 
 
-system_menus = construct_menus()
+system_menus = cache.get_or_set('system_menus', construct_menus(), 360)
 
 
 def get_user_config(user, mark, model):
@@ -109,7 +110,7 @@ class BaseRequiredMixin(LoginRequiredMixin):
         except BaseException:
             self.meta['title'] = self.title
         context['meta'] = self.meta
-        context['menus'] = construct_menus()
+        context['menus'] = system_menus #construct_menus()
         from django import db
         logger.info('queries count: {}'.format(len(db.connection.queries)))
         return context

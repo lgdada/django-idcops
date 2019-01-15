@@ -1,6 +1,6 @@
 {% spaceless %}
 <!DOCTYPE html>
-{% load static %}
+{% load static cache %}
 <html>
 <head>
   <meta charset="utf-8">
@@ -51,6 +51,7 @@
     </nav>
   {% endblock %}
   </header>
+  {% cache 180 main-sidebar request.user.id request.path %}
   <aside class="main-sidebar no-print">
     {% block main-sidebar %}
     <section class="sidebar">
@@ -68,6 +69,7 @@
     </section>
   {% endblock %}
   </aside>
+  {% endcache %}
   <div class="content-wrapper">
     <section class="content-header">
     {% block content-header %}<h1>页面头部 <small> 页面描述</small></h1>{% endblock %}

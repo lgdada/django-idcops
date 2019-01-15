@@ -319,6 +319,9 @@ def outbound(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "出库"
     queryset = queryset.filter(actived=True)
+    if not queryset.exists():
+        return "选择无结果"
+
     total = queryset.aggregate(Sum('amount'))
     if request.POST.get('post') and request.POST.getlist('items'):
         def construct_item(index):
@@ -347,6 +350,7 @@ def outbound(request, queryset):
                 new_obj.creator = request.user
                 new_obj.created = timezone.datetime.now()
                 new_obj.operator = None
+                new_obj.parent = obj
                 new_obj.save()
                 comment_obj = new_obj
             else:
@@ -383,6 +387,9 @@ def reoutbound(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "取消出库"
     queryset = queryset.filter(actived=False)
+    if not queryset.exists():
+        return "查无结果"
+
     if request.POST.get('post'):
         for obj in queryset:
             o = copy.deepcopy(obj)
@@ -398,6 +405,7 @@ def reoutbound(request, queryset):
                 content=json.dumps(diffs)
             )
         return None
+        
     context = construct_context(request, queryset, action, action_name)
     return TemplateResponse(request, 'base/base_confirmation.html', context)
 

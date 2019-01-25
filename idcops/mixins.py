@@ -40,7 +40,8 @@ def construct_menus():
     return new_menus
 
 
-system_menus = cache.get_or_set('system_menus', construct_menus(), 360)
+system_menus_key = utils.make_template_fragment_key('system.menus')
+system_menus = cache.get_or_set(system_menus_key, construct_menus(), 360)
 
 
 def get_user_config(user, mark, model):

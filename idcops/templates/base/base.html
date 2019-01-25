@@ -126,6 +126,22 @@
 <script src="{%static 'idcops/js/bootstrap.min.js'%}"></script>
 {% block extra-js %}{% endblock %}
 <script src="{%static 'idcops/js/adminlte.min.js'%}"></script>
+<script>
+function getCookie(name){
+  var cookieVal = null;
+  if (document.cookie && document.cookie !== ''){
+    var cookies = document.cookie.split(';');
+    for (var i=0; i< cookies.length; i++){
+      var arr = cookies[i].split("=");
+      if (arr[0]==name){
+        cookieVal = arr[1];
+      }
+    }
+  }
+  return cookieVal;
+}
+
+</script>
 </body>
 </html>
 {% endspaceless %}

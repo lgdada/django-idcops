@@ -5,6 +5,7 @@ import json
 import operator
 from functools import reduce
 
+from django.core.cache import cache, utils
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from django.contrib.admin.utils import label_for_field
@@ -50,7 +51,11 @@ class ListModelView(BaseRequiredMixin, ListView):
         return ["{0}/list.html".format(self.model_name), "base/list.html"]
 
     def _config(self):
-        return get_user_config(self.request.user, 'list', self.model)
+        key = utils.make_template_fragment_key("{}.{}.{}".format(
+            self.request.user.id, self.model_name, 'list'))
+        data = cache.get_or_set(key, 
+            get_user_config(self.request.user, 'list', self.model), 180)
+        return data
 
     @property
     def list_only_date(self):

@@ -21,6 +21,10 @@ QQ群：185964462
 ![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
 
+#### 项目截图：
+
+![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
+
 # 快速开始
 
 #### 一、安装：
@@ -110,8 +114,3 @@ COLOR_FK_FIELD = False
 ('document', '文档资料')
 ]
 ```
-
-
-#### 项目截图：
-
-![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)

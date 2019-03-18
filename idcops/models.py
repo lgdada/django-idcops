@@ -1433,6 +1433,7 @@ class Attachment(Onidc, Mark, PersonTime, ActiveDelete, Tag, Remark):
         level = 1
         icon = 'fa fa-file'
         metric = "份"
+        hidden = True
         list_display = [
             'name',
             'file',

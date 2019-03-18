@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+import hashlib
+import mimetypes
+import filetype
+import uuid
+import os
 import datetime
 import decimal
 
@@ -8,10 +12,11 @@ from collections import OrderedDict
 from itertools import chain
 
 from django.contrib.admin.utils import lookup_field
+from django.contrib.auth import get_permission_codename
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.cache import utils as cache_key
 from django.db import models
 from django.conf import settings
-from django.contrib.auth import get_permission_codename
 from django.utils import formats, six, timezone
 from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
@@ -398,3 +403,34 @@ def get_action(action):
     else:
         perm = 'change'
     return perm, action, icon, description
+
+
+def upload_to(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    today = timezone.datetime.now().strftime(r'%Y/%m/%d')
+    return os.path.join('uploads', today, filename)
+
+
+def get_file_md5(f):
+    m = hashlib.md5()
+    while True:
+        data = f.read(1024)
+        if not data:
+            break
+        m.update(data)
+    return m.hexdigest()
+
+
+def get_file_mimetype(filepath):
+    _, ext = os.path.splitext(filepath)
+    kind = filetype.guess(filepath)
+    if kind:
+        mime = kind.mime
+        ext = '.' + kind.extension
+    else:
+        try:
+            mime = mimetypes.types_map.get(ext)
+        except:
+            mime = ext = None
+    return (mime, ext)

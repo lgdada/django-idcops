@@ -20,6 +20,7 @@ from django.db.models import options
 
 
 # Create your models here.
+#from idcops.lib.utils import get_file_mimetype
 
 EXT_NAMES = (
     'level', 'hidden', 'dashboard', 'metric', 'icon',
@@ -1358,7 +1359,6 @@ class Inventory(
 
 @python_2_unicode_compatible
 class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
-
     title = models.CharField(max_length=128, verbose_name="文档标题")
     body = models.TextField(verbose_name="文档内容")
     category = models.ForeignKey(
@@ -1399,3 +1399,46 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             'tags']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         verbose_name = verbose_name_plural = "文档资料"
+
+
+import uuid
+import os
+
+def upload_to(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    today = timezone.datetime.now().strftime(r'%Y/%m/%d')
+    return os.path.join('uploads', today, filename)
+
+
+@python_2_unicode_compatible
+class Attachment(Onidc, Mark, PersonTime, ActiveDelete, Tag, Remark):
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("file name")
+    )
+    file = models.FileField(
+        upload_to=upload_to,
+        verbose_name=_("file")
+    )
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def mimetype(self):
+        return get_file_mimetype(self.file.path)
+
+    class Meta(Mark.Meta):
+        level = 1
+        icon = 'fa fa-file'
+        metric = "份"
+        list_display = [
+            'name',
+            'file',
+            'created',
+            'creator',
+            'onidc',
+            'tags']
+        default_permissions = ('view', 'add', 'change', 'delete', 'exports')
+        verbose_name = verbose_name_plural = "媒体文件"

@@ -87,13 +87,15 @@ class SummernoteUploadAttachment(BaseRequiredMixin, View):
             for file in request.FILES.getlist('files'):
 
                 # create instance of appropriate attachment class
-                klass = get_attachment_model()
-                attachment = klass()
+                from idcops.models import Attachment
+                attachment = Attachment()
 
+                attachment.onidc = request.user.onidc
+                attachment.creator = request.user
                 attachment.file = file
                 attachment.name = file.name
 
-                if file.size > config['attachment_filesize_limit']:
+                if file.size > 1024 * 1024 * 10:
                     return JsonResponse({
                         'status': 'false',
                         'message': _('File size exceeds the limit allowed and cannot be saved'),

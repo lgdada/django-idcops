@@ -39,6 +39,46 @@
 
 <script type="text/javascript">
   $(document).ready(function() {
+    
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    };
+
+    // summernote.image.upload
+    function sendFile(file, el) {
+      var form_data = new FormData();
+      //var csrftoken = getCookie('csrftoken');
+      var csrfmiddlewaretoken = $('form input[name="csrfmiddlewaretoken"]').val()
+      //form_data.append('csrftoken', csrftoken);
+      form_data.append("csrfmiddlewaretoken", csrfmiddlewaretoken);
+      form_data.append('files', file);
+      $.ajax({
+          data: form_data,
+          type: "POST",
+          url: "{%url 'idcops:upload' %}",
+          cache: false,
+          contentType: false,
+          processData: false,
+          success: function (data) {
+            $.each(data.files, function (index, file) {
+              $(el).summernote("insertImage", file.url);
+            });
+          }
+      });
+    }
+
     $('#id_body').summernote({
       height: 500,
       tabsize: 2,
@@ -47,8 +87,16 @@
         image: [],
         link: [],
         air: []
+        },
+      callbacks: {
+        onImageUpload : function(files, editor, welEditable) {
+          for(var i = files.length - 1; i >= 0; i--) {
+            sendFile(files[i], this);
+          }
         }
+      }
     });
+
     // reset modal cache
     $('body').on('hidden.bs.modal', '.modal', function () {
         $(this).removeData('bs.modal');

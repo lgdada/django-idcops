@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^(?:list/(?P<model>\w+))/$', ListModelView.as_view(), name='list'),
     url(r'^(?:detail/(?:(?P<model>\w+)-(?P<pk>\d+)))/$', DetailModelView.as_view(), name='detail'),
     url(r'^(?:update/(?:(?P<model>\w+)-(?P<pk>\d+)))/$', EditModelView.as_view(), name='update'),
+    url(r'^upload/$', views.SummernoteUploadAttachment.as_view(), name='upload'),
 ]
 
 

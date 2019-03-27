@@ -566,6 +566,10 @@ class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         f = models.Q(sclient=self) | models.Q(dclient=self)
         return Jumpline.objects.filter(actived=True).filter(f).count()
     nodenum.short_description = "跳线数(条)"
+    
+    def offlinenum(self):
+        return Offline.objects.filter(client_id=self.pk).count()
+    offlinenum.short_description = "下线数(台)"
 
     def racknum(self):
         return Rack.objects.filter(client=self, actived=True).count()

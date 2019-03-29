@@ -139,3 +139,7 @@ SOFT_DELELE = True
 COLOR_TAGS = True
 
 COLOR_FK_FIELD = True
+
+CSRF_COOKIE_NAME = 'idcops_csrftoken'
+
+SESSION_COOKIE_NAME = 'idcops_sessionid'

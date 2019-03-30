@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+import uuid
+
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import AbstractUser
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (
+    GenericForeignKey, GenericRelation
+)
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -15,12 +20,19 @@ from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
+from caching.base import CachingManager, CachingMixin
 
 from django.db.models import options
 
-
 # Create your models here.
-#from idcops.lib.utils import get_file_mimetype
+
+
+def upload_to(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    today = timezone.datetime.now().strftime(r'%Y/%m/%d')
+    return os.path.join('uploads', today, filename)
+
 
 EXT_NAMES = (
     'level', 'hidden', 'dashboard', 'metric', 'icon',
@@ -428,7 +440,7 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
 
 
 @python_2_unicode_compatible
-class Option(Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark):
+class Option(CachingMixin, Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark):
     """ mark in "`shared`, `system`, `_tpl`" """
     flag = models.SlugField(
         max_length=64,
@@ -454,6 +466,7 @@ class Option(Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark):
         default=False,
         verbose_name="默认使用",
         help_text="用于默认选中,比如:默认使用的设备类型是 服务器")
+    objects = CachingManager()
 
     def __init__(self, *args, **kwargs):
         super(Option, self).__init__(*args, **kwargs)
@@ -566,7 +579,7 @@ class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         f = models.Q(sclient=self) | models.Q(dclient=self)
         return Jumpline.objects.filter(actived=True).filter(f).count()
     nodenum.short_description = "跳线数(条)"
-    
+
     def offlinenum(self):
         return Offline.objects.filter(client_id=self.pk).count()
     offlinenum.short_description = "下线数(台)"
@@ -725,12 +738,13 @@ class Rextend(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
 
 @python_2_unicode_compatible
-class Unit(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
+class Unit(CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
     name = models.SlugField(
         max_length=12, verbose_name="U位名称",
         help_text="必须是数字字符串,例如：01, 46, 47"
     )
+    objects = CachingManager()
 
     def __str__(self):
         return self.name
@@ -799,9 +813,9 @@ class Unit(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
 
 @python_2_unicode_compatible
-class Pdu(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
-
+class Pdu(CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
     name = models.SlugField(max_length=12, verbose_name="PDU名称")
+    objects = CachingManager()
 
     def __str__(self):
         return self.name
@@ -1107,7 +1121,7 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % cls.id
             try:
-                object_id = cls.model_class().objects.order_by('pk').last().pk + 1
+                object_id += cls.model_class().objects.order_by('pk').last().pk
             except Exception:
                 object_id = 1
             object_id = "%02d" % object_id
@@ -1139,7 +1153,7 @@ class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
         help_text="请查看申请的测试单号")
     device = models.CharField(
         max_length=64, verbose_name="测试设备",
-        #limit_choices_to={'tags__flag': 'Device-Tags', 'tags__text':'测试机'},
+        # limit_choices_to={'tags__flag': 'Device-Tags', 'tags__text':'测试机'},
         help_text="测试设备调用在线设备中拥有'测试机'标签的设备")
     proposer = models.CharField(
         max_length=32,
@@ -1257,7 +1271,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
         icon = 'fa fa-folder-open-o'
         list_display = ['name', 'unit', 'brand', 'actived', 'mark']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
-        #ordering = ['-modified']
+        # ordering = ['-modified']
         unique_together = (('brand', 'name'),)
         verbose_name = verbose_name_plural = "物品分类"
 
@@ -1315,7 +1329,7 @@ class Inventory(
         return force_text(self.goods)
 
     def title_description(self):
-        #state = "正在库存" if self.actived else "已出库"
+        # state = "正在库存" if self.actived else "已出库"
         text = '{} > {} > {} > {}'.format(
             self.client, self.kcstate(), self.state, self.goods,
         )
@@ -1338,7 +1352,7 @@ class Inventory(
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % (cls.id)
             try:
-                object_id = cls.model_class().objects.order_by('pk').last().pk + 1
+                object_id += cls.model_class().objects.order_by('pk').last().pk
             except Exception:
                 object_id = 1
             object_id = "%02d" % (object_id)
@@ -1356,7 +1370,7 @@ class Inventory(
             'amount', 'kcstate', 'tags']
         extra_fields = ['kcstate']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
-        #unique_together = (('state', 'actived', 'goods', 'client'),)
+        # unique_together = (('state', 'actived', 'goods', 'client'),)
         ordering = ['-actived', '-modified']
         verbose_name = verbose_name_plural = "库存物品"
 
@@ -1403,16 +1417,6 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             'tags']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         verbose_name = verbose_name_plural = "文档资料"
-
-
-import uuid
-import os
-
-def upload_to(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    today = timezone.datetime.now().strftime(r'%Y/%m/%d')
-    return os.path.join('uploads', today, filename)
 
 
 @python_2_unicode_compatible

@@ -132,9 +132,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 AUTH_USER_MODEL = 'idcops.User'
 
 # django cache machine options
-CACHE_MACHINE_USE_REDIS = True
+# CACHE_MACHINE_USE_REDIS = True
 
-REDIS_BACKEND = 'redis://localhost:6379'
+# REDIS_BACKEND = 'redis://localhost:6379'
 
 # idcops options
 

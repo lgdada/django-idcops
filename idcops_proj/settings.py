@@ -131,6 +131,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'idcops.User'
 
+# django cache machine options
+CACHE_MACHINE_USE_REDIS = True
+
+REDIS_BACKEND = 'redis://localhost:6379'
 
 # idcops options
 
@@ -139,3 +143,7 @@ SOFT_DELELE = True
 COLOR_TAGS = True
 
 COLOR_FK_FIELD = True
+
+CSRF_COOKIE_NAME = 'idcops_csrftoken'
+
+SESSION_COOKIE_NAME = 'idcops_sessionid'

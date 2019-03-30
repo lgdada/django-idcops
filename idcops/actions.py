@@ -35,9 +35,9 @@ SOFT_DELELE = getattr(settings, 'SOFT_DELELE', False)
 
 general = ['download', 'actived', 'reactive', ]
 inventory = user = idc = unit = pdu = ['download']
-device = ['download', 'html_print', ]
-online = ['download', 'html_print', 'movedown']
-offline = ['download', 'html_print', 'removeup', 'delete']
+device = ['download',]
+online = ['download', 'movedown']
+offline = ['download', 'removeup', 'delete']
 jumpline = client = ['download', 'actived', 'reactive', 'delete']
 inventory = ['download', 'outbound', 'reoutbound']
 syslog = comment = ['download', 'actived']

@@ -23,6 +23,10 @@ QQ群：185964462
 
 #### 项目截图：
 
+[演示地址](http://idcops.iloxp.com/) 一小时重置一次登录信息
+
+用户 / 密码： admin / admin123
+
 ![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
 
 # 快速开始

@@ -39,8 +39,7 @@ if app_models:
                     search_fields.append(f.name)
             exclude_fields.extend(list_filter)
             options = {
-                'list_display': [
-                    f.name for f in opts.fields if f.name not in exclude_fields],
+                'list_display': [f.name for f in opts.fields if f.name not in exclude_fields],
                 'list_filter': list_filter,
                 'list_display_links': [
                     nature_field_name(model)],
@@ -59,17 +58,21 @@ if admin.site.is_registered(User):
     class UserAdmin(UserAdmin):
         fieldsets = (
             (None, {'fields': ('username', 'password')}),
-            (_('Personal info'), {'fields': ('first_name', 'email', 'upper',
-                                             'onidc', 'mobile', 'mark', 'last_name', 'actived', 'avatar', 'slaveidc')}),
-            (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                           'groups', 'user_permissions')}),
+            (_('Personal info'), {'fields': (
+                'first_name', 'email', 'upper',
+                'onidc', 'mobile', 'mark', 'last_name',
+                'actived', 'avatar', 'slaveidc', 'settings')}),
+            (_('Permissions'), {'fields': (
+                'is_active', 'is_staff', 'is_superuser',
+                'groups', 'user_permissions')}),
             (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         )
         add_fieldsets = (
             (None, {
                 'classes': (
                     'wide',), 'fields': (
-                    'username', 'password1', 'password2', 'first_name', 'email', 'onidc', 'slaveidc'), }), )
+                    'username', 'password1', 'password2',
+                    'first_name', 'email', 'onidc', 'slaveidc'), }), )
 
         filter_horizontal = ('groups', 'user_permissions', 'slaveidc')
 

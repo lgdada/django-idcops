@@ -97,7 +97,8 @@ class BaseRequiredMixin(LoginRequiredMixin):
                     self.pk_url_kwarg = self.kwargs.get('pk')
             except BaseException:
                 raise Http404("您访问的模块不存在.")
-        return super(BaseRequiredMixin, self).dispatch(request, *args, **kwargs)
+        return super(BaseRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(BaseRequiredMixin, self).get_context_data(**kwargs)
@@ -111,7 +112,8 @@ class BaseRequiredMixin(LoginRequiredMixin):
         except BaseException:
             self.meta['title'] = self.title
         context['meta'] = self.meta
-        context['menus'] = system_menus #construct_menus()
+        context['menus'] = system_menus
+        # construct_menus()
         from django import db
         logger.info('queries count: {}'.format(len(db.connection.queries)))
         return context

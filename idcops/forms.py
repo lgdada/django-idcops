@@ -240,7 +240,8 @@ class IdcForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Idc
         fields = [
-            'name', 'desc', 'emailgroup', 'managers', 'address', 'duty', 'tel'
+            'name', 'desc', 'codename', 'emailgroup',
+            'managers', 'address', 'duty', 'tel'
         ]
 
     def __init__(self, *args, **kwargs):

@@ -12,6 +12,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import (
     GenericForeignKey, GenericRelation
 )
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -310,7 +311,6 @@ class Remark(models.Model):
 
 
 class Syslog(Contentable):
-
     action_flag = models.CharField(_('action flag'), max_length=32)
     message = models.TextField(_('change message'), blank=True)
     object_desc = models.CharField(
@@ -361,6 +361,11 @@ class User(AbstractUser, Onidc, Mark, ActiveDelete, Remark):
         default="avatar/default.png",
         verbose_name="头像"
     )
+    settings = models.TextField(
+        blank=True,
+        verbose_name=_("settings"),
+        help_text=_("user settings use json format")
+    )
 
     def __str__(self):
         return self.first_name or self.username
@@ -397,6 +402,10 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
         verbose_name="数据中心全称",
         help_text="请填写公司定义的机房名称全称"
     )
+    codename = models.SlugField(
+        verbose_name=_("code name"),
+        help_text=_("data center code name for number prefix")
+    )
     emailgroup = models.EmailField(
         max_length=32,
         verbose_name="邮箱组",
@@ -425,6 +434,11 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
         verbose_name="管理人员",
         help_text="权限将比普通用户多一些"
     )
+    settings = models.TextField(
+        blank=True,
+        verbose_name=_("settings"),
+        help_text=_("data center extended settings use json format")
+    )
 
     def __str__(self):
         return self.name
@@ -440,7 +454,9 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
 
 
 @python_2_unicode_compatible
-class Option(CachingMixin, Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark):
+class Option(
+    CachingMixin, Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark
+):
     """ mark in "`shared`, `system`, `_tpl`" """
     flag = models.SlugField(
         max_length=64,
@@ -738,8 +754,9 @@ class Rextend(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
 
 @python_2_unicode_compatible
-class Unit(CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
-
+class Unit(
+    CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
+):
     name = models.SlugField(
         max_length=12, verbose_name="U位名称",
         help_text="必须是数字字符串,例如：01, 46, 47"
@@ -813,7 +830,9 @@ class Unit(CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, Client
 
 
 @python_2_unicode_compatible
-class Pdu(CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
+class Pdu(
+    CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
+):
     name = models.SlugField(max_length=12, verbose_name="PDU名称")
     objects = CachingManager()
 

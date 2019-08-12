@@ -1136,7 +1136,7 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         return '{} > {} > {}'.format(state, self.netprod, self.linenum)
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
+        if not self.pk:
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % cls.id
             try:

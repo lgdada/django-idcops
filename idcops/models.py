@@ -1140,7 +1140,7 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % cls.id
             try:
-                object_id += cls.model_class().objects.order_by('pk').last().pk
+                object_id = cls.model_class().objects.order_by('pk').last().pk + 1
             except Exception:
                 object_id = 1
             object_id = "%02d" % object_id
@@ -1367,11 +1367,11 @@ class Inventory(
     kcstate.short_description = "库存状态"
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
+        if not self.pk:
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % (cls.id)
             try:
-                object_id += cls.model_class().objects.order_by('pk').last().pk
+                object_id = cls.model_class().objects.order_by('pk').last().pk + 1
             except Exception:
                 object_id = 1
             object_id = "%02d" % (object_id)

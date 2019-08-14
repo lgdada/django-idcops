@@ -303,7 +303,7 @@ class PduForm(FormBaseMixin, forms.ModelForm):
 class RackEditForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Rack
-        fields = ['name', 'cname', 'zone', 'tags']
+        fields = ['name', 'cname', 'zone', 'status', 'tags']
 
 
 class OnlineNewForm(CalendarMedia, FormBaseMixin, forms.ModelForm):

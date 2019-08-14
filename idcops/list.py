@@ -312,9 +312,9 @@ class ListModelView(BaseRequiredMixin, ListView):
                 )
                 result = current_action(request, objects)
                 # error has message.
-                if isinstance(result, str):
+                if isinstance(result, (unicode, str)):
                     messages.warning(request, result)
-                    redirect_to = redirect_to+self.get_query_string()
+                    redirect_to = redirect_to + self.get_query_string()
                     return HttpResponseRedirect(redirect_to)
                 elif result:
                     return result

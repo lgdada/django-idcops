@@ -21,7 +21,6 @@ from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
-from caching.base import CachingManager, CachingMixin
 
 from django.db.models import options
 
@@ -455,7 +454,7 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
 
 @python_2_unicode_compatible
 class Option(
-    CachingMixin, Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark
+    Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark
 ):
     """ mark in "`shared`, `system`, `_tpl`" """
     flag = models.SlugField(
@@ -482,7 +481,6 @@ class Option(
         default=False,
         verbose_name="默认使用",
         help_text="用于默认选中,比如:默认使用的设备类型是 服务器")
-    objects = CachingManager()
 
     def __init__(self, *args, **kwargs):
         super(Option, self).__init__(*args, **kwargs)
@@ -755,13 +753,12 @@ class Rextend(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
 @python_2_unicode_compatible
 class Unit(
-    CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
+    Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
 ):
     name = models.SlugField(
         max_length=12, verbose_name="U位名称",
         help_text="必须是数字字符串,例如：01, 46, 47"
     )
-    objects = CachingManager()
 
     def __str__(self):
         return self.name
@@ -831,10 +828,9 @@ class Unit(
 
 @python_2_unicode_compatible
 class Pdu(
-    CachingMixin, Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
+    Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
 ):
     name = models.SlugField(max_length=12, verbose_name="PDU名称")
-    objects = CachingManager()
 
     def __str__(self):
         return self.name

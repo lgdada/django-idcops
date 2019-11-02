@@ -21,8 +21,8 @@ QQ群：185964462
 ![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
 #### 请我喝杯茶
-![wx_qr](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wx_qr.jpg)
-![zfb_qr](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/zfb_qr.jpg)
+![wx_qr](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wx_qr.jpg){:height="50%" width="50%"}
+![zfb_qr](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/zfb_qr.jpg){:height="50%" width="50%"}
 
 
 #### 项目截图：

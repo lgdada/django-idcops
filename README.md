@@ -20,10 +20,6 @@ QQ群：185964462
 
 ![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
-#### 请我喝杯茶
-![wx_qr](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wx_qr.jpg)
-
-
 #### 项目截图：
 
 [演示地址](http://idcops.iloxp.com/) 一小时重置一次登录信息

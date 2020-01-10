@@ -10,13 +10,16 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from idcops.lib.utils import nature_field_name
 # Register your models here.
 
+
 admin.AdminSite.site_header = '数据中心运维管理后台'
 admin.AdminSite.site_title = '数据中心运维平台 - IDCOPS'
+
 
 try:
     app_models = apps.get_app_config('idcops').get_models()
 except Exception:
     app_models = None
+
 
 if app_models:
     exclude_fields = ['creator', 'actived', 'deleted', 'modified', 'operator']
@@ -51,6 +54,7 @@ if app_models:
             except BaseException:
                 pass
 
+
 if admin.site.is_registered(User):
     admin.site.unregister(User)
 
@@ -75,6 +79,7 @@ if admin.site.is_registered(User):
                     'first_name', 'email', 'onidc', 'slaveidc'), }), )
 
         filter_horizontal = ('groups', 'user_permissions', 'slaveidc')
+
 
 if not admin.site.is_registered(Group):
     # admin.site.unregister(Group)

@@ -76,7 +76,7 @@ def make_to_excel(object_list, fields=None):
                 allow_unicode=True)))
     # 上面 `filename` 解决导出中文文件名出错的问题
     response = HttpResponse(output)
-    #response = StreamingHttpResponse(output)
+    # response = StreamingHttpResponse(output)
     # Stream在这里其实是不起作用了,可以直接HttpResponse
     response['charset'] = 'utf-8'
     response['content_type'] = 'application/octet-stream'

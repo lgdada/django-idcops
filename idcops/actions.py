@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 import sys
+if sys.version_info[0] >= 3:
+    unicode = str
 import copy
 import json
 import time

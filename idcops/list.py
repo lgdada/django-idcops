@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
+if sys.version_info[0] >= 3:
+    unicode = str
+
 import json
 import operator
 from functools import reduce

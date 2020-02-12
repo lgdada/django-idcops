@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import sys
-if sys.version_info[0] >= 3:
-    unicode = str
-
 import json
 import operator
 from functools import reduce
@@ -15,6 +11,7 @@ from django.contrib import messages
 from django.contrib.admin.utils import label_for_field
 from django.db import models
 from django.http import HttpResponseRedirect
+from django.utils import six
 from django.utils.http import urlencode
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -316,7 +313,8 @@ class ListModelView(BaseRequiredMixin, ListView):
                 )
                 result = current_action(request, objects)
                 # error has message.
-                if isinstance(result, (unicode, str)):
+                if isinstance(result, six.string_types):
+                # if isinstance(result, (unicode, str)):
                     messages.warning(request, result)
                     redirect_to = redirect_to + self.get_query_string()
                     return HttpResponseRedirect(redirect_to)

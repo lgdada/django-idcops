@@ -2,14 +2,13 @@
 from __future__ import unicode_literals
 
 import sys
-if sys.version_info[0] >= 3:
-    unicode = str
 import copy
 import json
 import time
 
 from functools import wraps
 
+from django.utils import six
 from django.contrib import admin
 from django.conf import settings
 

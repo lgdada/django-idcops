@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import chain
+try:
+    import chain
+except:
+    from itertools import chain
 
 from django.db import models
 from django.utils import formats, six, timezone

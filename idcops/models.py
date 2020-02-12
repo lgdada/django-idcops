@@ -25,6 +25,7 @@ from django.views.generic.base import logger
 from django.db.models import options
 
 # Create your models here.
+from idcops.lib.models.utils import get_file_mimetype
 
 
 def upload_to(instance, filename):

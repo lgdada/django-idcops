@@ -85,7 +85,7 @@
     <section class="content container-fluid">
      {%if messages%}
         {%for message in messages%}
-        <div style="padding:5px; margin-bottom:10px;" class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} no-print">
+        <div style="padding:10px; margin-bottom:15px;" class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} no-print">
           <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
           <b>{{message}}</b>
         </div>

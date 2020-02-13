@@ -5,7 +5,6 @@ from __future__ import absolute_import, unicode_literals
 from django.apps import apps
 from django.views.generic import View, TemplateView
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView,
@@ -16,6 +15,11 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
+
+try:
+    from django.core.urlresolvers import reverse_lazy
+except:
+    from django.urls import reverse_lazy
 
 from idcops.lib.utils import shared_queryset
 from idcops.mixins import BaseRequiredMixin

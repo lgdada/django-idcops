@@ -7,7 +7,6 @@ import uuid
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
-from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import (
     GenericForeignKey, GenericRelation
@@ -21,6 +20,11 @@ from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
+
+try:
+    from django.core.urlresolvers import reverse_lazy
+except:
+    from django.urls import reverse_lazy
 
 from django.db.models import options
 
@@ -351,6 +355,7 @@ class User(AbstractUser, Onidc, Mark, ActiveDelete, Remark):
     )
     upper = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         verbose_name="直属上级",
         related_name="%(app_label)s_%(class)s_upper"
@@ -556,17 +561,20 @@ class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         help_text="请使用客户全称或跟其他系统保持一致")
     style = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Client-Style'},
         related_name="%(app_label)s_%(class)s_style",
         verbose_name="客户类型", help_text="从机房选项中选取")
     sales = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Client-Sales'},
         related_name="%(app_label)s_%(class)s_sales",
         verbose_name="客户销售", help_text="从机房选项中选取")
     kf = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Client-Kf'},
         related_name="%(app_label)s_%(class)s_kf",
@@ -632,12 +640,14 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     )
     zone = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Rack-Zone'},
         related_name="%(app_label)s_%(class)s_zone",
         verbose_name="机房区域", help_text="从机房选项中选取 机房区域"
     )
     style = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         null=True, blank=True,
         limit_choices_to={'flag': 'Rack-Style'},
         related_name="%(app_label)s_%(class)s_style",
@@ -645,6 +655,7 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     )
     status = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         null=True, blank=True,
         limit_choices_to={'flag': 'Rack-Status'},
         related_name="%(app_label)s_%(class)s_status",
@@ -909,6 +920,7 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         verbose_name="设备型号", help_text="比如: Dell R720xd")
     style = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Device-Style'},
         related_name="%(app_label)s_%(class)s_style",
         verbose_name="设备类型", help_text="设备类型默认为服务器")
@@ -1227,6 +1239,7 @@ class Zonemap(Onidc, Mark, PersonTime, ActiveDelete, Remark):
 
     zone = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Rack-Zone'},
         related_name="%(app_label)s_%(class)s_zone",
         verbose_name="所在区域"
@@ -1265,6 +1278,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
     )
     brand = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Goods-Brand'},
         related_name="%(app_label)s_%(class)s_brand",
@@ -1273,6 +1287,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
     )
     unit = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Goods-Unit'},
         related_name="%(app_label)s_%(class)s_unit",
         verbose_name="物品单位",
@@ -1304,16 +1319,19 @@ class Inventory(
     )
     goods = models.ForeignKey(
         'Goods',
+        on_delete=models.CASCADE,
         related_name="%(app_label)s_%(class)s_goods",
         verbose_name="物品信息", help_text="从物品分类中选取")
     state = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Inventory-State'},
         related_name="%(app_label)s_%(class)s_state",
         verbose_name="物品状态",
         help_text="来自机房选项, 标记类型为: 库存物品-物品状态")
     location = models.ForeignKey(
         'Option',
+        on_delete=models.CASCADE,
         limit_choices_to={'flag': 'Inventory-Location'},
         related_name="%(app_label)s_%(class)s_location",
         verbose_name="存放位置",
@@ -1397,6 +1415,7 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     body = models.TextField(verbose_name="文档内容")
     category = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Document-Category'},
         related_name="%(app_label)s_%(class)s_category",
@@ -1404,6 +1423,7 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         help_text="分类, 从机房选项中选取")
     status = models.ForeignKey(
         'Option',
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Document-Status'},
         related_name="%(app_label)s_%(class)s_status",

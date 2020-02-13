@@ -5,13 +5,17 @@ import json
 
 from django.apps import apps
 from django.core.cache import cache, utils
-from django.core.urlresolvers import reverse_lazy
 from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.utils.encoding import force_text
 from django.views.generic.base import logger
+
+try:
+    from django.core.urlresolvers import reverse_lazy
+except:
+    from django.urls import reverse_lazy
 
 # Create your views here.
 from idcops.lib.utils import get_query_string, get_content_type_for_model

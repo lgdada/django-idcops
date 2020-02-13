@@ -308,7 +308,7 @@ class Remark(models.Model):
 
     @property
     def remarks(self):
-        return self.comment.filter(deleted=False)
+        return self.comment.filter(deleted=False, actived=True)
 
     class Meta:
         abstract = True

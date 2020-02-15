@@ -144,8 +144,8 @@ class IndexView(BaseRequiredMixin, TemplateView):
         for y in self.make_years(logs):
             nlogs = logs.filter(created__year=y.year, created__month=y.month)
             moving = nlogs.filter(
-                message__contains='["units"]', action_flag="修改").exclude(
-                content__contains='{"units": [[],').count()
+                message__contains='"units"', action_flag="修改").exclude(
+                content__contains='"units": [[]').count()
             data['moving'].append(moving)
             moveup = nlogs.filter(action_flag="新增").count()
             data['moveup'].append(moveup)

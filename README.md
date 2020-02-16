@@ -34,7 +34,8 @@ QQ群：185964462
 
 ```
 cd /home
-git clone https://github.com/Wenvki/django-idcops.git mysite
+# git clone https://github.com/Wenvki/django-idcops.git mysite
+git clone https://gitee.com/wenvki/django-idcops mysite
 cd mysite/
 virtualenv env # python虚拟环境
 source env/bin/activate # 激活python虚拟环境

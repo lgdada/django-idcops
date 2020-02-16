@@ -22,7 +22,7 @@ QQ群：185964462
 
 #### 项目截图：
 
-[演示地址](http://idcops.iloxp.com/) 一小时重置一次登录信息
+[演示地址](http://idcops.iloxp.com/) 按需要进行重置网站测试数据
 
 用户 / 密码： admin / admin123
 
@@ -91,7 +91,6 @@ COLOR_TAGS = True
 COLOR_FK_FIELD = False
 
 ```
-
 
 
 # 说明与项目截图

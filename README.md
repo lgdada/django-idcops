@@ -18,7 +18,7 @@ QQ群：185964462
 
 ##### 微信公众号:
 
-![weixin_qrcode](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/qrcode_for_weixin.jpg)
+![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
 #### 项目截图：
 
@@ -26,7 +26,7 @@ QQ群：185964462
 
 用户 / 密码： admin / admin123
 
-![仪表盘](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/2018-12-25_173535.jpg)
+![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
 
 # 快速开始
 
@@ -52,21 +52,21 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 
 1、访问 http://your_ip:8000/
 
-![login](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/0001.png)
+![login](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0001.png)
 
 2、首次使用，系统还没有数据中心，需新建一个数据中心
 
-![create idc](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/0002.png)
+![create idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0002.png)
 
-![create idc 02](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/0003.png)
+![create idc 02](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0003.png)
 
 3、将用户关联至数据中心
 
-![user related to idc](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/0004.png)
+![user related to idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0004.png)
 
 4、重新访问首页 http://your_ip:8000/
 
-![visit index](https://gitee.com/wenvki/django-idcops/blob/master/screenshots/0005.png)
+![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0005.png)
 
 
 #### 三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：

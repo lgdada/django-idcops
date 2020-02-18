@@ -304,7 +304,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             self.user_config(postdata)
             return HttpResponseRedirect(redirect_to)
         if not objects.exists() and action != 'config':
-            messages.warning(request, u"您必须选中一些条目")
+            messages.warning(request, "您必须选中一些条目")
         else:
             try:
                 current_action = import_string(

@@ -37,7 +37,7 @@ class NewModelView(BaseRequiredMixin, PermissionRequiredMixin,
         return super(NewModelView, self).get_permission_required()
 
     def handle_no_permission(self):
-        messages.error(self.request, u"您没有新建 {0} 的权限.".format(
+        messages.error(self.request, "您没有新建 {0} 的权限.".format(
             self.model._meta.verbose_name))
         return super(NewModelView, self).handle_no_permission()
 

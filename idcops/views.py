@@ -237,9 +237,9 @@ class IndexView(BaseRequiredMixin, TemplateView):
 class ProfileView(BaseRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
 
-    def get(self, *args, **kwargs):
-        # messages.success(self.request, u"accounts/profile.html")
-        return super(ProfileView, self).get(*args, **kwargs)
+    # def get(self, *args, **kwargs):
+        # messages.success(self.request, "accounts/profile.html")
+        # return super(ProfileView, self).get(*args, **kwargs)
 
 
 class ZonemapView(BaseRequiredMixin, TemplateView):
@@ -360,7 +360,7 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
                         'cell_id': cell.pk,
                         'rack_id': cell.rack_id,
                         'cell_desc': cell.desc,
-                        'messages': u"更新成功",
+                        'messages': "更新成功",
                     }
                     return JsonResponse(data)
 

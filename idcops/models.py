@@ -20,11 +20,8 @@ from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
+from django.urls import reverse_lazy
 
-try:
-    from django.core.urlresolvers import reverse_lazy
-except:
-    from django.urls import reverse_lazy
 
 from django.db.models import options
 

@@ -11,11 +11,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.utils.encoding import force_text
 from django.views.generic.base import logger
+from django.urls import reverse_lazy
 
-try:
-    from django.core.urlresolvers import reverse_lazy
-except:
-    from django.urls import reverse_lazy
 
 # Create your views here.
 from idcops.lib.utils import get_query_string, get_content_type_for_model

@@ -16,11 +16,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.module_loading import import_string
 from django.views.generic import ListView
+from django.urls import reverse_lazy
 
-try:
-    from django.core.urlresolvers import reverse_lazy
-except:
-    from django.urls import reverse_lazy
 
 # Create your views here.
 

@@ -15,11 +15,8 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
+from django.urls import reverse_lazy
 
-try:
-    from django.core.urlresolvers import reverse_lazy
-except:
-    from django.urls import reverse_lazy
 
 from idcops.lib.utils import shared_queryset
 from idcops.mixins import BaseRequiredMixin

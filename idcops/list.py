@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import operator
 from functools import reduce
 
@@ -17,7 +20,6 @@ from django.utils.safestring import mark_safe
 from django.utils.module_loading import import_string
 from django.views.generic import ListView
 from django.urls import reverse_lazy
-
 
 # Create your views here.
 
@@ -286,6 +288,9 @@ class ListModelView(BaseRequiredMixin, ListView):
                 content_type=get_content_type_for_model(self.model),
                 onidc_id=self.onidc_id, creator=self.request.user,
                 mark='list', content=content)
+        key = utils.make_template_fragment_key("{}.{}.{}".format(
+            self.request.user.id, self.model_name, 'list'))
+        cache.delete(key)
         return config
 
     def post(self, request, *args, **kwargs):

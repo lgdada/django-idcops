@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 import os
-import setuptools
-from distutils.core import setup
+
+# from distutils.core import setup
+from setuptools import setup, find_packages
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
@@ -13,22 +14,18 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 
 def get_requirements():
-    with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as f:
+    with open(os.path.join(
+            os.path.dirname(__file__), "requirements.txt")) as f:
         requirements_list = [req.strip() for req in f.readlines()]
     return requirements_list
 
 
 setup(
     name='django-idcops',
-    version='2.0',
-    packages=['idcops',
-              'idcops.lib',
-              'idcops.static',
-              'idcops.templates',
-              'idcops.migrations',
-              'idcops.templatetags'],
+    version='2.0.1',
+    packages=find_packages(),
     include_package_data=True,
-    license='BSD License',
+    license='Apache License 2.0',
     description='A data center inventory management software',
     long_description=README,
     url='https://www.iloxp.com/',
@@ -38,13 +35,15 @@ setup(
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
-        'Framework :: Django :: 2.x',
+        'Framework :: Django :: 2.1.x',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: Apache License 2.0',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    python_requires='>=3.5',
 )

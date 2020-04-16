@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-try:
-    import chain
-except:
-    from itertools import chain
-
+from itertools import chain
+from django.urls import reverse_lazy
 from django.db import models
 from django.utils import formats, six, timezone
+
 
 class ModelDiffMixin(object):
     """

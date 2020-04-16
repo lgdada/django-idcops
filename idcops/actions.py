@@ -3,8 +3,12 @@ from __future__ import unicode_literals
 
 import sys
 import copy
-import json
 import time
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from functools import wraps
 
@@ -36,12 +40,13 @@ SOFT_DELELE = getattr(settings, 'SOFT_DELELE', False)
 
 general = ['download', 'actived', 'reactive', ]
 inventory = user = idc = unit = pdu = ['download']
-device = ['download',]
+device = ['download', ]
 online = ['download', 'movedown']
 offline = ['download', 'removeup', 'delete']
 jumpline = client = ['download', 'actived', 'reactive', 'delete']
 inventory = ['download', 'outbound', 'reoutbound']
-syslog = comment = ['download', 'actived']
+syslog = ['download', 'actived']
+comment = ['download', 'actived', 'delete']
 rack = ['download', 'release', 'distribution']
 
 
@@ -406,7 +411,7 @@ def reoutbound(request, queryset):
                 content=json.dumps(diffs)
             )
         return None
-        
+
     context = construct_context(request, queryset, action, action_name)
     return TemplateResponse(request, 'base/base_confirmation.html', context)
 
@@ -419,7 +424,9 @@ reoutbound.icon = 'fa fa-undo'
 def release(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "释放机柜"
-    if Online.objects.filter(rack=queryset).exists():
+    rack_ids = [id for id in queryset.values_list('id', flat=True)]
+    # fix: unknown your action: The QuerySet value
+    if Online.objects.filter(rack_id__in=rack_ids).exists():
         mesg = "选择的机柜中仍有在线设备，无法释放"
         return mesg
 
@@ -535,13 +542,13 @@ def delete(request, queryset):
     action_name = "删除"
 
     modeladmin = admin.site._registry.get(model)
-    queryset = queryset.filter(actived=False)
+    # queryset = queryset.filter(actived=False)
     if not modeladmin.has_delete_permission(request):
         raise PermissionDenied
     using = router.db_for_write(modeladmin.model)
 
     deletable_objects, model_count, perms_needed, protected = get_deleted_objects(
-        queryset, opts, request.user, modeladmin.admin_site, using)
+        queryset, request, modeladmin.admin_site)
 
     if request.POST.get('post') and not protected:
         if perms_needed:

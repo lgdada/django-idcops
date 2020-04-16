@@ -23,6 +23,7 @@
           <span class="info-box-text">{{item.verbose_name}}</span>
         </a>
         <span class="info-box-number">{{item.count}}<small> {{item.metric}}</small></span>
+        {% if item.model_name == 'rack' %}<span class="text-muted">仅计算已启用的机柜</span>{% endif %}
       </div>
       <!-- /.info-box-content -->
     </div>

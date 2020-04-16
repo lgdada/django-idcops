@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 
 import os
 import uuid
-
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
@@ -21,8 +24,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
 from django.urls import reverse_lazy
-
-
 from django.db.models import options
 
 # Create your models here.
@@ -282,7 +283,8 @@ class Contentable(Onidc, Mark, PersonTime, ActiveDelete):
 
 class Comment(Contentable):
     class Meta(Mark.Meta):
-        hidden = True
+        level = 2
+        hidden = getattr(settings, 'HIDDEN_COMMENT_NAVBAR', True)
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         verbose_name = verbose_name_plural = "备注信息"
 
@@ -396,20 +398,21 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
         max_length=16,
         unique=True,
         verbose_name="数据中心简称",
-        help_text="数据中心简称,尽量简洁"
+        help_text="数据中心简称,尽量简洁。例如：酷特尔"
     )
     desc = models.CharField(
         max_length=64,
         unique=True,
         verbose_name="数据中心全称",
-        help_text="请填写公司定义的机房名称全称"
+        help_text="请填写公司定义的数据中心全称。例如：中国xx信xxx机房"
     )
     codename = models.SlugField(
-        verbose_name=_("code name"),
-        help_text=_("data center code name for number prefix")
+        blank=True, null=True,
+        verbose_name="数据中心代码",
+        help_text=_("数据中心代码，用于编号前缀")
     )
     emailgroup = models.EmailField(
-        max_length=32,
+        max_length=32, blank=True, null=True,
         verbose_name="邮箱组",
         help_text="该数据中心的邮箱组"
     )
@@ -421,6 +424,7 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
     )
     duty = models.CharField(
         max_length=16,
+        blank=True, null=True,
         default="7*24",
         verbose_name="值班类型",
         help_text="数据中心值班类型,例如:5*8"
@@ -428,7 +432,7 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
     tel = models.CharField(
         max_length=32,
         verbose_name="值班电话",
-        help_text="可填写多个联系方式"
+        help_text="联系方式，例如：13800138000"
     )
     managers = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -488,12 +492,12 @@ class Option(
     def __init__(self, *args, **kwargs):
         super(Option, self).__init__(*args, **kwargs)
         flag = self._meta.get_field('flag')
-        flag.choices = self.choices_to_field
+        flag.choices = self.choices_to_field()
 
-    @property
-    def choices_to_field(self):
+    @classmethod
+    def choices_to_field(cls):
         _choices = [BLANK_CHOICE_DASH[0], ]
-        for rel in self._meta.related_objects:
+        for rel in cls._meta.related_objects:
             object_name = rel.related_model._meta.object_name.capitalize()
             field_name = rel.remote_field.name.capitalize()
             name = "{}-{}".format(object_name, field_name)
@@ -507,7 +511,7 @@ class Option(
     @property
     def flag_to_dict(self):
         maps = {}
-        for item in self.choices_to_field:
+        for item in self.choices_to_field():
             maps[item[0]] = item[1]
         return maps
 
@@ -962,7 +966,6 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             actived=True, deleted=False, action_flag="修改",
         ).filter(content__contains='"units"')
         history = []
-        import json
         for log in logs:
             data = json.loads(log.content)
             lus = data.get('units')[0]

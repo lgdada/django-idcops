@@ -144,6 +144,8 @@ COLOR_TAGS = True
 
 COLOR_FK_FIELD = True
 
+HIDDEN_COMMENT_NAVBAR = False
+
 CSRF_COOKIE_NAME = 'idcops_csrftoken'
 
 SESSION_COOKIE_NAME = 'idcops_sessionid'

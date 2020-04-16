@@ -256,7 +256,7 @@ class RackNewForm(FormBaseMixin, forms.ModelForm):
         model = Rack
         fields = [
             'name', 'cname', 'zone', 'unitc', 'pduc',
-            'status', 'style','tags', 'actived'
+            'status', 'style', 'tags', 'actived'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -299,7 +299,35 @@ class RackEditForm(FormBaseMixin, forms.ModelForm):
         fields = ['name', 'cname', 'zone', 'status', 'tags']
 
 
-class OnlineNewForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
+class CheckUnitsAddOne(forms.ModelForm):
+
+    @staticmethod
+    def check_add_one(arr):
+        import functools
+        check = functools.reduce(
+            lambda x, y: (
+                x+1 == y if isinstance(x, int) else x[0] and x[1]+1 == y, y
+            ), arr
+        )[0]
+        return check
+
+    def clean(self):
+        super(CheckUnitsAddOne, self).clean()
+        units = self.cleaned_data['units']
+        unit_names = [int(u.name) for u in units]
+        if not unit_names:
+            msg = _("设备U位不能为空")
+            self.add_error('units', msg)
+        verify = self.check_add_one(unit_names)
+        if not verify:
+            msg = _("设备U位必须是连续的")
+            self.add_error('units', msg)
+
+
+class OnlineNewForm(
+    CalendarMedia, CheckUnitsAddOne,
+    FormBaseMixin, forms.ModelForm
+):
     class Meta:
         model = Device
         fields = [
@@ -314,11 +342,12 @@ class OnlineNewForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
         self.fields['rack'].queryset = self.fields['rack'].queryset.order_by(
             'name')
         if rack_id is None:
-            self.fields['client'].queryset = self.fields['client'].queryset.none()
-            self.fields['style'].queryset = self.fields['style'].queryset.none()
-            self.fields['units'].queryset = self.fields['units'].queryset.none()
-            self.fields['pdus'].queryset = self.fields['pdus'].queryset.none()
-            self.fields['tags'].queryset = self.fields['tags'].queryset.none()
+            queryset_none = self.fields['client'].queryset.none()
+            self.fields['client'].queryset = queryset_none
+            self.fields['style'].queryset = queryset_none
+            self.fields['units'].queryset = queryset_none
+            self.fields['pdus'].queryset = queryset_none
+            self.fields['tags'].queryset = queryset_none
         else:
             self.fields['style'].empty_label = None
             rack = self.fields['rack'].queryset.get(pk=rack_id)
@@ -339,13 +368,17 @@ class OnlineNewForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
                 self.fields['client'].initial = rack.client_id
             except BaseException:
                 pass
+            self.fields['units'].required = True
             self.fields['units'].queryset = self.fields['units'].queryset.filter(
                 rack_id=rack_id).order_by('name')
             self.fields['pdus'].queryset = self.fields['pdus'].queryset.filter(
                 rack_id=rack_id).order_by('pk')
 
 
-class OnlineEditForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
+class OnlineEditForm(
+    CalendarMedia, CheckUnitsAddOne,
+    FormBaseMixin, forms.ModelForm
+):
     class Meta:
         model = Device
         fields = [
@@ -357,11 +390,11 @@ class OnlineEditForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         rack_id = kwargs.pop("rack_id", None)
         super(OnlineEditForm, self).__init__(*args, **kwargs)
+        self.fields['units'].required = True
         if not rack_id:
             rack_id = self.instance.rack_id
         self.fields['rack'].queryset = self.fields['rack'].queryset.order_by(
             'name')
-        # rack = self.fields['rack'].queryset.get(pk=rack_id)
         self.fields['units'].queryset = self.fields['units'].queryset.filter(
             rack_id=rack_id) | self.instance.units.all()
         self.fields['pdus'].queryset = self.fields['pdus'].queryset.filter(
@@ -460,3 +493,15 @@ class ZonemapNewForm(Select2Media, forms.Form):
                 LAST_ROWS+1)
             self.fields['cols'].help_text = "类似Excel表格,行列从0开始标记,当前已有 %s列" % (
                 LAST_COLS+1)
+
+
+class InitIdcForm(forms.ModelForm):
+    class Meta:
+        model = Idc
+        fields = ['name', 'desc', 'address', 'tel']
+
+    def __init__(self, *args, **kwargs):
+        super(InitIdcForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update(
+                {'autocomplete': "off", 'class': "form-control"})

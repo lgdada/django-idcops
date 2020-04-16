@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
-
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from django.apps import apps
 from django.core.cache import cache, utils
 from django.http import Http404, HttpResponseRedirect
@@ -12,7 +14,6 @@ from django.contrib.auth.views import redirect_to_login
 from django.utils.encoding import force_text
 from django.views.generic.base import logger
 from django.urls import reverse_lazy
-
 
 # Create your views here.
 from idcops.lib.utils import get_query_string, get_content_type_for_model
@@ -65,24 +66,17 @@ class BaseRequiredMixin(LoginRequiredMixin):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            messages.warning(request, "需登录系统才能访问")
+            messages.warning(request, "系统需要登录才能访问")
             return redirect_to_login(
                 request.get_full_path(),
                 self.get_login_url(), self.get_redirect_field_name())
         if not request.user.onidc:
             idc = Idc.objects.filter(actived=True)
             if idc.count() == 0 and request.user.is_superuser:
-                messages.warning(
+                messages.info(
                     request,
-                    "您必须指定一个所属机房, 请新建一个机房并将用户关联至此机房")
-                return HttpResponseRedirect('/admin/idcops/idc/add/')
-            else:
-                messages.warning(
-                    request,
-                    "您必须指定一个所属机房, 请选择用户所属机房字段内容"
-                )
-                return HttpResponseRedirect(
-                    '/admin/idcops/user/{}/change/'.format(request.user.pk))
+                    "您必须新建一个数据中心并将用户关联至此机房")
+                return HttpResponseRedirect('/welcome/')
             return self.handle_no_permission()
         model = self.kwargs.get('model', None)
         onidc = request.user.onidc
@@ -115,8 +109,8 @@ class BaseRequiredMixin(LoginRequiredMixin):
         context['meta'] = self.meta
         context['menus'] = system_menus
         # construct_menus()
-        from django import db
-        logger.info('queries count: {}'.format(len(db.connection.queries)))
+        # from django import db
+        # logger.info('queries count: {}'.format(len(db.connection.queries)))
         return context
 
 

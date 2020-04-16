@@ -328,21 +328,23 @@ def make_dict(data_dict):
     return data
 
 
+def get_forms_names():
+    forms = import_string('idcops.forms')
+    return dir(forms)
+
+
 def _has_form(model_name):
-    from idcops import forms
-    return "{}Form".format(model_name) in dir(forms)
+    return "{}Form".format(model_name) in get_forms_names()
 
 
 def _has_add_form(model_name):
-    from idcops import forms
     name = model_name.capitalize()
-    return _has_form(name) or "{}NewForm".format(name) in dir(forms)
+    return _has_form(name) or "{}NewForm".format(name) in get_forms_names()
 
 
 def _has_edit_form(model_name):
-    from idcops import forms
     name = model_name.capitalize()
-    return _has_form(name) or "{}EditForm".format(name) in dir(forms)
+    return _has_form(name) or "{}EditForm".format(name) in get_forms_names()
 
 
 def has_permission(opts, user, perm):

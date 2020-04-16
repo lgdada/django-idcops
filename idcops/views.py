@@ -3,8 +3,12 @@ from __future__ import absolute_import, unicode_literals
 
 # Create your views here.
 from django.apps import apps
+from django.shortcuts import render
+from django.conf import settings
+from django.contrib import messages
 from django.views.generic import View, TemplateView
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView,
@@ -17,13 +21,14 @@ from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.urls import reverse_lazy
 
-
 from idcops.lib.utils import shared_queryset
 from idcops.mixins import BaseRequiredMixin
 from idcops.models import (
-    Option, Rack, Device, Online, Syslog, ContentType, Zonemap, Client
+    Option, Rack, Device, Online,
+    Syslog, ContentType, Zonemap, Client,
+    Idc
 )
-from idcops.forms import ZonemapNewForm
+from idcops.forms import ZonemapNewForm, InitIdcForm
 
 
 login = LoginView.as_view(template_name='accounts/login.html')
@@ -99,16 +104,20 @@ class SummernoteUploadAttachment(BaseRequiredMixin, View):
                 if file.size > 1024 * 1024 * 10:
                     return JsonResponse({
                         'status': 'false',
-                        'message': _('File size exceeds the limit allowed and cannot be saved'),
+                        'message': _(
+                            '''File size exceeds the '''
+                            '''limit allowed and cannot be saved'''
+                        ),
                     }, status=400)
 
                 # calling save method with attachment parameters as kwargs
                 attachment.save(**kwargs)
                 attachments.append(attachment)
 
-            return HttpResponse(render_to_string('document/upload_attachment.json', {
-                'attachments': attachments,
-            }), content_type='application/json')
+            return HttpResponse(render_to_string(
+                'document/upload_attachment.json', {
+                    'attachments': attachments,
+                }), content_type='application/json')
         except IOError:
             return JsonResponse({
                 'status': 'false',
@@ -235,8 +244,8 @@ class ProfileView(BaseRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
 
     # def get(self, *args, **kwargs):
-        # messages.success(self.request, "accounts/profile.html")
-        # return super(ProfileView, self).get(*args, **kwargs)
+    # messages.success(self.request, "accounts/profile.html")
+    # return super(ProfileView, self).get(*args, **kwargs)
 
 
 class ZonemapView(BaseRequiredMixin, TemplateView):
@@ -396,3 +405,35 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         }
         context.update(_extra_cxt)
         return context
+
+
+@login_required(login_url='/accounts/login/')
+def welcome(request):
+    idc = Idc.objects.filter(actived=True)
+    index_url = reverse_lazy('idcops:index')
+    if idc.exists() and not settings.DEBUG:
+        messages.warning(
+            request, "Initialized, 已经初始化，不需要重新初始化。"
+        )
+        return HttpResponseRedirect(index_url)
+    if request.method == 'POST':
+        form = InitIdcForm(request.POST)
+        if form.is_valid():
+            form.instance.creator = request.user
+            form.save()
+            request.user.onidc = form.instance
+            request.user.save()
+            try:
+                from django.core.management import call_command
+                call_command('loaddata', 'initial_options.json')
+            except:
+                messages.error(
+                    request, "loaddata initial_options.json 执行失败..."
+                )
+            messages.success(
+                request, "初始化完成，请开始使用吧..."
+            )
+        return HttpResponseRedirect(index_url)
+    else:
+        form = InitIdcForm()
+    return render(request, 'welcome.html', {'form': form})

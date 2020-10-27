@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 
 from itertools import chain
 from django.urls import reverse_lazy
-from django.db import models
-from django.utils import formats, six, timezone
+from django.utils import formats, timezone
 
 
 class ModelDiffMixin(object):
@@ -15,6 +14,7 @@ class ModelDiffMixin(object):
     The main value is to allow simply changing the values and then saving the
     object only if it is "really changed"
     """
+
     def __init__(self, *args, **kwargs):
         super(ModelDiffMixin, self).__init__(*args, **kwargs)
         self.__initial = self._dict
@@ -57,12 +57,12 @@ class ModelDiffMixin(object):
         data = {}
         keys = [f.attname for f in opts.fields]
         for f in chain(opts.many_to_many):
-            #if isinstance(f, models.ManyToManyField):
             if self.pk is None:
                 data[f.name] = []
             else:
-                data[f.name] = list(f.value_from_object(self).values_list('pk', flat=True))
-        original = { k:self.__dict__.get(k) for k in keys if k not in exclude }
+                data[f.name] = list(f.value_from_object(
+                    self).values_list('pk', flat=True))
+        original = {k: self.__dict__.get(k) for k in keys if k not in exclude}
         data.update(**original)
         for key, value in data.items():
             if isinstance(value, timezone.datetime):

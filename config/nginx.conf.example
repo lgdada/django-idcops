@@ -1,0 +1,32 @@
+server {
+    listen 80;
+    server_name django-idcops.iloxp.com;
+    root /data/django-idcops/;
+
+    # include idcops_ssl_conf;
+
+    location / {
+      include uwsgi_params;
+      uwsgi_pass unix:///data/django-idcops/run/uwsgi.sock;
+    }
+
+    location /static {
+      alias /data/django-idcops/static;
+      expires      7h;
+      access_log off;
+    }
+        
+    location /media {
+      alias /data/django-idcops/media;
+      expires      7h;
+      access_log off;
+    }
+
+    access_log /data/django-idcops/logs/nginx_access.log;
+    error_log /data/django-idcops/logs/nginx_error.log;
+    
+    location ~ /\.ht {
+      deny  all;
+    }
+
+}

@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-# Create your views here.
+import os
+import json
+import time
+
 from django.apps import apps
 from django.shortcuts import render
 from django.conf import settings
 from django.contrib import messages
+from django.db import transaction
+from django.db.models import Max
 from django.views.generic import View, TemplateView
+from django.views.generic.edit import FormView
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
@@ -19,16 +25,22 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
+from django.utils.module_loading import import_string
 from django.urls import reverse_lazy
 
-from idcops.lib.utils import shared_queryset
+# Create your views here.
+from idcops.lib.utils import shared_queryset, get_content_type_for_model
 from idcops.mixins import BaseRequiredMixin
 from idcops.models import (
     Option, Rack, Device, Online,
     Syslog, ContentType, Zonemap, Client,
     Idc
 )
-from idcops.forms import ZonemapNewForm, InitIdcForm
+from idcops.lib.tasks import log_action
+from idcops.forms import (
+    ImportExcelForm, ZonemapNewForm, InitIdcForm, ImportOnlineForm
+)
+from idcops.imports import import_online
 
 
 login = LoginView.as_view(template_name='accounts/login.html')
@@ -319,7 +331,6 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
 
     @cached_property
     def max_col(self):
-        from django.db.models import Max
         return self.get_cells().aggregate(Max('col'))['col__max']
 
     def post(self, request, *args, **kwargs):
@@ -332,6 +343,19 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
                 onidc_id = request.user.onidc.id
                 zone_id = self.get_zone.id
                 creator_id = request.user.id
+                old_cells = Zonemap.objects.filter(zone_id=zone_id).order_by(
+                    "row", "col").values("row", "col")
+                if old_cells.exists():
+                    LAST_ROWS = old_cells.aggregate(Max('row'))['row__max'] + 1
+                    LAST_COLS = old_cells.aggregate(Max('col'))['col__max'] + 1
+                    Zonemap.objects.filter(
+                        zone_id=zone_id,
+                        row__in=list(range(rows, LAST_ROWS))
+                    ).delete()
+                    Zonemap.objects.filter(
+                        zone_id=zone_id,
+                        col__in=list(range(cols, LAST_COLS))
+                    ).delete()
                 cells = []
                 for row in range(rows):
                     for col in range(cols):
@@ -356,18 +380,19 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
                 cell_desc = request.POST.get('cell_desc', None)
                 try:
                     cell = Zonemap.objects.get(pk=cell_id)
-                except:
+                except BaseException:
                     cell = None
                 if cell is not None:
-                    cell.rack_id = rack_id
-                    cell.desc = cell_desc
-                    cell.save()
-                    data = {
-                        'cell_id': cell.pk,
-                        'rack_id': cell.rack_id,
-                        'cell_desc': cell.desc,
-                        'messages': "更新成功",
-                    }
+                    with transaction.atomic():
+                        cell.rack_id = rack_id
+                        cell.desc = cell_desc
+                        cell.save()
+                        data = {
+                            'cell_id': cell.pk,
+                            'rack_id': cell.rack_id,
+                            'cell_desc': cell.desc,
+                            'messages': "更新成功",
+                        }
                     return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
@@ -426,9 +451,10 @@ def welcome(request):
             try:
                 from django.core.management import call_command
                 call_command('loaddata', 'initial_options.json')
-            except:
+            except Exception as e:
                 messages.error(
-                    request, "loaddata initial_options.json 执行失败..."
+                    request,
+                    "loaddata initial_options.json 执行失败...,{}".format(e)
                 )
             messages.success(
                 request, "初始化完成，请开始使用吧..."
@@ -437,3 +463,129 @@ def welcome(request):
     else:
         form = InitIdcForm()
     return render(request, 'welcome.html', {'form': form})
+
+
+@login_required(login_url='/accounts/login/')
+def import_device(request):
+    CurrentUrl = reverse_lazy('idcops:import')
+    if request.method == 'POST':
+        ImportFile = request.FILES.get('file', None)
+        if not ImportFile:
+            messages.error(request, "没有文件可上传！")
+            return HttpResponseRedirect(CurrentUrl)
+        FilePath = getattr(settings, 'MEDIA_ROOT', '../logs')
+        FileName = FilePath + ImportFile.name
+        with open(FileName, 'wb+') as destination:
+            for chunk in ImportFile.chunks():
+                destination.write(chunk)
+        _result = import_online(FileName, request.onidc_id)
+        result = json.dumps(_result)
+        log_action(
+            user_id=request.user.pk,
+            content_type_id=get_content_type_for_model(Online, True).pk,
+            object_id=0,
+            action_flag="导入设备",
+            content=result
+        )
+        messages.info(request, "导入完成，请查看日志记录！")
+        return HttpResponseRedirect(CurrentUrl)
+    else:
+        return render(request, 'device/import.html')
+
+
+class ImportOnline(BaseRequiredMixin, FormView):
+
+    template_name = 'device/import.html'
+
+    form_class = ImportOnlineForm
+
+    success_url = '/list/syslog/'
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            excel = form.cleaned_data['excel']
+            FilePath = getattr(settings, 'MEDIA_ROOT', '../logs')
+            name, lnk, ext = excel.name.rpartition('.')
+            endfix = '-' + str(int(time.time()))
+            FileName = os.path.join(FilePath, name + endfix + lnk + ext)
+            with open(FileName, 'wb+') as destination:
+                for chunk in excel.chunks():
+                    destination.write(chunk)
+            error, warning, success, total = import_online(
+                FileName, request.user.onidc_id
+            )
+            message = "共导入{}条：成功{}条，失败{}条".format(
+                total, len(success), len(error)
+            )
+            _content = {}
+            _content['error'] = error
+            _content['warning'] = warning
+            _content['success'] = success
+            content = json.dumps(_content, ensure_ascii=False)
+            Syslog.objects.create(
+                creator_id=request.user.pk, onidc_id=self.onidc_id,
+                content_type_id=get_content_type_for_model(Online, True).pk,
+                action_flag="导入设备", object_desc="-",
+                message=message, content=content
+            )
+            messages.info(request, "导入完成，请查看日志记录！")
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class ImportExcelView(BaseRequiredMixin, FormView):
+
+    form_class = ImportExcelForm
+
+    def get_template_names(self):
+        return [
+            "{0}/import.html".format(self.model_name),
+            "base/import.html"
+        ]
+
+    success_url = '/list/syslog/'
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            excel = form.cleaned_data['excel']
+            FilePath = getattr(settings, 'MEDIA_ROOT', '../logs')
+            name, lnk, ext = excel.name.rpartition('.')
+            endfix = '-' + str(int(time.time()))
+            FileName = os.path.join(FilePath, name + endfix + lnk + ext)
+            with open(FileName, 'wb+') as destination:
+                for chunk in excel.chunks():
+                    destination.write(chunk)
+            try:
+                import_func = import_string(
+                    'idcops.imports.import_{}'.format(self.model_name)
+                )
+            except BaseException:
+                messages.error(request, "导入完成，请查看日志记录！")
+                return self.form_invalid(form)
+            error, warning, success, total = import_func(
+                FileName, request.user.onidc_id
+            )
+            message = "共导入{}条：成功{}条，失败{}条".format(
+                total, len(success), len(error)
+            )
+            _content = {}
+            _content['error'] = error
+            _content['warning'] = warning
+            _content['success'] = success
+            content = json.dumps(_content, ensure_ascii=False)
+            content_type = get_content_type_for_model(self.model, True)
+            Syslog.objects.create(
+                creator_id=request.user.pk, onidc_id=self.onidc_id,
+                content_type_id=content_type.pk,
+                action_flag="导入{}".format(self.verbose_name), object_desc="-",
+                message=message, content=content
+            )
+            messages.info(request, "导入完成，请查看日志记录！")
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

@@ -8,8 +8,15 @@ except ImportError:
 from django.apps import apps
 from django.dispatch import receiver
 from django.db.models import signals
-from idcops.lib.utils import get_content_type_for_model, fields_for_model
-from idcops.models import Device, Rack, Unit, Pdu, User, Configure
+from django.contrib.auth.signals import user_logged_in
+
+from idcops.lib.utils import (
+    get_content_type_for_model, fields_for_model,
+    get_client_ip
+)
+from idcops.models import (
+    Device, Rack, Unit, Pdu, User, Configure, Syslog
+)
 
 
 def pdus_units_changed(sender, **kwargs):
@@ -32,6 +39,7 @@ signals.m2m_changed.connect(
     dispatch_uid='when_device_units_changed'
 )
 
+
 signals.m2m_changed.connect(
     pdus_units_changed, sender=Device.pdus.through,
     dispatch_uid='when_device_pdus_changed'
@@ -43,7 +51,7 @@ def update_units_pdus(**kwargs):
     instance = kwargs.pop('instance', None)
     instance.units.all().update(actived=True)
     instance.pdus.all().update(actived=True)
-
+      
 
 @receiver(signals.post_save, sender=Rack, dispatch_uid='rack_created_tasks')
 def rack_created_tasks(instance, created, **kwargs):
@@ -54,8 +62,12 @@ def rack_created_tasks(instance, created, **kwargs):
         pdus = []
         for unit in range(1, int(instance.unitc + 1)):
             name = str(unit).zfill(2)
-            units.append(Unit(onidc_id=onidc_id, name=name,
-                              rack=instance, creator_id=creator_id))
+            units.append(
+                Unit(
+                    onidc_id=onidc_id, name=name,
+                    rack=instance, creator_id=creator_id
+                )
+            )
         Unit.objects.bulk_create(units)
         for pdu in range(1, int((instance.pduc + 2) / 2)):
             pdus.append(Pdu(onidc_id=onidc_id, creator_id=creator_id,
@@ -88,3 +100,21 @@ def initial_user_config(instance, created, **kwargs):
             )
             configures.append(Configure(**config))
         Configure.objects.bulk_create(configures)
+
+
+@receiver(user_logged_in)
+def on_login(sender, user, request, **kwargs):
+    ip = get_client_ip(request)
+    # content_type = get_content_type_for_model(user._meta.model)
+    message = "{} 从 {} 登录成功".format(str(user), ip)
+    user_agent = request.META.get('HTTP_USER_AGENT')
+    Syslog.objects.create(
+        creator_id=user.id,
+        onidc_id=user.onidc_id,
+        object_repr=user,
+        action_flag='登录',
+        message=message,
+        object_desc=str(user),
+        content='{}, {}'.format(message, user_agent),
+        actived=True
+    )

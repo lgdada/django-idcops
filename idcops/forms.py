@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import functools
+
 from django import forms
+from django.db.models import Max
 from django.utils.six import text_type
 from django.utils.html import format_html
 from django.utils.text import get_text_list
@@ -10,13 +13,17 @@ from django.contrib.auth.forms import UserCreationForm
 from idcops.models import (
     Option, Rack, Comment, User, Client, Device,
     Idc, Testapply, Goods, Inventory, Jumpline,
-    Document, Configure, Rextend, Unit, Pdu
+    Document, Configure, Rextend, Unit, Pdu, Zonemap
 )
-
 from idcops.lib.utils import can_create, shared_queryset
 
 
 STATICROOT = '/static/idcops/'
+
+MIME_ACCEPT = '''
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+application/vnd.ms-excel
+'''
 
 
 class CalendarMedia(object):
@@ -188,10 +195,11 @@ class UserEditForm(Select2Media, forms.ModelForm):
             "email",
             "mobile",
             "upper",
-            "groups",
             "onidc",
+            "groups",
             "slaveidc",
-            'user_permissions')
+            'user_permissions'
+        )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -206,7 +214,8 @@ class UserEditForm(Select2Media, forms.ModelForm):
             self.fields['groups'].queryset = self.user.groups.all()
             self.fields['upper'].queryset = self._meta.model.objects.filter(
                 upper=self.user)
-            self.fields['user_permissions'].queryset = self.user.user_permissions.all()
+            self.fields['user_permissions'].queryset = \
+                self.user.user_permissions.all()
 
 
 class OptionForm(FormBaseMixin, forms.ModelForm):
@@ -303,7 +312,6 @@ class CheckUnitsAddOne(forms.ModelForm):
 
     @staticmethod
     def check_add_one(arr):
-        import functools
         check = functools.reduce(
             lambda x, y: (
                 x+1 == y if isinstance(x, int) else x[0] and x[1]+1 == y, y
@@ -318,10 +326,11 @@ class CheckUnitsAddOne(forms.ModelForm):
         if not unit_names:
             msg = _("设备U位不能为空")
             self.add_error('units', msg)
-        verify = self.check_add_one(unit_names)
-        if not verify:
-            msg = _("设备U位必须是连续的")
-            self.add_error('units', msg)
+        if len(units) > 1:
+            verify = self.check_add_one(unit_names)
+            if not verify:
+                msg = _("设备U位必须是连续的")
+                self.add_error('units', msg)
 
 
 class OnlineNewForm(
@@ -356,13 +365,13 @@ class OnlineNewForm(
                 onidc_id = self.user.onidc_id
                 name = Device.objects.filter(
                     onidc_id=onidc_id).order_by('-pk').first().name
-            except:
+            except BaseException:
                 name = 'IS020123456-0000'
             try:
                 pre, lnk, ext = name.rpartition('-')
                 ext = "%05d" % (int(ext) + 1)
                 self.fields['name'].initial = pre + lnk + ext
-            except:
+            except BaseException:
                 self.fields['name'].initial = name
             try:
                 self.fields['client'].initial = rack.client_id
@@ -393,12 +402,18 @@ class OnlineEditForm(
         self.fields['units'].required = True
         if not rack_id:
             rack_id = self.instance.rack_id
+        if int(rack_id) == self.instance.rack_id:
+            extra_units = self.instance.units.filter(rack_id=rack_id)
+            extra_pdus = self.instance.pdus.filter(rack_id=rack_id)
+        else:
+            extra_units = self.instance.units.none()
+            extra_pdus = self.instance.units.none()
         self.fields['rack'].queryset = self.fields['rack'].queryset.order_by(
             'name')
         self.fields['units'].queryset = self.fields['units'].queryset.filter(
-            rack_id=rack_id) | self.instance.units.all()
+            rack_id=rack_id) | extra_units
         self.fields['pdus'].queryset = self.fields['pdus'].queryset.filter(
-            rack_id=rack_id).order_by("pk") | self.instance.pdus.all()
+            rack_id=rack_id).order_by("pk") | extra_pdus
 
 
 class TestapplyForm(CalendarMedia, FormBaseMixin, forms.ModelForm):
@@ -435,7 +450,7 @@ class JumplineForm(FormBaseMixin, forms.ModelForm):
         ]
 
 
-class CommentNewForm(FormBaseMixin, forms.ModelForm):
+class DetailNewCommentForm(FormBaseMixin, forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
@@ -477,8 +492,6 @@ class ZonemapNewForm(Select2Media, forms.Form):
         self.zone_id = kwargs.pop('zone_id', None)
         super(ZonemapNewForm, self).__init__(*args, **kwargs)
         if self.zone_id is not None:
-            from django.db.models import Max
-            from idcops.models import Zonemap
             cells = Zonemap.objects.filter(zone_id=self.zone_id).order_by(
                 "row", "col").values("row", "col")
             if cells.exists():
@@ -505,3 +518,31 @@ class InitIdcForm(forms.ModelForm):
         for field in self.fields:
             self.fields[field].widget.attrs.update(
                 {'autocomplete': "off", 'class': "form-control"})
+
+
+class ImportOnlineForm(forms.Form):
+    excel = forms.FileField(
+        label="excel文件",
+        help_text="请上传xls或xlsx文件",
+        widget=forms.ClearableFileInput(
+            attrs={
+                'multiple': True,
+                # 'class': "form-control",
+                'accept': MIME_ACCEPT.strip()
+            }
+        )
+    )
+
+
+class ImportExcelForm(forms.Form):
+    excel = forms.FileField(
+        label="excel文件",
+        help_text="请上传xls或xlsx文件",
+        widget=forms.ClearableFileInput(
+            attrs={
+                'multiple': True,
+                # 'class': "form-control",
+                'accept': MIME_ACCEPT.strip()
+            }
+        )
+    )

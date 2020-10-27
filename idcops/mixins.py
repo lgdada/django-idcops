@@ -12,24 +12,30 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.utils.encoding import force_text
-from django.views.generic.base import logger
 from django.urls import reverse_lazy
 
 # Create your views here.
-from idcops.lib.utils import get_query_string, get_content_type_for_model
+from idcops.lib.utils import (
+    get_query_string, get_content_type_for_model, has_permission
+)
 from idcops.models import Configure, Idc
 
 
-def construct_menus():
+system_menus_key = utils.make_template_fragment_key('system.menus')
+
+
+def construct_menus(user):
     model_names = []
     for app in apps.get_app_config('idcops').get_models():
         opts = app._meta
-        if not getattr(opts, 'hidden', False):
+        if has_permission(opts, user, 'view') and \
+                not getattr(opts, 'hidden', False):
+            icon_color = 'text-' + opts.icon_color if opts.icon_color else ''
             meta = {
                 'model_name': opts.model_name,
                 'verbose_name': opts.verbose_name,
                 'icon': opts.icon,
-                'icon_color': 'text-' + opts.icon_color,
+                'icon_color': icon_color,
                 'level': opts.level,
             }
             model_names.append(meta)
@@ -40,10 +46,6 @@ def construct_menus():
             [c for c in model_names if c.get('level') == i]
         )
     return new_menus
-
-
-system_menus_key = utils.make_template_fragment_key('system.menus')
-system_menus = cache.get_or_set(system_menus_key, construct_menus(), 360)
 
 
 def get_user_config(user, mark, model):
@@ -107,10 +109,10 @@ class BaseRequiredMixin(LoginRequiredMixin):
         except BaseException:
             self.meta['title'] = self.title
         context['meta'] = self.meta
-        context['menus'] = system_menus
-        # construct_menus()
-        # from django import db
-        # logger.info('queries count: {}'.format(len(db.connection.queries)))
+        context['menus'] = cache.get_or_set(
+            system_menus_key + str(self.request.user.id),
+            construct_menus(self.request.user), 1800
+        )
         return context
 
 

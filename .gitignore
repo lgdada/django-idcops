@@ -8,7 +8,7 @@ __pycache__/
 
 #Sub project source file.
 django-idcops
-media
+idcops/media
 .idea
 .vscode
 #.screenshots

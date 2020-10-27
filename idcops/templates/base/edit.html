@@ -3,6 +3,11 @@
 {% block title %}编辑 {{meta.title}}{% endblock %}
 {% block extra-css %}
 {{form.media.css}}
+<style>
+  .fa.fa-square.text-white {
+    color: aliceblue;
+  }
+</style>
 {% endblock %}
 {% block content-header %}<h1>{{meta.verbose_name}} <small> 编辑{{meta.verbose_name}}</small></h1>{% endblock %}
 {% block main-content %}
@@ -35,7 +40,7 @@
         <div class="form-group">
           <label class="col-sm-2 control-label">{{ field.label }}:</label>
           <div class="col-sm-5">
-              {{ field|addcss:"form-control"}}
+              {{ field }}
           </div>
           <div class="col-sm-5 help-block">
             {%if field.field.required%}
@@ -73,8 +78,35 @@ $(document).ready(function (){
 $('body').on('hidden.bs.modal', '.modal', function () {
     $(this).removeData('bs.modal');
 });
-// Select2
+
+// S Select2
 $("select").select2({language: "zh-CN"});
+
+// Select2 color
+function formatState (state) {
+  if (!state.id) {
+    return state.text;
+  }
+
+  var $state = $(
+    '<span><i class="fa fa-square" /></i> <span></span></span>'
+  );
+
+  // Use .text() instead of HTML string concatenation to avoid script injection issues
+  $state.find("span").text(" " + state.text);
+  // <i class="fa fa-square text-orange"></i>
+  $state.find("i").addClass("text-"+state.element.value.toLowerCase());
+  return $state;
+};
+
+var ColorSelect = $('select#id_color');
+if (ColorSelect.length != 0) {
+  ColorSelect.select2({
+    templateSelection: formatState,
+    language: "zh-CN"
+  });
+}
+// E Select2
 
 // Make shared
 var Shared = $("#to_shared");
@@ -109,9 +141,9 @@ $("form").submit(function(){
 var DateTimeField = $("input[data-datetime='true']");
 if (DateTimeField.length != 0) {
   DateTimeField.daterangepicker({
-    timePicker: true,
-    timePickerIncrement: 5,
-    timePicker24Hour: true,
+    // timePicker: true,
+    // timePickerIncrement: 5,
+    // timePicker24Hour: true,
     locale:{
       format: 'YYYY-MM-DD H:mm:ss',
       applyLabel: '确认',

@@ -1,18 +1,27 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
+from django.utils.safestring import mark_safe
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.admin.utils import label_for_field, lookup_field
+
 # Create your views here.
 
-from django.utils.safestring import mark_safe
-from django.contrib.admin.utils import label_for_field, lookup_field
 from idcops.lib.utils import (
     display_for_field, fields_for_model, can_change, get_actions
 )
-from idcops.forms import CommentNewForm
+from idcops.forms import DetailNewCommentForm
 from idcops.mixins import BaseRequiredMixin, PostRedirect
+
+
+VISIBLE_XS_TR_FORMAT = '<tr class="visible-xs"><th>{th}</th><td>{td}</td></tr>'
+
+HIDDEN_XS_TH_FORMAT = '''
+<th class="hidden-xs">{th}</th>
+<td class="hidden-xs">{td}</td></tr>
+'''
 
 
 class DetailModelView(
@@ -22,12 +31,14 @@ class DetailModelView(
         FormMixin,
         DetailView):
 
-    form_class = CommentNewForm
+    form_class = DetailNewCommentForm
 
     def get_template_names(self):
         if self.request.is_ajax():
             return [
-                "{0}/ajax_detail.html".format(self.model_name), "base/ajax_detail.html"]
+                "{0}/ajax_detail.html".format(self.model_name),
+                "base/ajax_detail.html"
+            ]
         else:
             return [
                 "{0}/detail.html".format(self.model_name), "base/detail.html"]
@@ -61,7 +72,8 @@ class DetailModelView(
         base_fields = list(fields_for_model(self.model, exclude=exclude))
         new_pin_fields = [i for i in pin_fields if i in base_fields]
         fields = [
-            f for f in base_fields if f not in new_pin_fields and f not in exclude]
+            f for f in base_fields if f not in new_pin_fields and f not in exclude
+        ]
         fields.extend(new_pin_fields)
         default_fields = getattr(self.opts, 'list_display', None)
         if default_fields and isinstance(default_fields, list):
@@ -83,8 +95,8 @@ class DetailModelView(
                 except BaseException:
                     pass
             if (index % 2 == 0):
-                append = '<tr class="visible-xs"><th>{th}</th><td>{td}</td></tr>'
-                _format = '<th class="hidden-xs">{th}</th><td class="hidden-xs">{td}</td></tr>'
+                append = VISIBLE_XS_TR_FORMAT
+                _format = HIDDEN_XS_TH_FORMAT
                 tr_format = _format + append
             tr_html = tr_format.format(th=th, td=td)
             panel += tr_html

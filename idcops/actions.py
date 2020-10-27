@@ -12,42 +12,52 @@ except ImportError:
 
 from functools import wraps
 
-from django.utils import six
 from django.contrib import admin
 from django.conf import settings
-
-from django.contrib.admin.utils import get_deleted_objects
-
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.db import router
 from django.db.models import Sum
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.forms.models import model_to_dict
+
 from notifications.signals import notify as notify_user
 
 from idcops.lib.tasks import log_action
 from idcops.lib.utils import (
-    diff_dict, get_content_type_for_model, shared_queryset
+    diff_dict, shared_queryset,
+    get_content_type_for_model,
+    get_deleted_objects
 )
-from idcops.mixins import system_menus
+from idcops.mixins import construct_menus, system_menus_key
 from idcops.exports import make_to_excel
 from idcops.models import Comment, Online, Client, Option
-
+from idcops.lib.tasks import get_related_client_name
 
 SOFT_DELELE = getattr(settings, 'SOFT_DELELE', False)
 
-general = ['download', 'actived', 'reactive', ]
-inventory = user = idc = unit = pdu = ['download']
+general = ['download', 'actived', 'reactive']
+unit = ['download']
+pdu = ['download']
 device = ['download', ]
 online = ['download', 'movedown']
 offline = ['download', 'removeup', 'delete']
-jumpline = client = ['download', 'actived', 'reactive', 'delete']
-inventory = ['download', 'outbound', 'reoutbound']
 syslog = ['download', 'actived']
 comment = ['download', 'actived', 'delete']
-rack = ['download', 'release', 'distribution']
+rack = ['download', 'release', 'distribution', 'delete']
+
+general_has_delete = ['download', 'actived', 'reactive', 'delete']
+
+client = general_has_delete
+jumpline = general_has_delete
+option = general_has_delete
+document = general_has_delete
+goods = general_has_delete
+testapply = general_has_delete
+inventory = general_has_delete
+user = general_has_delete
+idc = general_has_delete
 
 
 def check_multiple_clients(func):
@@ -74,7 +84,12 @@ def construct_model_meta(request, model, title=None):
     meta['icon'] = opts.icon
     meta['model_name'] = opts.model_name
     meta['verbose_name'] = opts.verbose_name
-    return meta, system_menus
+    user_menus = cache.get_or_set(
+        system_menus_key + str(request.user.id),
+        construct_menus(request.user),
+        180
+    )
+    return meta, user_menus
 
 
 def construct_context(request, queryset, action, action_name):
@@ -461,7 +476,6 @@ def release(request, queryset):
                 )
 
             obj.save()
-            from idcops.lib.tasks import get_related_client_name
             diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
             log_action(
                 user_id=request.user.pk,
@@ -545,10 +559,10 @@ def delete(request, queryset):
     # queryset = queryset.filter(actived=False)
     if not modeladmin.has_delete_permission(request):
         raise PermissionDenied
-    using = router.db_for_write(modeladmin.model)
+    # using = router.db_for_write(modeladmin.model)
 
-    deletable_objects, model_count, perms_needed, protected = get_deleted_objects(
-        queryset, request, modeladmin.admin_site)
+    deletable_objects, model_count, perms_needed, protected = \
+        get_deleted_objects(queryset, request, modeladmin.admin_site)
 
     if request.POST.get('post') and not protected:
         if perms_needed:
@@ -590,7 +604,7 @@ def delete(request, queryset):
 
     request.current_app = modeladmin.admin_site.name
 
-    return TemplateResponse(request, 'base/base_confirmation.html', context)
+    return TemplateResponse(request, 'base/delete_confirmation.html', context)
 
 
 delete.description = "删除"

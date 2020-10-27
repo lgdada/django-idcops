@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import hashlib
-import mimetypes
-import filetype
 import uuid
 import os
 import datetime
@@ -11,20 +10,22 @@ import decimal
 from collections import OrderedDict
 from itertools import chain
 
-from django.contrib.admin.utils import lookup_field
+from django.contrib.admin.utils import (
+    lookup_field, NestedObjects
+)
 from django.contrib.auth import get_permission_codename
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.cache import utils as cache_key
-from django.db import models
+# from django.core.cache import cache
+# from django.core.cache import utils as cache_key
+from django.db import models, router
 from django.conf import settings
 from django.utils import formats, six, timezone
 from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
+from django.utils.text import capfirst
 from django.utils.safestring import mark_safe
-
-#from django.views.generic.base import logger
+# from django.views.generic.base import logger
 
 from idcops.models import Option
 
@@ -34,6 +35,51 @@ COLOR_TAGS = getattr(settings, 'COLOR_TAGS', True)
 COLOR_FK_FIELD = getattr(settings, 'COLOR_FK_FIELD', False)
 
 
+def get_deleted_objects(objs, request, admin_site):
+    """
+    Find all objects related to ``objs`` that should also be deleted. ``objs``
+    must be a homogeneous iterable of objects (e.g. a QuerySet).
+
+    Return a nested list of strings suitable for display in the
+    template with the ``unordered_list`` filter.
+    """
+    try:
+        obj = objs[0]
+    except IndexError:
+        return [], {}, set(), []
+    else:
+        using = router.db_for_write(obj._meta.model)
+    collector = NestedObjects(using=using)
+    collector.collect(objs)
+    perms_needed = set()
+
+    def format_callback(obj):
+        model = obj.__class__
+        has_admin = model in admin_site._registry
+        opts = obj._meta
+
+        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name), obj)
+
+        if has_admin:
+            # Display a link to the admin page.
+            return format_html('{}: <a href="{}">{}</a>',
+                               capfirst(opts.verbose_name),
+                               obj.get_absolute_url,
+                               obj)
+        else:
+            # Don't display link to edit, because it either has no
+            # admin or is edited inline.
+            return no_edit_link
+
+    to_delete = collector.nested(format_callback)
+
+    protected = [format_callback(obj) for obj in collector.protected]
+    model_count = {model._meta.verbose_name_plural: len(
+        objs) for model, objs in collector.model_objs.items()}
+
+    return to_delete, model_count, perms_needed, protected
+
+
 def get_content_type_for_model(obj, fcm=False):
     # Since this module gets imported in the application's root package,
     # it cannot import models from other applications at the module level.
@@ -41,13 +87,13 @@ def get_content_type_for_model(obj, fcm=False):
     return ContentType.objects.get_for_model(obj, for_concrete_model=fcm)
 
 
-def make_cache_key(key):
-    return cache_key.make_template_fragment_key(key)
+# def make_cache_key(key):
+#     return cache_key.make_template_fragment_key(key)
 
 
-def user_cache_key(user, mark):
-    key = '{}.user{}'.format(mark, user.id)
-    return make_cache_key(key)
+# def user_cache_key(user, mark):
+#     key = '{}.user{}'.format(mark, user.id)
+#     return make_cache_key(key)
 
 
 def has_form_class(model_name):
@@ -193,7 +239,8 @@ def display_for_field(value, field, html=True, only_date=True):
         if html and field.name == 'color' and value:
             return make_color_icon(value)
         return dict(field.flatchoices).get(value, '')
-    elif html and (isinstance(field, (models.BooleanField, models.NullBooleanField))):
+    elif html and (isinstance(field, (
+            models.BooleanField, models.NullBooleanField))):
         return make_boolean_icon(value)
     elif isinstance(field, (models.BooleanField, models.NullBooleanField)):
         boolchoice = {False: "否", True: "是"}
@@ -291,8 +338,11 @@ def make_tbody_tr(
                 if field.name == to_field_name:
                     title = "点击查看 {} 为 {} 的详情信息".format(
                         opts.verbose_name, force_text(obj))
-                    td_text = mark_safe('<a title="{}" href="{}">{}</a>'.format(
-                        title, detail_link, td_text))
+                    td_text = mark_safe(
+                        '<a title="{}" href="{}">{}</a>'.format(
+                            title, detail_link, td_text
+                        )
+                    )
                 if getattr(field, 'flatchoices', None)\
                         or isinstance(field, models.ForeignKey)\
                         or isinstance(field, models.NullBooleanField):
@@ -310,7 +360,7 @@ def make_tbody_tr(
                             classes, title, link, td_text
                         )
                     )
-            except:
+            except BaseException:
                 _, _, td_text = lookup_field(
                     field_name, obj, obj._meta.model)
                 td_text = mark_safe(td_text)
@@ -353,13 +403,13 @@ def has_permission(opts, user, perm):
 
 
 def can_create(opts, user):
-    from idcops import forms
+    # from idcops import forms
     name = opts.model_name.capitalize()
     return has_permission(opts, user, 'add') and _has_add_form(name)
 
 
 def can_change(opts, user):
-    from idcops import forms
+    # from idcops import forms
     name = opts.model_name.capitalize()
     return has_permission(opts, user, 'change') and _has_edit_form(name)
 
@@ -424,15 +474,10 @@ def get_file_md5(f):
     return m.hexdigest()
 
 
-def get_file_mimetype(filepath):
-    _, ext = os.path.splitext(filepath)
-    kind = filetype.guess(filepath)
-    if kind:
-        mime = kind.mime
-        ext = '.' + kind.extension
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
     else:
-        try:
-            mime = mimetypes.types_map.get(ext)
-        except:
-            mime = ext = None
-    return (mime, ext)
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

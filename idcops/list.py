@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 import operator
 from functools import reduce
 
@@ -12,12 +9,15 @@ from django.core.cache import cache, utils
 from django.contrib import messages
 from django.contrib.admin.utils import label_for_field
 from django.db import models
+# from django.db.models import fields
 from django.http import HttpResponseRedirect
 from django.utils import six
 from django.utils.http import urlencode
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
+from django.views.generic.base import TemplateView
 from django.views.generic import ListView
 from django.urls import reverse_lazy
 
@@ -33,13 +33,14 @@ from idcops.lib.utils import (
 
 
 _QUERY = 'search'
-_RANGE = 'range'
+# _RANGE = 'range'
 _ORDER = 'order'
 _PAGINATE = 'paginate_by'
-_ALL_VAL = 'all'
+# _ALL_VAL = 'all'
 
 
 class ListModelView(BaseRequiredMixin, ListView):
+
     """
     default_filter = {}
     list_display = ['__str__']
@@ -55,10 +56,12 @@ class ListModelView(BaseRequiredMixin, ListView):
         return ["{0}/list.html".format(self.model_name), "base/list.html"]
 
     def _config(self):
-        key = utils.make_template_fragment_key("{}.{}.{}".format(
-            self.request.user.id, self.model_name, 'list'))
-        data = cache.get_or_set(key, 
-            get_user_config(self.request.user, 'list', self.model), 180)
+        key = utils.make_template_fragment_key(
+            "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
+        )
+        data = cache.get_or_set(
+            key, get_user_config(self.request.user, 'list', self.model), 180
+        )
         return data
 
     @property
@@ -130,6 +133,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             self.paginate_by = 100
         return self.paginate_by
 
+    @cached_property
     def get_params(self):
         self.params = dict(self.request.GET.items())
         return self.params
@@ -137,7 +141,7 @@ class ListModelView(BaseRequiredMixin, ListView):
     def get_query_string(self, new_params=None, remove=None):
         new_params = {} if not new_params else new_params
         remove = [] if not remove else remove
-        p = self.get_params().copy()
+        p = self.get_params.copy()
         for r in remove:
             for k in list(p):
                 if k.startswith(r):
@@ -179,14 +183,13 @@ class ListModelView(BaseRequiredMixin, ListView):
                     del effective[_fields[item]]
         return effective
 
-    def apply_optimize_queryset(self):
+    def apply_optimize_queryset(self, queryset):
         list_fields = self.get_list_fields
         _select = [f.name for f in self.opts.fields if (
             isinstance(f, models.ForeignKey) and f.name in list_fields)]
         _prefetch = [f.name for f in self.opts.many_to_many
                      if f.name in list_fields]
-        _all = self.model.objects.select_related(
-            *_select).prefetch_related(*_prefetch)
+        _all = queryset.select_related(*_select).prefetch_related(*_prefetch)
         return _all
 
     def get_search_by(self):
@@ -234,7 +237,7 @@ class ListModelView(BaseRequiredMixin, ListView):
         ordering = self.get_ordering()
         if search and 'actived' in effective.keys():
             del effective['actived']
-        _all = self.apply_optimize_queryset().filter(**effective)
+        _all = self.apply_optimize_queryset(queryset).filter(**effective)
         if hasattr(
                 self.model,
                 'onidc_id') and not self.request.user.is_superuser:
@@ -250,7 +253,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                 str = [models.Q(**{k: q}) for k in self.allow_search_fields]
                 lst.extend(str)
             query_str = reduce(operator.or_, lst)
-            queryset = queryset.filter(query_str).order_by(*ordering)
+            queryset = _all.filter(query_str).order_by(*ordering)
         return queryset
 
     def make_paginate(self, max_size):
@@ -315,12 +318,13 @@ class ListModelView(BaseRequiredMixin, ListView):
                 metric = getattr(self.opts, 'metric', "条")
                 mesg = format_html(
                     '您一共 <b>{0}</b> 了 <b>{1}</b> {2} <b>{3}</b>'.format(
-                        description, objects.count(), metric, self.opts.verbose_name)
+                        description, objects.count(), metric,
+                        self.opts.verbose_name
+                    )
                 )
                 result = current_action(request, objects)
                 # error has message.
                 if isinstance(result, six.string_types):
-                # if isinstance(result, (unicode, str)):
                     messages.warning(request, result)
                     redirect_to = redirect_to + self.get_query_string()
                     return HttpResponseRedirect(redirect_to)
@@ -330,7 +334,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     messages.success(request, mesg)
                 return HttpResponseRedirect(redirect_to)
             except Exception as e:
-                messages.warning(request, 'unknown your action: {}'.format(e))
+                messages.warning(request, "未知动作: {}".format(e))
         return HttpResponseRedirect(redirect_to)
 
     def make_thead(self):
@@ -396,7 +400,6 @@ class ListModelView(BaseRequiredMixin, ListView):
             new_sorted_key = 'desc' if is_sorted and field_name in ordering else 'asc'
             new_sorted_value = switch.get(new_sorted_key)
             new_ordering.insert(0, str(new_sorted_value + field_name))
-
             toggle_link = '.'.join(i for i in new_ordering)
             toggle_url = self.get_query_string({'order': toggle_link})
             remove_url = self.get_query_string({'order': remove_link})
@@ -439,6 +442,118 @@ class ListModelView(BaseRequiredMixin, ListView):
             'thead': self.make_thead(),
             'tbody': self.make_tbody(objects),
             'paginate': self.make_paginate(self.object_list.count())
+        }
+        context.update(**_extra)
+        return context
+
+
+class ConfigUserListView(BaseRequiredMixin, TemplateView):
+
+    def get_template_names(self):
+        return [
+            "{0}/config_list.html".format(self.model_name),
+            "base/config_list.html"
+        ]
+
+    def get_user_list_config(self):
+        """
+        获取用户当前的配置，如果没有则返回：None
+        """
+        data = get_user_config(self.request.user, 'list', self.model)
+        return data
+
+    def get_default_list_fields(self):
+        """
+        获取模型当前配置，如果没有配置则返回带扩展字段的所有字段
+        """
+        fields = getattr(self.opts, 'list_display', '__all__')
+        if fields == '__all__':
+            return self.get_model_all_fields()
+        else:
+            return fields
+
+    def get_model_all_fields(self, exclude=None):
+        """
+        返回模型包含扩展字段的所有字段
+        """
+        if not exclude:
+            exclude = ['id', 'password', 'system_pass', 'user_permissions']
+        base_fields = list(fields_for_model(self.model, exclude=exclude))
+        extra_fields = getattr(self.opts, 'extra_fields', None)
+        if extra_fields and isinstance(extra_fields, list):
+            base_fields.extend(extra_fields)
+        return base_fields
+
+    def make_fields_for_dict(self, fields):
+        """
+        根据fileds列表参数，返回列表字段
+        data = [{
+            'sort': 1, 'field_name': 'created',
+            'verbose_name': '创建时间', 'selected': True
+        }]
+        """
+        fields_for_dict = list()
+        for field in fields:
+            fields_for_dict.append(dict(
+                name=field,
+                verbose_name=label_for_field(field, self.model),
+                )
+            )
+        return fields_for_dict
+
+    def make_fields_metadata(self):
+        """
+        制作表头，返回字典
+        """
+        user_config = self.get_user_list_config()
+        if not user_config:
+            fields = self.get_default_list_fields()
+            only_date = "1"
+        else:
+            fields = user_config.get('list_display')
+            only_date = user_config.get('list_only_date')
+        current_list_display = self.make_fields_for_dict(fields)
+        model_all_fields_list = self.make_fields_for_dict(
+            self.get_model_all_fields()
+        )
+        data = dict(
+            only_date=only_date,
+            current_list_display=current_list_display,
+            model_all_fields_list=model_all_fields_list
+        )
+        return data
+
+    def post(self, request, *args, **kwargs):
+        data = request.POST.copy()
+        clean_data = dict(
+            list_display=data.getlist('list_display'),
+            list_only_date=data.get('list_only_date', 1)
+        )
+        content = json.dumps(clean_data)
+        config = Configure.objects.filter(
+            content_type=get_content_type_for_model(self.model),
+            onidc_id=self.onidc_id, creator=self.request.user, mark='list'
+        ).order_by('-pk')
+        if config.exists():
+            config = config.update(content=content)
+        else:
+            config = Configure.objects.create(
+                content_type=get_content_type_for_model(self.model),
+                onidc_id=self.onidc_id, creator=self.request.user,
+                mark='list', content=content
+            )
+        key = utils.make_template_fragment_key(
+            "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
+        )
+        cache.delete(key)
+        redirect_to = reverse_lazy('idcops:list', args=[self.model_name])
+        messages.success(request, "您的{}自定义列表配置完成".format(self.verbose_name))
+        return HttpResponseRedirect(redirect_to)
+
+    def get_context_data(self, **kwargs):
+        context = super(ConfigUserListView, self).get_context_data(**kwargs)
+        _extra = {
+            'fields_metadata': self.make_fields_metadata()
         }
         context.update(**_extra)
         return context

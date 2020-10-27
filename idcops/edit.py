@@ -60,13 +60,6 @@ class NewModelView(BaseRequiredMixin, PermissionRequiredMixin,
             self.form_class = import_string(form_class_path)
         return self.form_class
 
-    def _create_formset(self, extra=0):
-        from django.forms import formset_factory
-        # from django.forms import BaseFormSet
-        FormSet = formset_factory(self.get_form_class(), extra=extra)
-        formset = FormSet(form_kwargs=self.get_form_kwargs())
-        return formset
-
     def get_form_kwargs(self):
         kwargs = super(NewModelView, self).get_form_kwargs()
         params = self.request.GET.dict()

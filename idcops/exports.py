@@ -66,14 +66,11 @@ def make_to_excel(object_list, fields=None):
     wb.save(output)
     output.seek(0)
     time = formats.localize(
-        timezone.template_localtime(
-            timezone.datetime.now()))
+        timezone.template_localtime(timezone.datetime.now())
+    )
     filename = urlquote(
-        '{}{}'.format(
-            verbose_name,
-            slugify(
-                time,
-                allow_unicode=True)))
+        '{}{}'.format(verbose_name, slugify(time, allow_unicode=True))
+    )
     # 上面 `filename` 解决导出中文文件名出错的问题
     response = HttpResponse(output)
     # response = StreamingHttpResponse(output)

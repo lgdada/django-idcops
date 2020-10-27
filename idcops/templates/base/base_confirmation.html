@@ -10,9 +10,11 @@
   <div class="box-header with-border">
     <h3 class="box-title">您确定要 {{action_name}} 选中的所有 {{meta.verbose_name}} ？</h3>
   </div>
+
   {%block form%}
   <form method="post">{% csrf_token %}
   <div class="box-body">
+    
     {% for obj in queryset %}
     <p><a  data-toggle="modal" data-target="#modal-lg" href="{%url 'idcops:detail' meta.model_name obj.pk%}">{{obj}}</a></p>
     <input type="hidden" name="index" value="{{ obj.pk|unlocalize }}" />

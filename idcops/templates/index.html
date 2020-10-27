@@ -32,6 +32,7 @@
   <!-- /.col -->
   {%endfor state_items%}
   <div class="clearfix visible-sm-block"></div>
+  
 </div>
 
 <div class="box">
@@ -127,6 +128,7 @@ Highcharts.chart('rack_statistics', {
 		data: [{% for rs in rack_statistics %}['{{rs.0}}',{{ rs.1 }}],{% endfor %}]
 	}]
 });
+
 Highcharts.chart('online_statistics', {
 	chart: {
 		plotBackgroundColor: null,

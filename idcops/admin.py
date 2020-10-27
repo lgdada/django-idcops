@@ -42,7 +42,9 @@ if app_models:
                     search_fields.append(f.name)
             exclude_fields.extend(list_filter)
             options = {
-                'list_display': [f.name for f in opts.fields if f.name not in exclude_fields],
+                'list_display': [
+                    f.name for f in opts.fields if f.name not in exclude_fields
+                ],
                 'list_filter': list_filter,
                 'list_display_links': [
                     nature_field_name(model)],

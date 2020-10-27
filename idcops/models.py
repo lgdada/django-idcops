@@ -24,10 +24,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
 from django.urls import reverse_lazy
-from django.db.models import options
 
 # Create your models here.
-from idcops.lib.models.utils import get_file_mimetype
 
 
 def upload_to(instance, filename):
@@ -118,7 +116,7 @@ class Creator(models.Model):
 
 class Operator(models.Model):
     operator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
         related_name="%(app_label)s_%(class)s_operator",
         blank=True, null=True,
         verbose_name="修改人", help_text="该对象的修改人"
@@ -161,7 +159,7 @@ class Actived(models.Model):
 
 class Deleted(models.Model):
     deleted = models.NullBooleanField(
-        default=False, editable=False,
+        default=False,
         verbose_name="已删除", help_text="该对象是否已被删除"
     )
 
@@ -223,7 +221,7 @@ class ClientAble(models.Model):
 class RackAble(models.Model):
     rack = models.ForeignKey(
         'Rack',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         null=True, blank=True,
         related_name="%(app_label)s_%(class)s_rack",
         verbose_name="所属机柜",
@@ -562,20 +560,20 @@ class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         help_text="请使用客户全称或跟其他系统保持一致")
     style = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Client-Style'},
         related_name="%(app_label)s_%(class)s_style",
         verbose_name="客户类型", help_text="从机房选项中选取")
     sales = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True, null=True,
         limit_choices_to={'flag': 'Client-Sales'},
         related_name="%(app_label)s_%(class)s_sales",
         verbose_name="客户销售", help_text="从机房选项中选取")
     kf = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True, null=True,
         limit_choices_to={'flag': 'Client-Kf'},
         related_name="%(app_label)s_%(class)s_kf",
@@ -641,14 +639,14 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     )
     zone = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Rack-Zone'},
         related_name="%(app_label)s_%(class)s_zone",
         verbose_name="机房区域", help_text="从机房选项中选取 机房区域"
     )
     style = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True, blank=True,
         limit_choices_to={'flag': 'Rack-Style'},
         related_name="%(app_label)s_%(class)s_style",
@@ -656,7 +654,7 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     )
     status = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True, blank=True,
         limit_choices_to={'flag': 'Rack-Status'},
         related_name="%(app_label)s_%(class)s_status",
@@ -769,7 +767,7 @@ class Unit(
     Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
 ):
     name = models.SlugField(
-        max_length=12, verbose_name="U位名称",
+        max_length=3, verbose_name="U位名称",
         help_text="必须是数字字符串,例如：01, 46, 47"
     )
 
@@ -921,10 +919,14 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         verbose_name="设备型号", help_text="比如: Dell R720xd")
     style = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Device-Style'},
         related_name="%(app_label)s_%(class)s_style",
         verbose_name="设备类型", help_text="设备类型默认为服务器")
+    urange = models.CharField(
+        max_length=12, blank=True, null=True,
+        verbose_name="U位范围", help_text="U位起始到结束，比如：05-08"
+    )
     _STATUS = (
         ('online', "在线"),
         ('offline', "已下线"),
@@ -951,12 +953,11 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         return text
 
     def list_units(self):
-        value = [force_text(i) for i in self.units.all()]
+        value = [force_text(i) for i in self.units.all().order_by('name')]
         if len(value) > 1:
             value = [value[0], value[-1]]
         units = "-".join(value)
         return units
-    list_units.short_description = "U位范围"
 
     @property
     def move_history(self):
@@ -994,13 +995,27 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         except Exception as e:
             logger.warning('Get device last rack warning: {}'.format(e))
 
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.sn:
+            cls = ContentType.objects.get_for_model(self)
+            cls_id = "%02d" % (cls.id)
+            try:
+                object_id = \
+                    cls.model_class().objects.order_by('pk').last().pk + 1
+            except Exception:
+                object_id = 1
+            object_id = "%02d" % (object_id)
+            self.sn = str(
+                timezone.datetime.now().strftime('%Y%m%d') + cls_id + object_id
+            )
+        return super(Device, self).save(*args, **kwargs)
+
     class Meta(Mark.Meta):
         level = 1
-        extra_fields = ['list_units']
         icon = 'fa fa-server'
         metric = "台"
         list_display = [
-            'name', 'rack', 'list_units', 'client', 'model', 'style',
+            'name', 'rack', 'urange', 'client', 'model', 'style',
             'sn', 'ipaddr', 'status', 'actived', 'modified'
         ]
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
@@ -1037,7 +1052,7 @@ class Online(Device):
         metric = "台"
         dashboard = True
         list_display = [
-            'name', 'rack', 'list_units', 'client', 'model',
+            'name', 'rack', 'urange', 'client', 'model',
             'sn', 'ipaddr', 'style', 'status', 'created', 'creator'
         ]
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
@@ -1054,7 +1069,7 @@ class Offline(Device):
         icon_color = 'red'
         metric = "台"
         list_display = [
-            'name', 'rack', 'list_units', 'client', 'model',
+            'name', 'rack', 'urange', 'client', 'model',
             'style', 'sn', 'ipaddr', 'modified', 'operator'
         ]
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
@@ -1082,7 +1097,7 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     netprod = models.ForeignKey(
         'Option',
         blank=True, null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Jumpline-Netprod'},
         related_name="%(app_label)s_%(class)s_netprod",
         verbose_name="网络产品",
@@ -1149,7 +1164,8 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % cls.id
             try:
-                object_id = cls.model_class().objects.order_by('pk').last().pk + 1
+                object_id = \
+                    cls.model_class().objects.order_by('pk').last().pk + 1
             except Exception:
                 object_id = 1
             object_id = "%02d" % object_id
@@ -1236,10 +1252,9 @@ class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
 
 @python_2_unicode_compatible
 class Zonemap(Onidc, Mark, PersonTime, ActiveDelete, Remark):
-
     zone = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Rack-Zone'},
         related_name="%(app_label)s_%(class)s_zone",
         verbose_name="所在区域"
@@ -1278,7 +1293,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
     )
     brand = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True, null=True,
         limit_choices_to={'flag': 'Goods-Brand'},
         related_name="%(app_label)s_%(class)s_brand",
@@ -1287,7 +1302,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
     )
     unit = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Goods-Unit'},
         related_name="%(app_label)s_%(class)s_unit",
         verbose_name="物品单位",
@@ -1324,14 +1339,14 @@ class Inventory(
         verbose_name="物品信息", help_text="从物品分类中选取")
     state = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Inventory-State'},
         related_name="%(app_label)s_%(class)s_state",
         verbose_name="物品状态",
         help_text="来自机房选项, 标记类型为: 库存物品-物品状态")
     location = models.ForeignKey(
         'Option',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         limit_choices_to={'flag': 'Inventory-Location'},
         related_name="%(app_label)s_%(class)s_location",
         verbose_name="存放位置",
@@ -1386,7 +1401,8 @@ class Inventory(
             cls = ContentType.objects.get_for_model(self)
             cls_id = "%02d" % (cls.id)
             try:
-                object_id = cls.model_class().objects.order_by('pk').last().pk + 1
+                object_id = \
+                    cls.model_class().objects.order_by('pk').last().pk + 1
             except Exception:
                 object_id = 1
             object_id = "%02d" % (object_id)
@@ -1415,7 +1431,7 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     body = models.TextField(verbose_name="文档内容")
     category = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True, null=True,
         limit_choices_to={'flag': 'Document-Category'},
         related_name="%(app_label)s_%(class)s_category",
@@ -1423,7 +1439,7 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         help_text="分类, 从机房选项中选取")
     status = models.ForeignKey(
         'Option',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True, null=True,
         limit_choices_to={'flag': 'Document-Status'},
         related_name="%(app_label)s_%(class)s_status",
@@ -1468,10 +1484,6 @@ class Attachment(Onidc, Mark, PersonTime, ActiveDelete, Tag, Remark):
 
     def __str__(self):
         return self.name
-
-    @property
-    def mimetype(self):
-        return get_file_mimetype(self.file.path)
 
     class Meta(Mark.Meta):
         level = 1

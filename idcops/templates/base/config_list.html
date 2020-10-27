@@ -1,0 +1,103 @@
+{% extends 'base/base.html' %}
+{% load static app_extras i18n %}
+{% block title %}自定义{{meta.title}}列表字段{% endblock %}
+{% block extra-css %}
+{% endblock %}
+
+{% block content-header %}<h1>{{meta.verbose_name}} <small> 自定义{{meta.verbose_name}}列表字段</small></h1>{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="{% url 'idcops:index' %}"><i class="fa fa-dashboard"></i>
+    {% if meta %}{{meta.logo}}{% else %}仪表盘{% endif %}
+  </a></li>
+<li><i class="{{meta.icon}}"></i> {{meta.verbose_name}}</li>
+<li class="active hidden-xs">
+  <a title="设置列表字段" href="{%url 'idcops:list' meta.model_name%}?config=true">
+    <span> 配置列表</span>
+  </a>
+</li>
+{% endblock %}
+
+
+{% block main-content %}
+<div class="box box-warning">
+  <div class="box-header with-border">
+    <h3 class="box-title"> 自定义{{meta.verbose_name}}列表字段</h3>
+    <div class="box-tools pull-right">
+      <div class="btn-group margin-r-5">
+        <button type="button" class="btn btn-default btn-sm" onclick="window.history.go(-1)">
+          <i class="fa fa-arrow-circle-o-left"></i><span> 返回上一页</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  {%block form%}
+  <form action="" method="POST" id="{{meta.model_name}}-config_list">
+    {% csrf_token %}
+    <div class="box-body">
+      <!-- {{fields_metadata.only_date}}
+      {{fields_metadata.current_list_display}}
+      {{fields_metadata.model_all_fields_list}} -->
+
+      <div class="form-group">
+        <div class="list-header">
+          <div class="row">
+            <div id="model_all_fields_list" class="list-groupd col-md-6">
+              {% for field in fields_metadata.model_all_fields_list%}
+              <div class="list-field-item external-event bg-gray" name="{{field.name}}">{{field.verbose_name}}</div>
+              {% endfor %}
+            </div>
+
+            <div id="current_list_display" class="list-groupd col-md-6">
+              {% for field in fields_metadata.current_list_display%}
+              <div class="list-field-item external-event bg-green" name="{{field.name}}">{{field.verbose_name}}</div>
+              {% endfor %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>请选择日期时间字段格式</label>
+        <div style="width: 100%;" class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary btn-sm">
+            <input type="radio" name="list_only_date" value="0" autocomplete="off"> 显示日期和时间
+          </label>
+          <label class="btn btn-primary btn-sm active">
+            <input type="radio" name="list_only_date" value="1" autocomplete="off" checked> 仅显示日期
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <div class="box-footer">
+      <button type="button" class="btn btn-default btn-sm margin-r-5" onclick="window.history.go(-1)">
+        <span> 取消并返回</span>
+      </button>
+      <div class="btn-group pull-right">
+        <button type="submit" name="_addanother" class="btn btn-primary btn-sm margin-r-5">保存并新增</button>
+        <button type="submit" name="_saverview" class="btn btn-primary btn-sm margin-r-5">保存并查看</button>
+        <button type="submit" name="_saverlist" class="btn btn-primary btn-sm">保存返回列表</button>
+      </div>
+    </div>
+  </form>
+  {%endblock form%}
+</div>
+{% endblock main-content %}
+{% block extra-js %}
+<script src="https://sortablejs.github.io/sortablejs/Sortable.js"></script>
+<script>
+  var LeftEl = document.getElementById('model_all_fields_list');
+  var RightEl = document.getElementById('current_list_display')
+  new Sortable(LeftEl, {
+    group: 'shared', // set both lists to same group
+    animation: 150
+  });
+
+  new Sortable(RightEl, {
+      group: 'shared',
+      animation: 150
+  });
+</script>
+{% endblock extra-js %}

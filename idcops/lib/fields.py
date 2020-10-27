@@ -33,7 +33,8 @@ class NullableCharFieldMixin(object):
     _formfield_class = NullableCharFormField
 
     def get_prep_value(self, value):
-        return super(NullableCharFieldMixin, self).get_prep_value(value) or None
+        r = super(NullableCharFieldMixin, self).get_prep_value(value) or None
+        return r
 
     def formfield(self, **kwargs):
         defaults = {}
@@ -45,6 +46,7 @@ class NullableCharFieldMixin(object):
 
 class NullableCharField(NullableCharFieldMixin, models.CharField):
     pass
+
 
 class NullableGenericIPAddressField(
     NullableCharFieldMixin,

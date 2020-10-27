@@ -201,7 +201,7 @@ $('body').on('hidden.bs.modal', '.modal', function () {
   $(this).removeData('bs.modal');
 });
 
-function update_cell(cell_id, rack_id,cell_desc){
+function update_cell(cell_id, rack_id, cell_desc){
 var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
 var data = {'csrfmiddlewaretoken': csrfmiddlewaretoken,'rack_id':rack_id,'cell_id':cell_id,"cell_desc":cell_desc}
 $.ajax({
@@ -314,7 +314,7 @@ function handleDrop(e) {
         // 4.2 处理目标单元格
         $(this).attr({'data-rackid':src_rackid,'draggable':'true','data-flag':'left_false', 'class':''}).addClass(src_class);
         update_cell(src_cell_id, "","");
-        setTimeout(function(){ update_cell(cell_id, src_rackid,"");},1000);
+        setTimeout(function(){ update_cell(cell_id, src_rackid,"");},1);
     }
 
     // 5.执行左边机柜拖拽到右边空白可直接放置的判断 ,删除左边,添加右边
@@ -322,7 +322,7 @@ function handleDrop(e) {
         var src_class = $(dragSrcEl).attr('class');
         var src_rackid = $(dragSrcEl).attr('data-rackid');
         var src_cell_id = $(dragSrcEl).attr('data-pk');
-        var this_tr = "<tr><td class="+src_class+" data-rackid="+src_rackid+" data-flag='right_true' draggable='true'>"+dragSrcEl.innerHTML+"</td></tr>";
+        var this_tr = "<tr><td class='"+src_class+"' data-rackid="+src_rackid+" data-flag='right_true' draggable='true'>"+dragSrcEl.innerHTML+"</td></tr>";
         $(this).parent().after(this_tr);
         update_cell(src_cell_id,"","");
         $(dragSrcEl).removeAttr('draggable data-rackid style class').addClass('badge text-black');

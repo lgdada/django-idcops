@@ -111,12 +111,13 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = False
 
-#USE_TZ = True
+DATE_FORMAT = 'Y-m-d'
 
+DATETIME_FORMAT = 'Y-m-d H:i:s'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -138,7 +139,7 @@ AUTH_USER_MODEL = 'idcops.User'
 
 # idcops options
 
-SOFT_DELELE = True
+SOFT_DELELE = False
 
 COLOR_TAGS = True
 

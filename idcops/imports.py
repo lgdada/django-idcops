@@ -143,7 +143,7 @@ def import_rack(path, onidc_id):
             handler_error.append(msg)
             break
         data = dict(zip(headers, [k.value for k in row]))
-        raw = {k: str(data.get(k)) for k in fileds}
+        raw = {k: data.get(k) for k in fileds}
         zone, err = get_rack_zone(raw.get('zone'), onidc_id)
         if not zone:
             msg = "第{}行：{}".format(index, err)
@@ -176,13 +176,15 @@ def import_rack(path, onidc_id):
             else:
                 actived = False
                 client = None
+            unitc = int(raw.get('unitc'))
+            pduc = int(raw.get('pduc'))
+            cpower = int(raw.get('cpower'))
             # 实例化机柜
             instance = Rack(
                 name=name, cname=cname, zone=zone, client=client,
                 style=style, status=status, actived=actived,
-                creator_id=CreatorId, unitc=raw.get('unitc'),
-                pduc=raw.get('pduc'), cpower=raw.get('cpower'),
-                onidc_id=onidc_id
+                creator_id=CreatorId, unitc=unitc, pduc=pduc,
+                cpower=cpower, onidc_id=onidc_id
             )
             instance.save()
             handler_success.append(instance.name)
@@ -227,7 +229,7 @@ def get_or_create_style(name, onidc_id):
 
 
 def get_or_create_option(name, onidc_id, flag, create=False):
-    if name.strip() == "":
+    if not name.strip():
         instance = None
     f = dict(
         onidc_id=onidc_id, flag=flag, text=name.strip()
@@ -236,7 +238,7 @@ def get_or_create_option(name, onidc_id, flag, create=False):
     if qs.exists():
         instance = qs.first()
     else:
-        if create:
+        if create and name.strip():
             extra = dict(
                 description=name.strip(),
                 creator_id=CreatorId

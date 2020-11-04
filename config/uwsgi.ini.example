@@ -1,5 +1,5 @@
 [uwsgi]
-PROJ_DIR = /data/django-idcops
+PROJ_DIR = /data/apps/idcops
 vacuum = true
 py-autoreload = 3
 master = true

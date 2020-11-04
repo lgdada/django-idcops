@@ -1,10 +1,10 @@
 # 简介
-django-idcops 是一个开源的倾向于数据中心运营商而开发的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一些列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
-django-idcops 通过“数据中心”来分类管理每个数据中心下面的资源，每个数据中心均是单独的。
+idcops 是一个基于Django倾向于数据中心运营商而开发的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一些列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
+idcops 通过“数据中心”来分类管理每个数据中心下面的资源，每个数据中心均是单独的。
 
 软件许可协议
 
-django-idcops 遵循 Apache License 2.0。
+idcops 遵循 Apache License 2.0。
 
 
 联系
@@ -18,7 +18,7 @@ QQ群：185964462
 
 ##### 微信公众号:
 
-![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
+![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/qrcode_for_weixin.jpg)
 
 #### 项目截图：
 
@@ -26,7 +26,7 @@ QQ群：185964462
 
 用户 / 密码： admin / admin123
 
-![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
+![仪表盘](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/2018-12-25_173535.jpg)
 
 # 快速开始
 
@@ -34,8 +34,8 @@ QQ群：185964462
 
 ```
 cd /home
-# git clone https://github.com/Wenvki/django-idcops.git mysite
-git clone https://gitee.com/wenvki/django-idcops.git mysite
+# git clone https://github.com/Wenvki/idcops.git mysite
+git clone https://gitee.com/wenvki/idcops.git mysite
 cd mysite/
 virtualenv env # python虚拟环境
 source env/bin/activate # 激活python虚拟环境
@@ -52,21 +52,21 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 
 1、访问 http://your_ip:8000/
 
-![login](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0001.png)
+![login](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/0001.png)
 
 2、首次使用，系统还没有数据中心，需新建一个数据中心
 
-![create idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0002.png)
+![create idc](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/0002.png)
 
-![create idc 02](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0003.png)
+![create idc 02](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/0003.png)
 
 3、将用户关联至数据中心
 
-![user related to idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0004.png)
+![user related to idc](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/0004.png)
 
 4、重新访问首页 http://your_ip:8000/
 
-![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0005.png)
+![visit index](https://raw.githubusercontent.com/Wenvki/idcops/master/screenshots/0005.png)
 
 
 #### 三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：

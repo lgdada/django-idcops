@@ -5,7 +5,7 @@
         rewrite ^(/.*)$ https://$host$1 permanent;
     }
 
-    if ( $host != 'django-idcops.iloxp.com' ) {
+    if ( $host != 'idcops.iloxp.com' ) {
         rewrite ^(.*)$ https://www.iloxp.com$1 permanent;
     }
     #HTTP_TO_HTTPS_END

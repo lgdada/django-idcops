@@ -55,6 +55,7 @@ class ListModelView(BaseRequiredMixin, ListView):
     def get_template_names(self):
         return ["{0}/list.html".format(self.model_name), "base/list.html"]
 
+    @cached_property
     def _config(self):
         key = utils.make_template_fragment_key(
             "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
@@ -67,7 +68,7 @@ class ListModelView(BaseRequiredMixin, ListView):
     @property
     def list_only_date(self):
         try:
-            config = self._config().get('list_only_date', 1)
+            config = self._config.get('list_only_date', 1)
             only_date = bool(int(config))
         except Exception:
             only_date = True
@@ -75,8 +76,8 @@ class ListModelView(BaseRequiredMixin, ListView):
 
     @property
     def user_list_display(self):
-        if self._config():
-            return self._config().get('list_display', None)
+        if self._config:
+            return self._config.get('list_display', None)
         return None
 
     @property
@@ -99,6 +100,7 @@ class ListModelView(BaseRequiredMixin, ListView):
     def display_link_field(self):
         return nature_field_name(self.model)
 
+    @property
     def is_config(self):
         return self.request.GET.get('config', None)
 
@@ -110,7 +112,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             fields = self.model_list_display
         else:
             fields = self.default_list_fields
-        if not self.is_config():
+        if not self.is_config:
             prefix_fields = ['field-first', 'field-second']
             fields = prefix_fields + fields
             fields.insert(len(fields), 'field-last')
@@ -274,28 +276,6 @@ class ListModelView(BaseRequiredMixin, ListView):
                 html += li
             return mark_safe(html)
 
-    def user_config(self, data):
-        newd = dict(
-            list_display=data.getlist('list_display'),
-            list_only_date=data.get('list_only_date', 1)
-        )
-        content = json.dumps(newd)
-        config = Configure.objects.filter(
-            content_type=get_content_type_for_model(self.model),
-            onidc_id=self.onidc_id, creator=self.request.user,
-            mark='list').order_by('-pk')
-        if config.exists():
-            config = config.update(content=content)
-        else:
-            config = Configure.objects.create(
-                content_type=get_content_type_for_model(self.model),
-                onidc_id=self.onidc_id, creator=self.request.user,
-                mark='list', content=content)
-        key = utils.make_template_fragment_key("{}.{}.{}".format(
-            self.request.user.id, self.model_name, 'list'))
-        cache.delete(key)
-        return config
-
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
         mode = request.POST.get('mode')
@@ -304,11 +284,7 @@ class ListModelView(BaseRequiredMixin, ListView):
         if mode == 'all':
             objects = self.get_queryset()
         redirect_to = reverse_lazy('idcops:list', args=[self.model_name])
-        if action == 'config':
-            postdata = request.POST.copy()
-            self.user_config(postdata)
-            return HttpResponseRedirect(redirect_to)
-        if not objects.exists() and action != 'config':
+        if not objects.exists():
             messages.warning(request, "您必须选中一些条目")
         else:
             try:
@@ -516,14 +492,22 @@ class ConfigUserListView(BaseRequiredMixin, TemplateView):
         model_all_fields_list = self.make_fields_for_dict(
             self.get_model_all_fields()
         )
+        unused_list_fields = [
+            f for f in model_all_fields_list if f not in current_list_display
+        ]
         data = dict(
             only_date=only_date,
             current_list_display=current_list_display,
-            model_all_fields_list=model_all_fields_list
+            model_all_fields_list=model_all_fields_list,
+            unused_list_fields=unused_list_fields
         )
         return data
 
     def post(self, request, *args, **kwargs):
+        key = utils.make_template_fragment_key(
+            "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
+        )
+        cache.delete(key)
         data = request.POST.copy()
         clean_data = dict(
             list_display=data.getlist('list_display'),
@@ -542,10 +526,6 @@ class ConfigUserListView(BaseRequiredMixin, TemplateView):
                 onidc_id=self.onidc_id, creator=self.request.user,
                 mark='list', content=content
             )
-        key = utils.make_template_fragment_key(
-            "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
-        )
-        cache.delete(key)
         redirect_to = reverse_lazy('idcops:list', args=[self.model_name])
         messages.success(request, "您的{}自定义列表配置完成".format(self.verbose_name))
         return HttpResponseRedirect(redirect_to)

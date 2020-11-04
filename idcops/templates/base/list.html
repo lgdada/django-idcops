@@ -55,7 +55,7 @@
 </a></li>
 <li><i class="{{meta.icon}}"></i> {{meta.verbose_name}}</li>
 <li class="active hidden-xs">
-  <a title="设置列表字段" href="{%url 'idcops:list' meta.model_name%}?config=true">
+  <a title="设置列表字段" href="{%url 'idcops:config_list' meta.model_name%}">
     <span> 配置列表</span>
   </a>
 </li>
@@ -88,23 +88,6 @@
           {%endif%}
         {% endblock table-sub-tools %}
 
-        {%if request.GET.config%}
-        <hr>
-        <div class="form-group">
-          <label>请选择日期时间字段格式<span class="small text-red"></span></label>
-          <div style="width: 100%;" class="btn-group" data-toggle="buttons">
-            <label class="btn btn-primary btn-sm">
-              <input type="radio" name="list_only_date" value="0" autocomplete="off"> 显示日期和时间
-            </label>
-            <label class="btn btn-primary btn-sm active">
-              <input type="radio" name="list_only_date" value="1" autocomplete="off" checked> 仅显示日期
-            </label>
-          </div>
-        </div>
-        <button type="submit" name="action" value="config" class="action-related btn btn-primary btn-sm margin-r-5">
-          <span class="hidden-xs"> 提交配置</span>
-        </button>
-        {%endif%}
       </div>
       {% block search %}
       <div class="pull-right">
@@ -125,9 +108,6 @@
             <tr>
             {%for item in thead%}
               <th scope="col" name="{{item.field}}" {{item.class_attrib}}>
-                {%if request.GET.config%}
-                  <input type="checkbox" {%if item.checked%} checked="checked" {%endif%}value="{{item.field}}" name="list_display">
-                {%endif%}
                 {%if item.sortable%}
                   {%if item.is_sorted%}
                   <a title="正反序切换" href="{{item.toggle_link}}">{{item.text}}
@@ -272,34 +252,6 @@ $(document).ready(function (){
     $(this).hide();
     $("#select_all").show();
   })
-
-  {%if request.GET.config == 'true'%}
-    $('body').addClass('sidebar-collapse');
-
-    tableDragger(document.querySelector("#objects-list"));
-    var checks = $("#list_config label.btn.btn-sm.btn-primary").not(".active");
-    for (var i=0; i<checks.length;i++){
-      var field = checks.eq(i).children().val();
-      $("table thead tr th.col-"+field).hide();
-      $("table thead tr th.col-"+field).addClass('hidden').removeClass('visible');
-      $("table tbody tr td.field-"+field).hide();
-    }
-
-    $("#list_config label.btn").click(function(){
-      var field = $(this).children().val();
-      var checked = $(this).children().is(":checked");
-      if (checked == true) {
-        $("table thead tr th.col-"+field).hide();
-        $("table thead tr th.col-"+field).addClass('hidden').removeClass('visible');
-        $("table tbody tr td.field-"+field).hide();
-      }else{
-        $("table thead tr th.col-"+field).show();
-        $("table thead tr th.col-"+field).addClass('visible').removeClass('hidden');
-        $("table tbody tr td.field-"+field).show();
-      }
-    });
-
-  {%endif%}
 
   $("#search button").on('click', function(e) {
       var value = $("#search input").val();

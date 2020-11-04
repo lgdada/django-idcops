@@ -35,39 +35,48 @@
   <form action="" method="POST" id="{{meta.model_name}}-config_list">
     {% csrf_token %}
     <div class="box-body">
-      <!-- {{fields_metadata.only_date}}
-      {{fields_metadata.current_list_display}}
-      {{fields_metadata.model_all_fields_list}} -->
-
+      <p>左右拖拽可定制列表的字段，上下拖拽可定制列表的顺序。<span class="text-red">右边绿色部分的元素是当前列表或配置后的列表字段。</span></p>
       <div class="form-group">
         <div class="list-header">
           <div class="row">
-            <div id="model_all_fields_list" class="list-groupd col-md-6">
-              {% for field in fields_metadata.model_all_fields_list%}
-              <div class="list-field-item external-event bg-gray" name="{{field.name}}">{{field.verbose_name}}</div>
+            <div id="unused_list_fields" class="list-groupd col-md-6">
+              <label for="unused_fields" class="control-label">
+                未在列表中展示的字段:
+              </label>
+              {% for field in fields_metadata.unused_list_fields%}
+              <div class="list-field-item external-event bg-gray" name="{{field.name}}">
+                <input type="hidden" disabled="disabled" checked="checked" value="{{field.name}}" name="list_display">
+                {{field.verbose_name}}
+              </div>
               {% endfor %}
             </div>
 
             <div id="current_list_display" class="list-groupd col-md-6">
+              <label for="used_fields" class="control-label">
+                当前列表中展示的字段和顺序:
+              </label>
               {% for field in fields_metadata.current_list_display%}
-              <div class="list-field-item external-event bg-green" name="{{field.name}}">{{field.verbose_name}}</div>
+              <div class="list-field-item external-event bg-green" name="{{field.name}}">
+                <input type="hidden" checked="checked" value="{{field.name}}" name="list_display">
+                {{field.verbose_name}}
+              </div>
               {% endfor %}
             </div>
 
           </div>
         </div>
       </div>
-
       <div class="form-group">
-        <label>请选择日期时间字段格式</label>
+        <label for="list_only_date" class="control-label">请选择日期时间字段格式:</label>
         <div style="width: 100%;" class="btn-group" data-toggle="buttons">
-          <label class="btn btn-primary btn-sm">
-            <input type="radio" name="list_only_date" value="0" autocomplete="off"> 显示日期和时间
+          <label class="btn btn-primary btn-sm{%if fields_metadata.only_date == "0" %} active{%endif%}">
+            <input type="radio" name="list_only_date" value="0" autocomplete="off" {%if fields_metadata.only_date == "0" %}checked{%endif%}> 显示日期和时间
           </label>
-          <label class="btn btn-primary btn-sm active">
-            <input type="radio" name="list_only_date" value="1" autocomplete="off" checked> 仅显示日期
+          <label class="btn btn-primary btn-sm{%if fields_metadata.only_date == "1" %} active{%endif%}">
+            <input type="radio" name="list_only_date" value="1" autocomplete="off" {%if fields_metadata.only_date == "1" %}checked{%endif%}> 仅显示日期
           </label>
         </div>
+        <p class="help-block">例如：2020-11-03 16:16:16（日期和时间）</p>
       </div>
 
     </div>
@@ -76,9 +85,7 @@
         <span> 取消并返回</span>
       </button>
       <div class="btn-group pull-right">
-        <button type="submit" name="_addanother" class="btn btn-primary btn-sm margin-r-5">保存并新增</button>
-        <button type="submit" name="_saverview" class="btn btn-primary btn-sm margin-r-5">保存并查看</button>
-        <button type="submit" name="_saverlist" class="btn btn-primary btn-sm">保存返回列表</button>
+        <button type="submit" name="_saverlist" class="btn btn-primary btn-sm">提交并返回列表</button>
       </div>
     </div>
   </form>
@@ -88,16 +95,29 @@
 {% block extra-js %}
 <script src="https://sortablejs.github.io/sortablejs/Sortable.js"></script>
 <script>
-  var LeftEl = document.getElementById('model_all_fields_list');
+  var LeftEl = document.getElementById('unused_list_fields');
   var RightEl = document.getElementById('current_list_display')
   new Sortable(LeftEl, {
-    group: 'shared', // set both lists to same group
-    animation: 150
+    group: 'shared',
+    animation: 150,
+    filter: '.control-label',
+    onAdd: function (evt) {
+      [].forEach.call(LeftEl.querySelectorAll('input[name="list_display"]'), function(item) {
+        item.setAttribute('disabled', 'disabled')
+      });
+    }  
   });
 
   new Sortable(RightEl, {
-      group: 'shared',
-      animation: 150
+    group: 'shared',
+    animation: 150,
+    filter: '.control-label',
+    onAdd: function (evt) {
+      [].forEach.call(RightEl.querySelectorAll('input[name="list_display"]'), function(item) {
+        item.removeAttribute('disabled')
+      });
+    },
   });
+
 </script>
 {% endblock extra-js %}

@@ -32,6 +32,8 @@ urlpatterns = [
     url(r'^list/zonemap/', views.ZonemapView.as_view(), name='zonemap'),
     url(r'^(?:new/(?P<model>\w+))/$', NewModelView.as_view(), name='new'),
     url(r'^(?:list/(?P<model>\w+))/$', ListModelView.as_view(), name='list'),
+    url(r'^(?:config/(?P<model>\w+))/$',
+        ConfigUserListView.as_view(), name='config'),
     url(r'^(?:config/list/(?P<model>\w+))/$',
         ConfigUserListView.as_view(), name='config_list'),
     url(r'^(?:detail/(?:(?P<model>\w+)-(?P<pk>\d+)))/$',

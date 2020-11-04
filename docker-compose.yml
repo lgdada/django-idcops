@@ -3,7 +3,7 @@ version: '2'
 services:
   idcops:
     build: .
-    image: django-idcops
+    image: idcops
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code

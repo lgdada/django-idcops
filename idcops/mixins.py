@@ -66,21 +66,26 @@ def get_user_config(user, mark, model):
 
 class BaseRequiredMixin(LoginRequiredMixin):
 
+    cmodel = ''
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             messages.warning(request, "系统需要登录才能访问")
             return redirect_to_login(
                 request.get_full_path(),
-                self.get_login_url(), self.get_redirect_field_name())
+                self.get_login_url(), self.get_redirect_field_name()
+            )
+
         if not request.user.onidc:
             idc = Idc.objects.filter(actived=True)
             if idc.count() == 0 and request.user.is_superuser:
                 messages.info(
                     request,
-                    "您必须新建一个数据中心并将用户关联至此机房")
+                    "您必须新建一个数据中心并将用户关联至此机房"
+                )
                 return HttpResponseRedirect('/welcome/')
             return self.handle_no_permission()
-        model = self.kwargs.get('model', None)
+        model = self.kwargs.get('model', self.cmodel)
         onidc = request.user.onidc
         self.onidc_id = onidc.id
         self.title = "{} 数据中心运维平台".format(onidc.name)

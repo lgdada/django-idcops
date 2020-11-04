@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 from django.apps import apps
 from django.dispatch import receiver
 from django.db.models import signals

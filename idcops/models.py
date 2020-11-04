@@ -3,10 +3,7 @@ from __future__ import unicode_literals
 
 import os
 import uuid
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings

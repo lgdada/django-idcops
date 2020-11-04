@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 from django.apps import apps
 from django.core.cache import cache, utils
 from django.http import Http404, HttpResponseRedirect

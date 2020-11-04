@@ -4,11 +4,7 @@ from __future__ import unicode_literals
 import sys
 import copy
 import time
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 
 from functools import wraps
 

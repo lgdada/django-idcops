@@ -62,6 +62,7 @@ sed -i "/^SECRET_KEY/c ${NEW_SECRET_KEY}" idcops_proj/settings.py
 # Use sqlite3 by default
 # migrate
 source "${VIRTUALENV}/bin/activate"
+mkdir -p media
 python manage.py makemigrations
 python manage.py migrate
 
@@ -77,6 +78,13 @@ DeleteUser="User.objects.filter(username='${UserName}').delete();"
 CreateUser="User.objects.create_superuser('${UserName}', '${UserEmail}', '${UserPass}')"
 echo "${ImportUser} ${DeleteUser} ${CreateUser}" | python manage.py shell
 echo -e "用户名：${UserName}\n用户密码：${UserPass}"
-mkdir media
+echo -e "账户密码可以查看 install.log 文件"
 
-python manage.py runserver 0.0.0.0:9977
+# runserver 
+SrvAddr='0.0.0.0'
+# 0.0.0.0 默认侦听所有本机地址，或例如本机地址：192.168.7.77
+SrvPort='8000'
+
+echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" > install.log
+
+python manage.py runserver ${SrvAddr}:${SrvPort}

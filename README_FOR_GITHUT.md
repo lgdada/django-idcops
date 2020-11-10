@@ -48,6 +48,8 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 ```
 
 
+# 说明与项目截图
+
 #### 二、初始化配置：
 
 1、访问 http://your_ip:8000/
@@ -92,8 +94,6 @@ COLOR_FK_FIELD = False
 
 ```
 
-
-# 说明与项目截图
 
 #### 模块说明：
 

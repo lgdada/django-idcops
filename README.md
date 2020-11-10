@@ -56,6 +56,16 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 # 访问http://127.0.0.1:8000/
 ```
 
+**CentOS下一键安装脚本（仅运行测试环境）**
+```
+cd $HOME
+git clone https://gitee.com/wenvki/idcops.git
+cd idcops
+sh install.sh
+# 程序默认使用使用本机8000端口，安装前请确保8000端口未被使用。
+# 或者修改脚本里面 SrvPort 参数为你想要的端口。
+```
+
 **docker-compose方式运行**
 需要安装docker和docker-compose
 ```
@@ -69,6 +79,9 @@ docker-compose exec idcops python manage.py createsuperuser --username admin
 # 按提示创建一个超级管理员admin用户和密码
 # 访问http://127.0.0.1:8000/
 ```
+
+
+# 说明与项目截图
 
 #### 二、初始化配置：
 
@@ -88,28 +101,20 @@ docker-compose exec idcops python manage.py createsuperuser --username admin
 #### 三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：
 
 ```
+# django options
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
 MEDIA_URL = '/media/'
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 AUTH_USER_MODEL = 'idcops.User'
 
 # idcops options
-
 SOFT_DELELE = True
-
 COLOR_TAGS = True
-
 COLOR_FK_FIELD = False
 
 ```
 
-
-# 说明与项目截图
 
 #### 模块说明：
 

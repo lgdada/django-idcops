@@ -83,7 +83,7 @@ echo -e "账户密码可以查看 install.log 文件"
 # runserver 
 SrvAddr='0.0.0.0'
 # 0.0.0.0 默认侦听所有本机地址，或例如本机地址：192.168.7.77
-SrvPort='9977'
+SrvPort='8000'
 
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" > install.log
 

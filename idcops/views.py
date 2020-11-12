@@ -466,31 +466,15 @@ def welcome(request):
 
 
 @login_required(login_url='/accounts/login/')
-def import_device(request):
-    CurrentUrl = reverse_lazy('idcops:import')
+def switch_onidc(request):
+    idcs = request.user.slaveidc.all()
+    index_url = reverse_lazy('idcops:index')
     if request.method == 'POST':
-        ImportFile = request.FILES.get('file', None)
-        if not ImportFile:
-            messages.error(request, "没有文件可上传！")
-            return HttpResponseRedirect(CurrentUrl)
-        FilePath = getattr(settings, 'MEDIA_ROOT', '../logs')
-        FileName = FilePath + ImportFile.name
-        with open(FileName, 'wb+') as destination:
-            for chunk in ImportFile.chunks():
-                destination.write(chunk)
-        _result = import_online(FileName, request.onidc_id)
-        result = json.dumps(_result)
-        log_action(
-            user_id=request.user.pk,
-            content_type_id=get_content_type_for_model(Online, True).pk,
-            object_id=0,
-            action_flag="导入设备",
-            content=result
-        )
-        messages.info(request, "导入完成，请查看日志记录！")
-        return HttpResponseRedirect(CurrentUrl)
-    else:
-        return render(request, 'device/import.html')
+        new_idc = request.POST.get('new_idc')
+        request.user.onidc_id = new_idc
+        request.user.save()
+        return HttpResponseRedirect(index_url)
+    return render(request, 'user/switch.html', {'idcs': idcs})
 
 
 class ImportOnline(BaseRequiredMixin, FormView):

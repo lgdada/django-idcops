@@ -34,9 +34,9 @@ from idcops.mixins import BaseRequiredMixin
 from idcops.models import (
     Option, Rack, Device, Online,
     Syslog, ContentType, Zonemap, Client,
-    Idc
+    Idc, Attachment
 )
-from idcops.lib.tasks import log_action
+
 from idcops.forms import (
     ImportExcelForm, ZonemapNewForm, InitIdcForm, ImportOnlineForm
 )
@@ -105,7 +105,6 @@ class SummernoteUploadAttachment(BaseRequiredMixin, View):
             for file in request.FILES.getlist('files'):
 
                 # create instance of appropriate attachment class
-                from idcops.models import Attachment
                 attachment = Attachment()
 
                 attachment.onidc = request.user.onidc
@@ -473,6 +472,7 @@ def switch_onidc(request):
         new_idc = request.POST.get('new_idc')
         request.user.onidc_id = new_idc
         request.user.save()
+        messages.success(request, "您已切换到 {}".format(request.user.onidc.name))
         return HttpResponseRedirect(index_url)
     return render(request, 'user/switch.html', {'idcs': idcs})
 

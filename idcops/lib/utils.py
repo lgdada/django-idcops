@@ -9,6 +9,7 @@ import decimal
 
 from collections import OrderedDict
 from itertools import chain
+from ipaddress import IPv4Network, IPv6Network
 
 from django.contrib.admin.utils import (
     lookup_field, NestedObjects
@@ -25,6 +26,7 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.text import capfirst
 from django.utils.safestring import mark_safe
+
 # from django.views.generic.base import logger
 
 from idcops.models import Option
@@ -135,6 +137,8 @@ def nature_field_name(model):
             return 'linenum'
         elif 'kcnum' in fields:
             return 'kcnum'
+        elif 'address' in fields:
+            return 'address'
         else:
             if 'created' in [f.name for f in opts.fields]:
                 return 'created'
@@ -373,6 +377,8 @@ def make_dict(data_dict):
     for k, v in data_dict.items():
         if isinstance(v, list):
             data[k] = [(i.pk) for i in v]
+        if isinstance(v, (IPv4Network, IPv6Network)):
+            data[k] = str(v)
         else:
             data[k] = v
     return data

@@ -120,7 +120,7 @@ def nature_field_name(model):
     opts = model._meta
     fields = [
         f.name for f in opts.fields if (
-            isinstance(f, models.CharField)
+            isinstance(f, (models.CharField, models.GenericIPAddressField))
             and not getattr(f, 'blank', False)
         )
     ]

@@ -1549,6 +1549,7 @@ class IPAddress(
         icon = 'fa fa-circle'
         metric = "个"
         level = 2
+        hidden = True
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         verbose_name = verbose_name_plural = _('IP address')
 
@@ -1689,6 +1690,7 @@ class Network(
         icon = 'fa fa-sitemap'
         metric = "个"
         level = 0
+        hidden = True
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         unique_together = ('min_ip', 'max_ip')
         verbose_name = verbose_name_plural = "网络管理"

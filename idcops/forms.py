@@ -13,7 +13,8 @@ from django.contrib.auth.forms import UserCreationForm
 from idcops.models import (
     Option, Rack, Comment, User, Client, Device,
     Idc, Testapply, Goods, Inventory, Jumpline,
-    Document, Configure, Rextend, Unit, Pdu, Zonemap
+    Document, Configure, Rextend, Unit, Pdu, Zonemap,
+    Network, IPAddress
 )
 from idcops.lib.utils import can_create, shared_queryset
 
@@ -546,3 +547,19 @@ class ImportExcelForm(forms.Form):
             }
         )
     )
+
+
+class NetworkForm(FormBaseMixin, forms.ModelForm):
+    class Meta:
+        model = Network
+        fields = [
+            'name', 'client', 'address', 'gateway', 'vlan', 'vrf', 'kind',
+        ]
+
+
+class IpaddressNewForm(FormBaseMixin, forms.ModelForm):
+    class Meta:
+        model = IPAddress
+        fields = [
+            'hostname', 'address'
+        ]

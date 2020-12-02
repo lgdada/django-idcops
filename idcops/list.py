@@ -30,6 +30,7 @@ from idcops.lib.utils import (
     fields_for_model, make_tbody_tr,
     get_content_type_for_model, get_actions
 )
+from idcops.lib.fields import IPNetwork
 
 
 _QUERY = 'search'
@@ -208,6 +209,8 @@ class ListModelView(BaseRequiredMixin, ListView):
             _fields = []
             for f in fields:
                 if isinstance(f, models.CharField) and f.name not in exclude:
+                    _fields.append(f.name + '__icontains')
+                if isinstance(f, IPNetwork):
                     _fields.append(f.name + '__icontains')
             return _fields
 

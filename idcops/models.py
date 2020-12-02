@@ -4,7 +4,11 @@ from __future__ import unicode_literals
 import os
 import uuid
 import json
-from django.db import models
+import socket
+import struct
+import ipaddress
+
+from django.db import models, transaction
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -23,6 +27,9 @@ from django.views.generic.base import logger
 from django.urls import reverse_lazy
 
 # Create your models here.
+
+from idcops.lib.fields import NullableCharField, IPNetwork
+from idcops.lib.models import NamedMixin
 
 
 def upload_to(instance, filename):
@@ -1496,3 +1503,291 @@ class Attachment(Onidc, Mark, PersonTime, ActiveDelete, Tag, Remark):
             'tags']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         verbose_name = verbose_name_plural = "媒体文件"
+
+
+@python_2_unicode_compatible
+class IPAddress(
+    Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Tag
+):
+    address = models.GenericIPAddressField(
+        verbose_name="IP 地址", help_text="例如：172.16.21.1",
+        # unique=True,
+    )
+    hostname = NullableCharField(
+        verbose_name="主机名", max_length=255,
+        null=True, blank=True, default=None
+    )
+    is_management = models.BooleanField(
+        verbose_name="管理地址", default=False,
+    )
+    is_public = models.BooleanField(
+        verbose_name="公有地址", default=False, editable=False,
+    )
+    is_gateway = models.BooleanField(
+        verbose_name="网关地址", default=False,
+    )
+    status = models.NullBooleanField(
+        verbose_name="状态", default=None,
+        help_text="如果IP地址已被使用，则值为True"
+    )
+    network = models.ForeignKey(
+        'Network',
+        null=True, default=None, editable=False,
+        related_name="%(app_label)s_%(class)s_network",
+        on_delete=models.SET_NULL, verbose_name="所属网域",
+    )
+    number = models.DecimalField(
+        verbose_name="IP号",
+        help_text="IP地址的整数形式",
+        editable=False,
+        # unique=True,
+        max_digits=39, decimal_places=0,
+        default=None,
+    )
+
+    class Meta(Mark.Meta):
+        icon = 'fa fa-circle'
+        metric = "个"
+        level = 2
+        default_permissions = ('view', 'add', 'change', 'delete', 'exports')
+        verbose_name = verbose_name_plural = _('IP address')
+
+    def __str__(self):
+        return self.address
+
+    @property
+    def ip(self):
+        return ipaddress.ip_address(self.address)
+
+    def search_networks(self):
+        int_value = int(self.ip)
+        nets = Network.objects.filter(
+            min_ip__lte=int_value,
+            max_ip__gte=int_value
+        ).order_by('-min_ip', 'max_ip')
+        return nets
+
+    def clean_fields(self, exclude=None):
+        super(IPAddress, self).clean_fields(exclude=exclude)
+        is_public = not self.ip.is_private
+        if is_public:
+            # 如果是公网地址，则验证唯一性
+            number = int(ipaddress.ip_address(self.address or 0))
+            verify = self._meta.model.objects.filter(
+                onidc=self.onidc, number=number
+            )
+            if verify.exists():
+                raise ValidationError({
+                    'text': "机房已经存在 {} 这个公网地址".format(self.address)
+                })
+
+    def save(self, *args, **kwargs):
+        if self.number and not self.address:
+            self.address = ipaddress.ip_address(int(self.number))
+        else:
+            self.number = int(ipaddress.ip_address(self.address or 0))
+        self.network = self.search_networks().first() \
+            if self.search_networks().exists() else None
+        self.is_public = not self.ip.is_private
+        super(IPAddress, self).save(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Network(
+    Onidc, Mark, PersonTime, Parent, ActiveDelete, ClientAble, Remark,
+    NamedMixin, Tag, models.Model
+):
+    address = IPNetwork(
+        verbose_name="网络地址",
+        help_text="以字符串形式显示（例如172.16.21.0/24）",
+    )
+    gateway = models.ForeignKey(
+        'IPAddress', verbose_name="网关地址",
+        related_name="%(app_label)s_%(class)s_gateway",
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+    )
+    vlan = models.PositiveIntegerField(
+        verbose_name=_('VLAN ID'),
+        null=True, blank=True, default=None,
+    )
+    vrf = models.CharField(
+        max_length=32, null=True, blank=True,
+        verbose_name=_("VRF"),
+        help_text="虚拟路由转发 (Virtual Routing and Forwarding)"
+    )
+    discovery_hosts = models.BooleanField(
+        verbose_name="自动发现", default=True,
+        help_text="通过ICMP协议发现子网中新主机"
+    )
+    check_hosts = models.BooleanField(
+        verbose_name="检查主机", default=False,
+        help_text="ping 子网内的主机以检查可用性"
+    )
+    is_public = models.BooleanField(
+        verbose_name="公有地址",
+        editable=False, default=None
+    )
+    min_ip = models.DecimalField(
+        verbose_name="最小IP号",
+        editable=False,
+        max_digits=39,
+        decimal_places=0,
+    )
+    max_ip = models.DecimalField(
+        verbose_name="最大IP号",
+        editable=False,
+        max_digits=39,
+        decimal_places=0,
+    )
+    kind = models.ForeignKey(
+        'Option',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="网络类型",
+        limit_choices_to={'flag__icontains': 'Network-Kind'},
+        related_name="%(app_label)s_%(class)s_kind",
+        help_text="从机房选项中新建选择"
+    )
+
+    @property
+    def network(self):
+        return ipaddress.ip_network(self.address, strict=False)
+
+    @property
+    def network_address(self):
+        return self.network.network_address
+
+    @property
+    def broadcast_address(self):
+        return self.network.broadcast_address
+
+    @property
+    def netmask(self):
+        return self.network.prefixlen
+
+    @property
+    def netmask_dot_decimal(self):
+        return socket.inet_ntoa(
+            struct.pack('>I', (0xffffffff << (32 - self.netmask)) & 0xffffffff)
+        )
+
+    @property
+    def size(self):
+        if not self.min_ip and not self.max_ip or self.netmask == 32:
+            return 0
+        if self.netmask == 31:
+            return 2
+        return self.max_ip - self.min_ip - 1
+
+    @property
+    def _has_address_changed(self):
+        return self.address != self._old_address
+
+    class Meta(Mark.Meta):
+        icon = 'fa fa-sitemap'
+        metric = "个"
+        level = 0
+        default_permissions = ('view', 'add', 'change', 'delete', 'exports')
+        unique_together = ('min_ip', 'max_ip')
+        verbose_name = verbose_name_plural = "网络管理"
+
+    def __init__(self, *args, **kwargs):
+        super(Network, self).__init__(*args, **kwargs)
+        self._old_address = self.address
+
+    def __str__(self):
+        return '{} ({} | VLAN: {})'.format(self.name, self.address, self.vlan)
+
+    def save(self, *args, **kwargs):
+        if self.gateway_id and not self.gateway.is_gateway:
+            self.gateway.is_gateway = True
+            self.gateway.save()
+
+        update_subnetworks_parent = kwargs.pop(
+            'update_subnetworks_parent', True
+        )
+        creating = not self.pk
+        if (
+            self._has_address_changed and
+            update_subnetworks_parent and
+            not creating
+        ):
+            prev_subnetworks = self.get_immediate_subnetworks()
+        else:
+            prev_subnetworks = []
+        self.min_ip = int(self.network_address)
+        self.max_ip = int(self.broadcast_address)
+        self.is_public = self.network.is_global
+        super(Network, self).save(*args, **kwargs)
+        if self._has_address_changed or creating:
+            self._assign_new_ips_to_network()
+            self._unassign_ips_from_network()
+            if update_subnetworks_parent:
+                self._update_subnetworks_parent(prev_subnetworks)
+
+    def delete(self):
+        with transaction.atomic():
+            self.address = '0.0.0.0/32'
+            self.save()
+            super().delete()
+
+    def _update_subnetworks_parent(self, prev_subnetworks):
+        for network in prev_subnetworks:
+            network.save(update_subnetworks_parent=False)
+        for network in self.get_immediate_subnetworks():
+            network.save(update_subnetworks_parent=False)
+        for network in self.__class__._default_manager.filter(
+            parent=self.parent,
+            min_ip__gte=self.min_ip, max_ip__lte=self.max_ip
+        ):
+            network.save(update_subnetworks_parent=False)
+
+    def _assign_new_ips_to_network(self):
+        for ip in IPAddress.objects.exclude(
+            network=self,
+        ).exclude(
+            network__in=self.get_subnetworks()
+        ).filter(
+            number__gte=self.min_ip,
+            number__lte=self.max_ip
+        ):
+            ip.save()
+
+    def _unassign_ips_from_network(self):
+        for ip in IPAddress.objects.filter(
+            network=self, number__lt=self.min_ip, number__gt=self.max_ip
+        ):
+            ip.save()
+
+    def get_subnetworks(self):
+        return Network.objects.filter(parent=self).exclude(pk=self.pk)
+
+    def get_immediate_subnetworks(self):
+        return Network.objects.filter(parent=self)
+
+    def get_first_free_ip(self):
+        used_ips = set(IPAddress.objects.filter(
+            number__range=(self.min_ip, self.max_ip)
+        ).values_list(
+            'number', flat=True
+        ))
+        min_ip = int(self.min_ip + 1)
+        max_ip = int(self.max_ip - 1)
+        free_ip_as_int = None
+        for free_ip_as_int in range(min_ip, max_ip + 1):
+            if free_ip_as_int not in used_ips:
+                next_free_ip = ipaddress.ip_address(free_ip_as_int)
+                return next_free_ip
+
+    def issue_next_free_ip(self):
+        ip_address = self.get_first_free_ip()
+        return IPAddress.objects.create(address=str(ip_address))
+
+    def search_networks(self):
+        nets = Network.objects.filter(
+            min_ip__lte=self.min_ip,
+            max_ip__gte=self.max_ip
+        ).exclude(pk=self.id).order_by('-min_ip', 'max_ip')
+        return nets

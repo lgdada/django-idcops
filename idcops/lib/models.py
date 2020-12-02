@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from itertools import chain
 from django.urls import reverse_lazy
 from django.utils import formats, timezone
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 class ModelDiffMixin(object):
@@ -97,3 +99,26 @@ class AbsoluteUrlMixin(object):
                 opts.app_label, opts.model_name
             ), args=(self.pk,)
         )
+
+
+class NamedMixin(models.Model):
+    """Describes an abstract model with a unique ``name`` field."""
+    name = models.CharField(_('name'), max_length=255, unique=True)
+
+    class Meta:
+        abstract = True
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    class NonUnique(models.Model):
+        """Describes an abstract model with a non-unique ``name`` field."""
+        name = models.CharField(verbose_name=_("name"), max_length=75)
+
+        class Meta:
+            abstract = True
+            ordering = ['name']
+
+        def __str__(self):
+            return self.name

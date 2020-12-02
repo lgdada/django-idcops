@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import json
+import ipaddress
 from django.apps import apps
 from django.dispatch import receiver
 from django.db.models import signals
@@ -12,7 +13,8 @@ from idcops.lib.utils import (
     # get_client_ip
 )
 from idcops.models import (
-    Device, Rack, Unit, Pdu, User, Configure,
+    Device, Network, Rack, Unit, Pdu, User, Configure,
+    IPAddress,
     # Syslog
 )
 
@@ -76,6 +78,25 @@ def rack_created_tasks(instance, created, **kwargs):
     if not created and instance.client is not None:
         Unit.objects.filter(rack=instance).update(client=instance.client)
         Pdu.objects.filter(rack=instance).update(client=instance.client)
+
+
+@receiver(signals.post_save, sender=Network)
+def generate_ip_address(instance, created, **kwargs):
+    onidc_id = instance.onidc_id
+    creator_id = instance.creator_id
+    client = instance.client
+    if onidc_id and creator_id and created:
+        ipaddr_pool = []
+        for ip in instance.network:
+            address = str(ip)
+            number = int(ipaddress.ip_address(ip or 0))
+            ipaddr_pool.append(
+                IPAddress(
+                    address=address, hostname=address, number=number,
+                    onidc_id=onidc_id, creator_id=creator_id, client=client,
+                )
+            )
+        IPAddress.objects.bulk_create(ipaddr_pool)
 
 
 @receiver(signals.post_save, sender=User)

@@ -1237,7 +1237,9 @@ class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
         return text
 
     def expired(self):
-        return self.end_time > timezone.datetime.now()
+        expired = self.end_time < timezone.datetime.now()
+        return "已过期" if expired else "正在测试"
+    expired.short_description = "是否过期"
 
     class Meta(Mark.Meta):
         icon = 'fa fa-check-circle'
@@ -1247,8 +1249,9 @@ class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
         dashboard = True
         list_display = [
             'name', 'device', 'client', 'system_ip', 'system_user',
-            'start_time', 'end_time', 'proposer', 'actived',
+            'start_time', 'end_time', 'expired', 'proposer', 'actived',
         ]
+        extra_fields = ['expired']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         ordering = ['-actived', '-modified']
         verbose_name = verbose_name_plural = "测试信息"

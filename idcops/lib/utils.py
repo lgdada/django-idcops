@@ -377,10 +377,12 @@ def make_dict(data_dict):
     for k, v in data_dict.items():
         if isinstance(v, list):
             data[k] = [(i.pk) for i in v]
-        if isinstance(v, (IPv4Network, IPv6Network)):
-            data[k] = str(v)
+        # if isinstance(v, (IPv4Network, IPv6Network)):
+        #     data[k] = str(v)
+        # if isinstance(v, datetime.datetime):
+        #     data[k] = str(v)
         else:
-            data[k] = v
+            data[k] = str(v)
     return data
 
 

@@ -2,10 +2,10 @@
 
 ##### 微信
 
-![weixin](https://gitee.com/wenvki/idcops/raw/master/screenshots/wx_qr.jpg)
+![weixin](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/wx_qr.jpg)
 
 
 ##### 支付宝
-![zhifuba](https://gitee.com/wenvki/idcops/raw/master/screenshots/zfb_qr.jpg)
+![zhifuba](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/zfb_qr.jpg)
 
 

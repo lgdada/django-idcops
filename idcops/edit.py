@@ -164,7 +164,6 @@ class EditModelView(BaseRequiredMixin, PermissionRequiredMixin,
         response = super(EditModelView, self).form_valid(form)
         d2 = model_to_dict(construct_instance(form, self.object))
         diffs = diff_dict(make_dict(d1), make_dict(d2))
-        print(diffs)
         content = json.dumps(diffs)
         log_action(
             user_id=self.request.user.pk,

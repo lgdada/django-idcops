@@ -41,6 +41,7 @@ Ubuntu 安装virutalenv: sudo apt install -y python-virtualenv
 ```
 WorkDir=/data/apps
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git idcops
 git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd ${WorkDir}/idcops
@@ -59,6 +60,7 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 ```
 WorkDir=/data/apps
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git idcops
 git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd idcops
@@ -72,6 +74,7 @@ sh install.sh
 ```
 WorkDir=/data/apps
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git idcops
 git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd idcops

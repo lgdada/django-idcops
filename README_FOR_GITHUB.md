@@ -41,6 +41,7 @@ Ubuntu 安装virutalenv: sudo apt install -y python-virtualenv
 ```
 WorkDir=/data/apps
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git idcops
 git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd ${WorkDir}/idcops
@@ -59,6 +60,7 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 ```
 WorkDir=/data/apps
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git idcops
 git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd idcops
@@ -72,6 +74,7 @@ sh install.sh
 ```
 WorkDir=/data/apps
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git idcops
 git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd idcops
@@ -83,6 +86,7 @@ docker-compose exec idcops python manage.py createsuperuser --username admin
 # 按提示创建一个超级管理员admin用户和密码
 # 访问http://127.0.0.1:8000/
 ```
+
 
 # 说明与项目截图
 

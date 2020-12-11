@@ -21,6 +21,20 @@ except Exception:
     app_models = None
 
 
+def get_fk_search_fileds(model):
+    exclude = [
+        f.name for f in opts.fields if getattr(f, 'choices') and not f.blank
+    ]
+    _fields = model._meta.fields
+    fields = []
+    for f in _fields:
+        if isinstance(f,
+                      (models.CharField, models.SlugField, models.TextField)
+                      ) and f.name not in exclude:
+            fields.append(f.name)
+    return fields
+
+
 if app_models:
     exclude_fields = ['creator', 'actived', 'deleted', 'modified', 'operator']
     for model in app_models:
@@ -40,6 +54,14 @@ if app_models:
                      models.SlugField,
                      models.TextField)):
                     search_fields.append(f.name)
+                if isinstance(f, models.ForeignKey) and (
+                        f.name not in exclude_fields):
+                    fk_search_fields = get_fk_search_fileds(f.related_model)
+                    if fk_search_fields:
+                        fk_fields = map(
+                            lambda x: f.name + '__' + x, fk_search_fields
+                        )
+                        search_fields.extend(list(fk_fields))
             exclude_fields.extend(list_filter)
             options = {
                 'list_display': [

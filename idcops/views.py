@@ -469,6 +469,9 @@ def switch_onidc(request):
     idcs = request.user.slaveidc.all()
     index_url = reverse_lazy('idcops:index')
     if request.method == 'POST':
+        if getattr(settings, 'TEST_ENV', False):
+            messages.warning(request, "演示环境，不允许切换机柜")
+            return HttpResponseRedirect(index_url)
         new_idc = request.POST.get('new_idc')
         request.user.onidc_id = new_idc
         request.user.save()

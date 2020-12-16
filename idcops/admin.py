@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.contrib import admin
+
 from django.db import models
 from django.apps import apps
-from idcops.models import User
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from idcops.lib.utils import nature_field_name
@@ -15,10 +16,18 @@ admin.AdminSite.site_header = '数据中心运维管理后台'
 admin.AdminSite.site_title = '数据中心运维平台 - IDCOPS'
 
 
+_label, _model = settings.AUTH_USER_MODEL.split('.')
+User = apps.get_model(app_label=_label, model_name=_model, require_ready=True)
+
+
 try:
     app_models = apps.get_app_config('idcops').get_models()
-except Exception:
+    # app_models = apps.get_models()
+except BaseException:
     app_models = None
+
+
+PER_PAGE = 20
 
 
 def get_fk_search_fileds(model):
@@ -42,6 +51,7 @@ if app_models:
             opts = model._meta
             list_filter = []
             search_fields = []
+            autocomplete_fields = []
             for f in opts.fields:
                 if isinstance(
                         f, (models.BooleanField, models.NullBooleanField)):
@@ -56,6 +66,7 @@ if app_models:
                     search_fields.append(f.name)
                 if isinstance(f, models.ForeignKey) and (
                         f.name not in exclude_fields):
+                    autocomplete_fields.append(f.name)
                     fk_search_fields = get_fk_search_fileds(f.related_model)
                     if fk_search_fields:
                         fk_fields = map(
@@ -64,14 +75,14 @@ if app_models:
                         search_fields.extend(list(fk_fields))
             exclude_fields.extend(list_filter)
             options = {
+                'autocomplete_fields': autocomplete_fields,
                 'list_display': [
                     f.name for f in opts.fields if f.name not in exclude_fields
                 ],
                 'list_filter': list_filter,
-                'list_display_links': [
-                    nature_field_name(model)],
+                'list_display_links': [nature_field_name(model)],
                 'search_fields': search_fields,
-                'list_per_page': 20,
+                'list_per_page': PER_PAGE,
             }
             try:
                 admin.site.register(model, **options)

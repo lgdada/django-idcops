@@ -12,7 +12,7 @@ from django.utils.timezone import datetime
 from idcops.lib.utils import shared_queryset
 from idcops.lib.tasks import device_post_save
 from idcops.models import (
-    Option, Rack, Client, Unit, Pdu, User, Online
+    Option, Rack, Client, Unit, Pdu, User, Online, Device
 )
 
 
@@ -51,7 +51,7 @@ def import_online(path, onidc_id):
         raw = {k: str(data.get(k)) for k in fileds}
         created = datetime.strptime(data.get('created'), '%Y-%m-%d')
         raw.update(**dict(created=created))
-        verify = Online.objects.filter(name=raw.get('name'))
+        verify = Device.objects.filter(name=raw.get('name'))
         if verify.exists():
             msg = "第{}行：{}设备已存在".format(index, raw.get('name'))
             handler_error.append(msg)

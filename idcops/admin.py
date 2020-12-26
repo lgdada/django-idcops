@@ -51,7 +51,7 @@ if app_models:
             opts = model._meta
             list_filter = []
             search_fields = []
-            autocomplete_fields = []
+            # autocomplete_fields = []
             for f in opts.fields:
                 if isinstance(
                         f, (models.BooleanField, models.NullBooleanField)):
@@ -66,7 +66,7 @@ if app_models:
                     search_fields.append(f.name)
                 if isinstance(f, models.ForeignKey) and (
                         f.name not in exclude_fields):
-                    autocomplete_fields.append(f.name)
+                    # autocomplete_fields.append(f.name)
                     fk_search_fields = get_fk_search_fileds(f.related_model)
                     if fk_search_fields:
                         fk_fields = map(
@@ -75,7 +75,7 @@ if app_models:
                         search_fields.extend(list(fk_fields))
             exclude_fields.extend(list_filter)
             options = {
-                'autocomplete_fields': autocomplete_fields,
+                # 'autocomplete_fields': autocomplete_fields,
                 'list_display': [
                     f.name for f in opts.fields if f.name not in exclude_fields
                 ],

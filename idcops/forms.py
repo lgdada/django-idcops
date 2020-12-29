@@ -23,7 +23,8 @@ STATICROOT = '/static/idcops/'
 
 MIME_ACCEPT = '''
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-application/vnd.ms-excel
+application/vnd.ms-excel,
+.csv
 '''
 
 

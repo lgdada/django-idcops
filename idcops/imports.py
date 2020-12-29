@@ -21,7 +21,7 @@ from idcops.models import (
 CreatorId = 1
 
 
-def import_online(filename, onidc_id):
+def import_online_for_csv(filename, onidc_id):
     with open(filename, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         field_describe = [d for d in next(csvreader) if d]
@@ -107,7 +107,7 @@ def import_online(filename, onidc_id):
         return handler_error, handler_warning, handler_success, index
 
 
-def import_online_for_excel(path, onidc_id):
+def import_online(path, onidc_id):
     fileds = [
         'name', 'creator', 'rack', 'client', 'created', 'onidc',
         'sn', 'model', 'ipaddr', 'style', 'units', 'pdus', 'tags'
@@ -137,13 +137,8 @@ def import_online_for_excel(path, onidc_id):
             break
         data = dict(zip(headers, [k.value for k in row]))
         raw = {k: str(data.get(k)) for k in fileds}
-        try:
-            _created = '-'.join(re.split(r'-|/', row.get('created')))
-            created = datetime.strptime(_created, '%Y-%m-%d')
-        except:
-            msg = "第{}行：日期格式不正确，跳过处理本行".format(index)
-            handler_error.append(msg)
-            continue
+        _created = '-'.join(re.split(r'-|/', raw.get('created')))
+        created = datetime.strptime(_created, '%Y-%m-%d')
         raw.update(**dict(created=created))
         verify = Device.objects.filter(name=raw.get('name'))
         if verify.exists():

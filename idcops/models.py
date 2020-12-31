@@ -293,7 +293,8 @@ class Comment(Contentable):
 
 class Configure(Contentable):
     class Meta(Mark.Meta):
-        hidden = True
+        level = 2
+        hidden = getattr(settings, 'HIDDEN_CONFIGURE_NAVBAR', True)
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         verbose_name = verbose_name_plural = "用户配置"
 

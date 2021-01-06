@@ -1,12 +1,19 @@
 [Unit]
-Description=idcops gunicorn Daemon
-After=network.target
+Description=Gunicorn daemon for idcops service
+Documentation=https://github.com/Wenvki/django-idcops/blob/master/README.md
+After=network-online.target
+Wants=network-online.target
 
 [Service]
+Type=simple
 User=www
 Group=www
-WorkingDirectory=/data/mysite
-ExecStart=/data/mysite/env/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 idcops_proj.wsgi:application
+WorkingDirectory=/opt/django-idcops
+ExecStart=/opt/django-idcops/env/bin/gunicorn -c config/gunicorn.py idcops_proj.wsgi:application
+
+Restart=on-failure
+RestartSec=30
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

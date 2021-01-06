@@ -28,24 +28,25 @@ QQ群：185964462
 
 [部署线上生产环境](https://www.iloxp.com/archive/2390/)
 
+
 # 快速开始
 
 #### 一、安装：
 
-**传统方式安装**
+**传统方式安装（仅运行测试环境）**
 
 centos 安装virtualenv: sudo yum install -y python-virtualenv
 
 Ubuntu 安装virutalenv: sudo apt install -y python-virtualenv
 
 ```
-WorkDir=/data/apps
+WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git idcops
-git clone https://gitee.com/wenvki/django-idcops.git idcops
-cd ${WorkDir}/idcops
-virtualenv -p `which python3` env # python3虚拟环境，仅支持python3+
+# git clone https://github.com/Wenvki/django-idcops.git
+git clone https://gitee.com/wenvki/django-idcops.git
+cd ${WorkDir}/django-idcops
+virtualenv -p `which python3` env # python3虚拟环境，仅支持python3.6+
 source env/bin/activate # 激活python虚拟环境
 pip install -U pip -i https://mirrors.aliyun.com/pypi/simple/ # 升级pip
 pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ 
@@ -58,12 +59,12 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 
 **CentOS下一键安装脚本（仅运行测试环境）**
 ```
-WorkDir=/data/apps
+WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git idcops
-git clone https://gitee.com/wenvki/django-idcops.git idcops
-cd idcops
+# git clone https://github.com/Wenvki/django-idcops.git
+git clone https://gitee.com/wenvki/django-idcops.git
+cd ${WorkDir}/django-idcops
 sh install.sh
 # 程序默认使用使用本机8000端口，安装前请确保8000端口未被使用。
 # 或者修改脚本里面 SrvPort 参数为你想要的端口。
@@ -72,12 +73,12 @@ sh install.sh
 **docker-compose方式运行**
 需要安装docker和docker-compose
 ```
-WorkDir=/data/apps
+WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git idcops
-git clone https://gitee.com/wenvki/django-idcops.git idcops
-cd idcops
+# git clone https://github.com/Wenvki/django-idcops.git
+git clone https://gitee.com/wenvki/django-idcops.git
+cd ${WorkDir}/django-idcops
 docker-compose build
 docker-compose up -d
 docker-compose exec -T idcops python manage.py collectstatic --noinput

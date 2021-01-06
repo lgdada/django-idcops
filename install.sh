@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 下载项目放到 /opt/ 目录下，最终项目目录为： /opt/django-idcops/
+# WorkDir=/opt/
+# [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+# cd ${WorkDir}
+# git clone https://gitee.com/wenvki/django-idcops.git
+# cd ${WorkDir}/django-idcops
 
 cd "$(dirname "$0")"
 VIRTUALENV="$(pwd -P)/env"

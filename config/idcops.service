@@ -9,7 +9,8 @@ Type=simple
 User=www
 Group=www
 WorkingDirectory=/opt/django-idcops
-ExecStart=/opt/django-idcops/env/bin/gunicorn -c config/gunicorn.py idcops_proj.wsgi:application
+PIDFile=/opt/django-idcops/run/idcops.pid
+ExecStart=/opt/django-idcops/env/bin/gunicorn -c config/gunicorn.py -p run/idcops.pid idcops_proj.wsgi:application
 
 Restart=on-failure
 RestartSec=30

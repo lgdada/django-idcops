@@ -1,9 +1,6 @@
 # The IP address (typically localhost) and port that the idcops WSGI process should listen on
 bind = '127.0.0.1:8000'
 
-# A filename to use for the PID file.
-pidfile = '/var/run/idcops.pid'
-
 # The number of worker processes for handling requests.
 # A positive integer generally in the 2-4 x $(NUM_CORES) range.
 # You’ll want to vary this a bit to find the best for your particular application’s work load.

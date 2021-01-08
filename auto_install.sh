@@ -4,7 +4,7 @@
 WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-git clone https://gitee.com/wenvki/django-idcops.git
+git clone -b develop https://gitee.com/wenvki/django-idcops.git
 cd ${WorkDir}/django-idcops
 
 # Check install.lock file exists
@@ -98,15 +98,15 @@ DeleteUser="User.objects.filter(username='${UserName}').delete();"
 CreateUser="User.objects.create_superuser('${UserName}', '${UserEmail}', '${UserPass}')"
 echo "${ImportUser} ${DeleteUser} ${CreateUser}" | python manage.py shell
 echo -e "用户名：${UserName}\n用户密码：${UserPass}"
-echo -e "SECRET_KEY和账户密码可以查看 install.log 文件"
+echo -e "账户密码可以查看 install.log 文件"
 
 SrvAddr=0.0.0.0
 SrvPort=18113
 
 echo -e "SECRET_KEY: ${SECRET_KEY}\n" > install.log
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" >> install.log
-
+echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" 
 touch install.lock
 
-RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application > /dev/null 2>&1"
+RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application > /dev/null 2>&1 &"
 eval ${RUN_SERVER}

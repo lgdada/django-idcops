@@ -98,7 +98,7 @@ DeleteUser="User.objects.filter(username='${UserName}').delete();"
 CreateUser="User.objects.create_superuser('${UserName}', '${UserEmail}', '${UserPass}')"
 echo "${ImportUser} ${DeleteUser} ${CreateUser}" | python manage.py shell
 echo -e "用户名：${UserName}\n用户密码：${UserPass}"
-echo -e "账户密码可以查看 install.log 文件"
+echo -e "SECRET_KEY和账户密码可以查看 install.log 文件"
 
 echo -e "SECRET_KEY: ${SECRET_KEY}\n" > install.log
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" >> install.log

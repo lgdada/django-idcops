@@ -1,10 +1,26 @@
 #!/bin/bash
 
+# 
+# 要求：
+# CentOS 7+
+# Python 3.6+ (系统自带即可)
+# 
+# 安装目录： /opt/django-idcops/
+# 默认端口号： 18113 (gunicorn)，参数：SrvPort
+# idcops 版本： develop 或 master，参数：VERSION
+
+VERSION=develop
+SrvAddr=0.0.0.0
+SrvPort=18113
+
+# Install system dependent packages
+yum install -y gcc python3-devel git
+
 # 下载项目放到 /opt/ 目录下，最终项目目录为： /opt/django-idcops/
 WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-git clone -b develop https://gitee.com/wenvki/django-idcops.git
+git clone -b ${VERSION} https://gitee.com/wenvki/django-idcops.git
 cd ${WorkDir}/django-idcops
 
 # Check install.lock file exists
@@ -55,9 +71,6 @@ eval $COMMAND || {
 # Activate the virtual environment
 source "${VIRTUALENV}/bin/activate"
 
-# Install system dependent packages
-yum install -y gcc python3-devel
-
 # Install necessary system packages
 COMMAND="pip install wheel -i https://mirrors.aliyun.com/pypi/simple"
 echo "Installing Python system packages ($COMMAND)..."
@@ -100,13 +113,10 @@ echo "${ImportUser} ${DeleteUser} ${CreateUser}" | python manage.py shell
 echo -e "用户名：${UserName}\n用户密码：${UserPass}"
 echo -e "账户密码可以查看 install.log 文件"
 
-SrvAddr=0.0.0.0
-SrvPort=18113
-
 echo -e "SECRET_KEY: ${SECRET_KEY}\n" > install.log
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" >> install.log
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" 
 touch install.lock
 
-RUN_SERVER="${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application &"
+RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application &"
 eval ${RUN_SERVER}

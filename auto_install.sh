@@ -12,6 +12,8 @@
 VERSION=develop
 SrvAddr=0.0.0.0
 SrvPort=18113
+# gunicorn logfile
+LOG_FILE='logs/idcops.log'
 
 # Install system dependent packages
 yum install -y gcc python3-devel git
@@ -118,5 +120,12 @@ echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword:
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" 
 touch install.lock
 
-RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application &"
+
+RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn --workers 3 \
+  --bind ${SrvAddr}:${SrvPort} \
+  --pid run/idcops.pid \
+  --log-file ${LOG_FILE} \
+  --access-logfile ${LOG_FILE} \
+  idcops_proj.wsgi:application > /dev/null 2>&1 &"
+
 eval ${RUN_SERVER}

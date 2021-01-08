@@ -108,5 +108,5 @@ echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword:
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" 
 touch install.lock
 
-RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application > /dev/null 2>&1 &"
+RUN_SERVER="${VIRTUALENV}/bin/gunicorn -w 3 -b :${SrvPort} -p run/idcops.pid idcops_proj.wsgi:application &"
 eval ${RUN_SERVER}

@@ -207,7 +207,7 @@ var data = {'csrfmiddlewaretoken': csrfmiddlewaretoken,'rack_id':rack_id,'cell_i
 $.ajax({
   type: 'POST',
   dataType: 'json',
-  url: "{%url 'idcops:zonemap'%}?zone_id={{zone_id}}&action=config",
+  url: "{%url 'idcops:zonemap'%}?zone_id={{current_zone.id}}&action=config",
   data: data,
   success: function(data){
     console.log(data);

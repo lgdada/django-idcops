@@ -270,7 +270,10 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
 
     @cached_property
     def get_zones(self):
-        return self.get_options.filter(flag='Rack-Zone')
+        zones = self.get_options.filter(
+            flag='Rack-Zone'
+        ).order_by('-master', 'text')
+        return zones
 
     @cached_property
     def get_zone(self):

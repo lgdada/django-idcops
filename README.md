@@ -56,17 +56,20 @@ python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
 # 访问http://127.0.0.1:8000/
 ```
 
-**CentOS下一键安装脚本（仅运行测试环境）**
+**CentOS7+|Redhat7+|Ubuntu18.04+ 快速在线安装脚本**
 ```
-WorkDir=/data/apps
-[ -d ${WorkDir} ]||mkdir -p ${WorkDir}
-cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git idcops
-git clone https://gitee.com/wenvki/django-idcops.git idcops
-cd idcops
-sh install.sh
-# 程序默认使用使用本机8000端口，安装前请确保8000端口未被使用。
-# 或者修改脚本里面 SrvPort 参数为你想要的端口。
+cd /opt
+curl -sL https://gitee.com/wenvki/django-idcops/raw/master/auto_install.sh | sh
+
+或
+cd /opt
+wget -q https://gitee.com/wenvki/django-idcops/raw/master/auto_install.sh
+sh auto_install.sh
+
+# 安装目录： /opt/django-idcops/ 
+# 默认端口号： 18113 (gunicorn)，参数：SrvPort
+# 默认idcops版本：develop，参数：VERSION develop[master]
+# nginx 反向代理 18113 端口即可
 ```
 
 **docker-compose方式运行**
@@ -80,9 +83,9 @@ git clone https://gitee.com/wenvki/django-idcops.git idcops
 cd idcops
 docker-compose build
 docker-compose up -d
-docker-compose exec -T idcops python manage.py collectstatic --noinput
-docker-compose exec -T idcops python manage.py migrate
-docker-compose exec idcops python manage.py createsuperuser --username admin
+docker-compose exec -f docker-compose.yml -T idcops python manage.py collectstatic --noinput
+docker-compose exec -f docker-compose.yml -T idcops python manage.py migrate
+docker-compose exec -f docker-compose.yml -T idcops python manage.py createsuperuser --username admin
 # 按提示创建一个超级管理员admin用户和密码
 # 访问http://127.0.0.1:8000/
 ```

@@ -9,21 +9,59 @@
 # 默认端口号： 18113 (gunicorn)，参数：SrvPort
 # idcops 版本： develop 或 master，参数：VERSION
 
+WorkDir=/opt
+[ -d ${WorkDir} ]||mkdir -p ${WorkDir}
+
 VERSION=develop
 SrvAddr=0.0.0.0
 SrvPort=18113
-# gunicorn logfile
-LOG_FILE='logs/idcops.log'
+
+# gunicorn logfile and pid file
+ProjDir=${WorkDir}/django-idcops
+LogFile=${ProjDir}/logs/idcops.log
+PidFile=${ProjDir}/run/idcops.pid
+
+
+trim() {
+  str=""
+  if [ $# -gt 0 ]; then
+    str="$1"
+  fi
+  echo "$str" | sed -e 's/^[ \t\r\n]*//g' | sed -e 's/[ \t\r\n]*$//g'
+}
+
+os() {
+  os=$(trim $(cat /etc/os-release 2>/dev/null | grep -w ^ID= | awk -F= '{print $2}'))
+  if [ "$os" = "" ]; then
+    os=$(trim $(lsb_release -i 2>/dev/null | awk -F: '{print $2}'))
+  fi
+  if [ ! "$os" = "" ]; then
+    os=$(echo $os | tr '[A-Z]' '[a-z]')
+  fi
+  echo $os|sed 's/\"//g'
+}
 
 # Install system dependent packages
-yum install -y gcc python3-devel git
+case $(os) in
+  ubuntu)
+    apt install -y gcc python3-dev git
+    ;;
+  centos)
+    yum install -y gcc python3-devel git
+    ;;
+  alpine)
+    apk add gcc python3-dev git
+    ;;
+  *)
+    echo "unknow os, exit!"
+    exit 1
+    ;;
+esac
 
 # 下载项目放到 /opt/ 目录下，最终项目目录为： /opt/django-idcops/
-WorkDir=/opt/
-[ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
 git clone -b ${VERSION} https://gitee.com/wenvki/django-idcops.git
-cd ${WorkDir}/django-idcops
+cd ${ProjDir}
 
 # Check install.lock file exists
 if [ -f 'install.lock' ];then
@@ -120,12 +158,11 @@ echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword:
 echo -e "Server: http://${SrvAddr}:${SrvPort}/\nUsername: ${UserName}\nPassword: ${UserPass}\nEmail: ${UserEmail}" 
 touch install.lock
 
-
 RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn --workers 3 \
   --bind ${SrvAddr}:${SrvPort} \
-  --pid run/idcops.pid \
-  --log-file ${LOG_FILE} \
-  --access-logfile ${LOG_FILE} \
+  --pid ${PidFile} \
+  --log-file ${LogFile} \
+  --access-logfile ${LogFile} \
   idcops_proj.wsgi:application > /dev/null 2>&1 &"
 
 eval ${RUN_SERVER}

@@ -163,6 +163,7 @@ RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn --workers 3 \
   --pid ${PidFile} \
   --log-file ${LogFile} \
   --access-logfile ${LogFile} \
+  --pythonpath ${ProjDir} \
   idcops_proj.wsgi:application > /dev/null 2>&1 &"
 
 eval ${RUN_SERVER}

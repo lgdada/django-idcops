@@ -302,7 +302,7 @@ def get_creator(username):
 
 def get_or_create_style(name, onidc_id):
     f = dict(
-        onidc_id=onidc_id, flag='Device-Style', text=name.strip()
+        flag='Device-Style', text=name.strip()
     )
     qs = shared_queryset(Option.objects.filter(**f), onidc_id)
     if qs.exists():
@@ -310,6 +310,7 @@ def get_or_create_style(name, onidc_id):
     else:
         extra = dict(
             description=name.strip(),
+            onidc_id=onidc_id,
             creator_id=CreatorId
         )
         f.update(**extra)
@@ -321,7 +322,7 @@ def get_or_create_option(name, onidc_id, flag, create=False):
     if not name.strip():
         instance = None
     f = dict(
-        onidc_id=onidc_id, flag=flag, text=name.strip()
+        flag=flag, text=name.strip()
     )
     qs = shared_queryset(Option.objects.filter(**f), onidc_id)
     if qs.exists():
@@ -330,6 +331,7 @@ def get_or_create_option(name, onidc_id, flag, create=False):
         if create and name.strip():
             extra = dict(
                 description=name.strip(),
+                onidc_id=onidc_id,
                 creator_id=CreatorId
             )
             f.update(**extra)

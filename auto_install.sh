@@ -32,7 +32,7 @@ case $OS in
     yum install -y gcc python3-devel git
     ;;
   alpine)
-    apk add gcc python3-dev git
+    apk add gcc python3 python3-dev git
     ;;
   *)
     echo "unknow os ${OS}, exit!"
@@ -58,8 +58,7 @@ if [ -f 'db.sqlite3' ];then
   eval $COMMAND
 fi
 
-# cd "$(dirname "$0")"
-VIRTUALENV="$(pwd -P)/env"
+VIRTUALENV="${ProjDir}/env"
 
 which python3
 if [ $? -ne 0 ];then
@@ -116,8 +115,6 @@ sed -i "/^SECRET_KEY/c ${NEW_SECRET_KEY}" idcops_proj/settings.py
 # settings databases
 # Use sqlite3 by default
 # migrate
-source "${VIRTUALENV}/bin/activate"
-mkdir -p media
 python manage.py makemigrations
 python manage.py migrate
 

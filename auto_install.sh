@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # 
 # 要求：
@@ -90,7 +90,8 @@ eval $COMMAND || {
 
 
 # Activate the virtual environment
-source "${VIRTUALENV}/bin/activate"
+. ${VIRTUALENV}/bin/activate
+
 
 # Install necessary system packages
 COMMAND="pip install wheel -i https://mirrors.aliyun.com/pypi/simple"

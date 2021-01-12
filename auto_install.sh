@@ -21,10 +21,10 @@ ProjDir=${WorkDir}/django-idcops
 LogFile=${ProjDir}/logs/idcops.log
 PidFile=${ProjDir}/run/idcops.pid
 
-
 # Install system dependent packages
-source /etc/os-release
-case $ID in
+OS=$(cat /etc/os-release |grep -w '^ID'|awk -F= '{print $2}'|sed 's/\"//g')
+
+case $OS in
   debian|ubuntu)
     apt install -y gcc python3-dev git
     ;;
@@ -35,7 +35,7 @@ case $ID in
     apk add gcc python3-dev git
     ;;
   *)
-    echo "unknow os, exit!"
+    echo "unknow os ${OS}, exit!"
     exit 1
     ;;
 esac

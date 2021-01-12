@@ -12,7 +12,7 @@
 WorkDir=/opt
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 
-VERSION=develop
+VERSION=master
 SrvAddr=0.0.0.0
 SrvPort=18113
 

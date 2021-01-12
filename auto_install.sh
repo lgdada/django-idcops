@@ -26,7 +26,7 @@ OS=$(cat /etc/os-release |grep -w '^ID'|awk -F= '{print $2}'|sed 's/\"//g')
 
 case $OS in
   debian|ubuntu)
-    apt install -y gcc python3-dev git
+    apt install -y gcc python3-dev python3-venv git
     ;;
   centos|fedora|rhel)
     yum install -y gcc python3-devel git

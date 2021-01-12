@@ -26,8 +26,7 @@ OS=$(cat /etc/os-release |grep -w '^ID'|awk -F= '{print $2}'|sed 's/\"//g')
 
 case $OS in
   debian|ubuntu)
-    apt install -y gcc python3 python3-dev zlib-dev \
-      libjpeg libjpeg-dev openssl openssl-dev git
+    apt install -y gcc python3 python3-dev libjpeg-dev openssl git
     ;;
   centos|fedora|rhel)
     yum install -y gcc python3-devel openssl git
@@ -42,6 +41,7 @@ case $OS in
     exit 1
     ;;
 esac
+
 
 # 下载项目放到 /opt/ 目录下，最终项目目录为： /opt/django-idcops/
 cd ${WorkDir}

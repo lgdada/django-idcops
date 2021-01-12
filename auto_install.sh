@@ -22,31 +22,13 @@ LogFile=${ProjDir}/logs/idcops.log
 PidFile=${ProjDir}/run/idcops.pid
 
 
-trim() {
-  str=""
-  if [ $# -gt 0 ]; then
-    str="$1"
-  fi
-  echo "$str" | sed -e 's/^[ \t\r\n]*//g' | sed -e 's/[ \t\r\n]*$//g'
-}
-
-os() {
-  os=$(trim $(cat /etc/os-release 2>/dev/null | grep -w ^ID= | awk -F= '{print $2}'))
-  if [ "$os" = "" ]; then
-    os=$(trim $(lsb_release -i 2>/dev/null | awk -F: '{print $2}'))
-  fi
-  if [ ! "$os" = "" ]; then
-    os=$(echo $os | tr '[A-Z]' '[a-z]')
-  fi
-  echo $os|sed 's/\"//g'
-}
-
 # Install system dependent packages
-case $(os) in
-  ubuntu)
+source /etc/os-release
+case $ID in
+  debian|ubuntu)
     apt install -y gcc python3-dev git
     ;;
-  centos)
+  centos|fedora|rhel)
     yum install -y gcc python3-devel git
     ;;
   alpine)

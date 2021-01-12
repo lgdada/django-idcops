@@ -26,13 +26,16 @@ OS=$(cat /etc/os-release |grep -w '^ID'|awk -F= '{print $2}'|sed 's/\"//g')
 
 case $OS in
   debian|ubuntu)
-    apt install -y gcc python3-dev python3-venv git
+    apt install -y gcc python3 python3-dev zlib-dev \
+      libjpeg libjpeg-dev openssl openssl-dev git
     ;;
   centos|fedora|rhel)
-    yum install -y gcc python3-devel git
+    yum install -y gcc python3-devel openssl git
     ;;
   alpine)
-    apk add gcc python3 python3-dev git
+    apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev \
+      tiff-dev tk-dev tcl-dev harfbuzz-dev fribidi-dev jpeg g++ openssl \
+      gcc python3 python3-dev git
     ;;
   *)
     echo "unknow os ${OS}, exit!"

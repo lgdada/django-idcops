@@ -8,6 +8,7 @@ import time
 from django.apps import apps
 from django.shortcuts import render
 from django.conf import settings
+from django.core.management import call_command
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Max
@@ -434,7 +435,7 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
         return context
 
 
-@login_required(login_url='/accounts/login/')
+@login_required()
 def welcome(request):
     idc = Idc.objects.filter(actived=True)
     index_url = reverse_lazy('idcops:index')
@@ -451,8 +452,10 @@ def welcome(request):
             request.user.onidc = form.instance
             request.user.save()
             try:
-                from django.core.management import call_command
-                call_command('loaddata', 'initial_options.json')
+                initial_file = os.path.join(
+                    settings.BASE_DIR, 'initial_options.json'
+                )
+                call_command('loaddata', initial_file)
             except Exception as e:
                 messages.error(
                     request,
@@ -467,7 +470,7 @@ def welcome(request):
     return render(request, 'welcome.html', {'form': form})
 
 
-@login_required(login_url='/accounts/login/')
+@login_required()
 def switch_onidc(request):
     idcs = request.user.slaveidc.all()
     index_url = reverse_lazy('idcops:index')

@@ -138,6 +138,8 @@ MEDIA_URL = '{}media/'.format(SITE_PREFIX)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+LOGIN_URL = '{}accounts/login/'.format(SITE_PREFIX)
+
 LOGIN_REDIRECT_URL = '{}accounts/profile/'.format(SITE_PREFIX)
 
 AUTH_USER_MODEL = 'idcops.User'

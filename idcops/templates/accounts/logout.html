@@ -1,5 +1,5 @@
 {% extends "accounts/login.html" %}
-{% load i18n admin_static %}
+{% load i18n admin_static static %}
 {% block title %}退出登录{% endblock %}
 
 {% block body %}
@@ -15,7 +15,7 @@
   <div class="lockscreen-item">
     <!-- lockscreen image -->
     <div class="lockscreen-image">
-      <img src="/static/idcops/img/default.png" alt="User Image">
+      <img src="{% static 'idcops/img/default.png' %}" alt="User Image">
     </div>
     <form class="lockscreen-credentials" action="" method="post">
       <div class="input-group">

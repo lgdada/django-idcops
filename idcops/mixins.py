@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 from django.apps import apps
+from django.conf import settings
 from django.core.cache import cache, utils
 from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
@@ -11,12 +12,15 @@ from django.contrib.auth.views import redirect_to_login
 from django.utils.encoding import force_text
 from django.urls import reverse_lazy
 
+
 # Create your views here.
 from idcops.lib.utils import (
     get_query_string, get_content_type_for_model, has_permission
 )
 from idcops.models import Configure, Idc
 
+
+SITE_PREFIX = getattr(settings, 'SITE_PREFIX', '')
 
 system_menus_key = utils.make_template_fragment_key('system.menus')
 
@@ -34,6 +38,7 @@ def construct_menus(user):
                 'icon': opts.icon,
                 'icon_color': icon_color,
                 'level': opts.level,
+                'uri': '{}list/{}'.format(SITE_PREFIX, opts.model_name)
             }
             model_names.append(meta)
     counts = list(set([i.get('level') for i in model_names]))

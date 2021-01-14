@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import functools
-from idcops_proj.settings import STATIC_ROOT
 
 from django import forms
 from django.db.models import Max
@@ -21,10 +20,10 @@ from idcops.models import (
 )
 from idcops.lib.utils import can_create, shared_queryset
 
-STATIC_PREFIX = getattr(settings, 'STATIC_URL', '/static/')
-SITE_PREFIX = getattr(settings, 'SITE_PREFIX', '')
 
-print(SITE_PREFIX)
+STATIC_PREFIX = getattr(settings, 'STATIC_URL', '/static/')
+
+SITE_PREFIX = getattr(settings, 'SITE_PREFIX', '')
 
 MIME_ACCEPT = '''
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,

@@ -85,7 +85,7 @@ class BaseRequiredMixin(LoginRequiredMixin):
                     request,
                     "您必须新建一个数据中心并将用户关联至此机房"
                 )
-                return HttpResponseRedirect('/welcome/')
+                return HttpResponseRedirect('{}welcome/'.format(SITE_PREFIX))
             return self.handle_no_permission()
         model = self.kwargs.get('model', self.cmodel)
         onidc = request.user.onidc

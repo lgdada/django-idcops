@@ -149,3 +149,11 @@ RUN_SERVER="nohup ${VIRTUALENV}/bin/gunicorn --workers 3 \
   idcops_proj.wsgi:application > /dev/null 2>&1 &"
 
 eval ${RUN_SERVER}
+
+echo '#!/bin/sh' > ${ProjDir}/config/start.sh
+echo "${RUN_SERVER}" >> ${ProjDir}/config/start.sh
+
+echo '#!/bin/sh' > ${ProjDir}/config/stop.sh
+echo "kill \`cat ${PidFile}\`" >> ${ProjDir}/config/stop.sh
+
+chmod +x ${ProjDir}/config/start.sh ${ProjDir}/config/stop.sh

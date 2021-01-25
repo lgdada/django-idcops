@@ -10,6 +10,8 @@ from django.utils.html import format_html
 from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
+from django.conf import settings
+
 from idcops.models import (
     Option, Rack, Comment, User, Client, Device,
     Idc, Testapply, Goods, Inventory, Jumpline,
@@ -19,7 +21,9 @@ from idcops.models import (
 from idcops.lib.utils import can_create, shared_queryset
 
 
-STATICROOT = '/static/idcops/'
+STATIC_PREFIX = getattr(settings, 'STATIC_URL', '/static/')
+
+SITE_PREFIX = getattr(settings, 'SITE_PREFIX', '')
 
 MIME_ACCEPT = '''
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
@@ -32,13 +36,13 @@ class CalendarMedia(object):
         extend = True
         css = {
             'all': (
-                '/static/idcops/css/daterangepicker.min.css',
+                '{}idcops/css/daterangepicker.min.css'.format(STATIC_PREFIX),
             )
         }
 
         js = (
-            '/static/idcops/js/moment.min.js',
-            '/static/idcops/js/daterangepicker.min.js',
+            '{}idcops/js/moment.min.js'.format(STATIC_PREFIX),
+            '{}idcops/js/daterangepicker.min.js'.format(STATIC_PREFIX),
         )
 
 
@@ -46,13 +50,13 @@ class Select2Media(object):
     class Media:
         css = {
             'all': (
-                '/static/idcops/css/select2.min.css',
+                '{}idcops/css/select2.min.css'.format(STATIC_PREFIX),
             )
         }
 
         js = (
-            '/static/idcops/js/select2.min.js',
-            '/static/idcops/js/i18n/zh-CN.js',
+            '{}idcops/js/select2.min.js'.format(STATIC_PREFIX),
+            '{}idcops/js/i18n/zh-CN.js'.format(STATIC_PREFIX),
         )
 
 
@@ -145,15 +149,15 @@ class FormBaseMixin(Select2Media, CheckUniqueTogether):
                     if can_create(mn, self.user) and fl:
                         fk_url = format_html(
                             ''' <a title="点击添加一个 {}"'''
-                            ''' href="/new/{}/?flag={}">'''
+                            ''' href="{}new/{}/?flag={}">'''
                             '''<i class="fa fa-plus"></i></a>'''.format(
-                                field.label, mn.model_name, fl))
+                                field.label, SITE_PREFIX, mn.model_name, fl))
                     elif can_create(mn, self.user) and not fl:
                         fk_url = format_html(
                             ''' <a title="点击添加一个 {}"'''
-                            ''' href="/new/{}">'''
+                            ''' href="{}new/{}">'''
                             '''<i class="fa fa-plus"></i></a>'''.format(
-                                field.label, mn.model_name))
+                                field.label, SITE_PREFIX, mn.model_name))
                     else:
                         fk_url = ''
                     field.help_text = field.help_text + fk_url
@@ -466,13 +470,13 @@ class DocumentForm(FormBaseMixin, forms.ModelForm):
         extend = True
         css = {
             'all': (
-                '/static/idcops/dist/summernote.css',
+                '{}idcops/dist/summernote.css'.format(STATIC_PREFIX),
             )
         }
 
         js = (
-            '/static/idcops/dist/summernote.js',
-            '/static/idcops/dist/lang/summernote-zh-CN.min.js',
+            '{}idcops/dist/summernote.js'.format(STATIC_PREFIX),
+            '{}idcops/dist/lang/summernote-zh-CN.min.js'.format(STATIC_PREFIX),
         )
 
 

@@ -122,13 +122,25 @@ DATETIME_FORMAT = 'Y-m-d H:i:s'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+# 默认为： '/'
+# 可配置为以 '/' 开始的字符串，例如： '/idcops/'
+SITE_PREFIX = '/'
+
+if SITE_PREFIX:
+    SITE_PREFIX = SITE_PREFIX.rstrip('/') + '/'
+
+
+STATIC_URL = '{}static/'.format(SITE_PREFIX)
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '{}media/'.format(SITE_PREFIX)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL = '{}accounts/login/'.format(SITE_PREFIX)
+
+LOGIN_REDIRECT_URL = '{}accounts/profile/'.format(SITE_PREFIX)
 
 AUTH_USER_MODEL = 'idcops.User'
 

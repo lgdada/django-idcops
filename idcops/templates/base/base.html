@@ -58,8 +58,8 @@
       <ul class="sidebar-menu" data-widget="tree">
         {%for menu in menus%}<li class="header"></li>
           {%for m in menu%}
-          <li{%if m.model_name in request.path %} class="active"{%endif%}>
-            <a href="/list/{{m.model_name}}/">
+          <li{%ifequal m.model_name meta.model_name %} class="active"{% endifequal %}>
+            <a href="{{m.uri}}">
               <i class="{{m.icon}} {{m.icon_color}}"></i>
               <span>{{m.verbose_name}}</span></a>
           </li>

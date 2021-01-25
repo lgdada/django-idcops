@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # 
 # 要求：
@@ -12,7 +12,7 @@
 WorkDir=/opt
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 
-VERSION=develop
+VERSION=master
 SrvAddr=0.0.0.0
 SrvPort=18113
 
@@ -21,39 +21,23 @@ ProjDir=${WorkDir}/django-idcops
 LogFile=${ProjDir}/logs/idcops.log
 PidFile=${ProjDir}/run/idcops.pid
 
-
-trim() {
-  str=""
-  if [ $# -gt 0 ]; then
-    str="$1"
-  fi
-  echo "$str" | sed -e 's/^[ \t\r\n]*//g' | sed -e 's/[ \t\r\n]*$//g'
-}
-
-os() {
-  os=$(trim $(cat /etc/os-release 2>/dev/null | grep -w ^ID= | awk -F= '{print $2}'))
-  if [ "$os" = "" ]; then
-    os=$(trim $(lsb_release -i 2>/dev/null | awk -F: '{print $2}'))
-  fi
-  if [ ! "$os" = "" ]; then
-    os=$(echo $os | tr '[A-Z]' '[a-z]')
-  fi
-  echo $os|sed 's/\"//g'
-}
-
 # Install system dependent packages
-case $(os) in
-  ubuntu)
-    apt install -y gcc python3-dev git
+OS=$(cat /etc/os-release |grep -w '^ID'|awk -F= '{print $2}'|sed 's/\"//g')
+
+case $OS in
+  debian|ubuntu)
+    apt install -y gcc python3 python3-dev libjpeg-dev openssl git
     ;;
-  centos)
-    yum install -y gcc python3-devel git
+  centos|fedora|rhel)
+    yum install -y gcc python3-devel openssl git
     ;;
   alpine)
-    apk add gcc python3-dev git
+    apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev \
+      tiff-dev tk-dev tcl-dev harfbuzz-dev fribidi-dev jpeg g++ openssl \
+      gcc python3 python3-dev git
     ;;
   *)
-    echo "unknow os, exit!"
+    echo "unknow os ${OS}, exit!"
     exit 1
     ;;
 esac
@@ -76,8 +60,7 @@ if [ -f 'db.sqlite3' ];then
   eval $COMMAND
 fi
 
-# cd "$(dirname "$0")"
-VIRTUALENV="$(pwd -P)/env"
+VIRTUALENV="${ProjDir}/env"
 
 which python3
 if [ $? -ne 0 ];then
@@ -109,7 +92,8 @@ eval $COMMAND || {
 
 
 # Activate the virtual environment
-source "${VIRTUALENV}/bin/activate"
+. ${VIRTUALENV}/bin/activate
+
 
 # Install necessary system packages
 COMMAND="pip install wheel -i https://mirrors.aliyun.com/pypi/simple"
@@ -134,8 +118,6 @@ sed -i "/^SECRET_KEY/c ${NEW_SECRET_KEY}" idcops_proj/settings.py
 # settings databases
 # Use sqlite3 by default
 # migrate
-source "${VIRTUALENV}/bin/activate"
-mkdir -p media
 python manage.py makemigrations
 python manage.py migrate
 

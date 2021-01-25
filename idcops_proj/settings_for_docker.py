@@ -143,7 +143,7 @@ AUTH_USER_MODEL = 'idcops.User'
 
 # idcops options
 
-SOFT_DELELE = False
+SOFT_DELETE = False
 
 COLOR_TAGS = True
 

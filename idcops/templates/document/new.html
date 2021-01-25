@@ -8,6 +8,15 @@
 <form action="" method="POST" role="form" class="form" id="{{meta.model_name}}-new">
   <div class="box-body">
     {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <p class="text-red">
+      {{ error }}
+    </p>
+    {% endfor %}
+    {% endif %}
+
     {% for hidden in form.hidden_fields %}
       {{ hidden }}
     {% endfor %}

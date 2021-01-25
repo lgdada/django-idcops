@@ -33,6 +33,15 @@
       {%block box-body%}
       <div class="box-body">
         {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+        <p class="text-red">
+          {{ error }}
+        </p>
+        {% endfor %}
+        {% endif %}
+
         {%if formset %}
         {{ formset }}
         {%else%}

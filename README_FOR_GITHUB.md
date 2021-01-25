@@ -1,5 +1,5 @@
 # 简介
-idcops 是一个基于Django倾向于数据中心运营商而开发的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一些列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
+idcops 是一个基于Django开发，倾向于数据中心运营商使用的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一系列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
 idcops 通过“数据中心”来分类管理每个数据中心下面的资源，每个数据中心均是单独的。
 
 软件许可协议
@@ -7,59 +7,43 @@ idcops 通过“数据中心”来分类管理每个数据中心下面的资源�
 django-idcops 遵循 Apache License 2.0。
 
 
-联系
+# 联系
 
 [作者博客](https://www.iloxp.com)
-
-Email: 294060408@qq.com
 
 QQ群：185964462
 [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
 
-##### 微信公众号:
+#### 微信公众号:
 
 ![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
+
+#### 捐赠该项目:
+
+![weixin](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wx_qr.jpg)
+![zhifuba](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/zfb_qr.jpg)
+
+
 #### 项目截图：
 
-[演示地址](http://idcops.iloxp.com/) 按需要进行重置网站测试数据
+[演示地址](http://idcops.iloxp.com/)
 
 用户 / 密码： admin / admin123
 
 ![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
 
-[部署线上生产环境](https://www.iloxp.com/archive/2390/)
 
+---
 
 # 快速开始
 
 #### 一、安装：
 
-**传统方式安装（仅运行测试环境）**
+##### **1. 极速安装，支持WSL部署（推荐）**
 
-centos 安装virtualenv: sudo yum install -y python-virtualenv
+需要联网，脚本一键自动安装
 
-Ubuntu 安装virutalenv: sudo apt install -y python-virtualenv
-
-```
-WorkDir=/opt/
-[ -d ${WorkDir} ]||mkdir -p ${WorkDir}
-cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git
-git clone https://gitee.com/wenvki/django-idcops.git
-cd ${WorkDir}/django-idcops
-virtualenv -p `which python3` env # python3虚拟环境，仅支持python3.6+
-source env/bin/activate # 激活python虚拟环境
-pip install -U pip -i https://mirrors.aliyun.com/pypi/simple/ # 升级pip
-pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ 
-python manage.py migrate
-python manage.py createsuperuser --username admin
-# 按提示创建一个超级管理员admin用户和密码
-python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
-# 访问http://127.0.0.1:8000/
-```
-
-**CentOS 7+|Ubuntu 18.04+ 快速在线安装脚本**
 ```
 cd /opt
 curl -sL https://raw.githubusercontent.com/Wenvki/django-idcops/master/auto_install.sh | sh
@@ -74,15 +58,19 @@ sh auto_install.sh
 # 默认idcops版本：develop，参数：VERSION develop[master]
 # nginx 反向代理 18113 端口即可
 ```
+[快速部署参考链接](https://mp.weixin.qq.com/s/fOcdTfr6274_Erh3fOftQw)
 
-**docker-compose方式运行**
+
+##### **2. docker-compose方式运行**
+
 需要安装docker和docker-compose
+
 ```
 WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git
-git clone https://gitee.com/wenvki/django-idcops.git
+git clone https://github.com/Wenvki/django-idcops.git
+# git clone https://gitee.com/wenvki/django-idcops.git
 cd ${WorkDir}/django-idcops
 docker-compose build
 docker-compose up -d
@@ -93,50 +81,69 @@ docker-compose exec -f docker-compose.yml -T idcops python manage.py createsuper
 # 访问http://127.0.0.1:8000/
 ```
 
+##### **3. 手动部署线上生产环境**
 
+一步一步手动安装，可以进一步理解Django运行部署
+
+[部署线上生产环境](https://www.iloxp.com/archive/2390/)
+
+
+---
 
 # 说明与项目截图
 
 #### 二、初始化配置：
 
 1、访问 http://your_ip:8000/
-
 ![login](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0001.png)
 
-2、首次使用，系统还没有数据中心，需新建一个数据中心
 
+2、首次使用，系统还没有数据中心，需新建一个数据中心
 ![create idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0002.png)
 
-![create idc 02](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0003.png)
 
-3、将用户关联至数据中心
-
-![user related to idc](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0004.png)
-
-4、重新访问首页 http://your_ip:8000/
-
-![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0005.png)
+3、自动重定向到首页 http://your_ip:8000/
+![visit index](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/0003.png)
 
 
-#### 三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：
+---
+
+#### 三、配置settings.py
+
+`/opt/idcops_proj/idcops_proj/settings.py`
+
 
 ```
-STATIC_URL = '/static/'
+# django options
+# 默认为： '/'
+# 可配置为以 '/' 开始的字符串
+# 例如： '/idcops/', 则 nginx 反向代理为： http://127.0.0.1:18113/idcops/
+SITE_PREFIX = '/'
+
+if SITE_PREFIX:
+    SITE_PREFIX = SITE_PREFIX.rstrip('/') + '/'
+
+STATIC_URL = '{}static/'.format(SITE_PREFIX)
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '{}media/'.format(SITE_PREFIX)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-AUTH_USER_MODEL = 'idcops.User'
+LOGIN_URL = '{}accounts/login/'.format(SITE_PREFIX)
+
+LOGIN_REDIRECT_URL = '{}accounts/profile/'.format(SITE_PREFIX)
 
 # idcops options
 
-SOFT_DELELE = True
+# SOFT_DELETE 设置为 `True`, 则执行删除的时候不会直接从数据库删除
+SOFT_DELETE = True
 
+# COLOR_TAGS 设置为 `True`, 相关标签会根据设置的颜色进行显示
 COLOR_TAGS = True
 
+# COLOR_FK_FIELD 设置为 `True`, 相关机房选项会根据设置的颜色进行显示
 COLOR_FK_FIELD = False
 
 ```

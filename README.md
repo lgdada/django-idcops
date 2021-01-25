@@ -14,50 +14,36 @@ django-idcops 遵循 Apache License 2.0。
 QQ群：185964462
 [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
 
-##### 微信公众号:
+#### 微信公众号:
 
 ![weixin_qrcode](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/qrcode_for_weixin.jpg)
 
+
+#### 捐赠该项目:
+
+![weixin](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/wx_qr.jpg)
+![zhifuba](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/zfb_qr.jpg)
+
+
 #### 项目截图：
 
-[演示地址](http://idcops.iloxp.com/) 按需要进行重置网站测试数据
+[演示地址](http://idcops.iloxp.com/)
 
 用户 / 密码： admin / admin123
 
 ![仪表盘](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/2018-12-25_173535.jpg)
 
-[部署线上生产环境](https://www.iloxp.com/archive/2390/)
 
+---
 
 # 快速开始
 
 #### 一、安装：
 
-**传统方式安装（仅运行测试环境）**
+##### **1. 极速安装，支持WSL部署（推荐）**
 
-centos 安装virtualenv: sudo yum install -y python-virtualenv
+需要联网，脚本一键自动安装
 
-Ubuntu 安装virutalenv: sudo apt install -y python-virtualenv
-
-```
-WorkDir=/opt/
-[ -d ${WorkDir} ]||mkdir -p ${WorkDir}
-cd ${WorkDir}
-# git clone https://github.com/Wenvki/django-idcops.git
-git clone https://gitee.com/wenvki/django-idcops.git
-cd ${WorkDir}/django-idcops
-virtualenv -p `which python3` env # python3虚拟环境，仅支持python3.6+
-source env/bin/activate # 激活python虚拟环境
-pip install -U pip -i https://mirrors.aliyun.com/pypi/simple/ # 升级pip
-pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ 
-python manage.py migrate
-python manage.py createsuperuser --username admin
-# 按提示创建一个超级管理员admin用户和密码
-python manage.py runserver 0.0.0.0:8000 # 以django开发服务器运行软件
-# 访问http://127.0.0.1:8000/
-```
-
-**CentOS 7+| Ubuntu 18.04+ 快速在线安装脚本**
 ```
 cd /opt
 curl -sL https://gitee.com/wenvki/django-idcops/raw/master/auto_install.sh | sh
@@ -72,9 +58,13 @@ sh auto_install.sh
 # 默认idcops版本：develop，参数：VERSION develop[master]
 # nginx 反向代理 18113 端口即可
 ```
+[快速部署参考链接](https://mp.weixin.qq.com/s/fOcdTfr6274_Erh3fOftQw)
 
-**docker-compose方式运行**
+
+##### **2. docker-compose方式运行**
+
 需要安装docker和docker-compose
+
 ```
 WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
@@ -91,6 +81,14 @@ docker-compose exec -f docker-compose.yml -T idcops python manage.py createsuper
 # 访问http://127.0.0.1:8000/
 ```
 
+##### **3. 手动部署线上生产环境**
+
+一步一步手动安装，可以进一步理解Django运行部署
+
+[部署线上生产环境](https://www.iloxp.com/archive/2390/)
+
+
+---
 
 # 说明与项目截图
 
@@ -108,20 +106,44 @@ docker-compose exec -f docker-compose.yml -T idcops python manage.py createsuper
 ![visit index](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/0003.png)
 
 
+---
 
-#### 三、配置settings.py `~/mysite/idcops_proj/idcops_proj/settings.py`：
+#### 三、配置settings.py
+
+`/opt/idcops_proj/idcops_proj/settings.py`
+
 
 ```
 # django options
-STATIC_URL = '/static/'
+# 默认为： '/'
+# 可配置为以 '/' 开始的字符串
+# 例如： '/idcops/', 则 nginx 反向代理为： http://127.0.0.1:18113/idcops/
+SITE_PREFIX = '/'
+
+if SITE_PREFIX:
+    SITE_PREFIX = SITE_PREFIX.rstrip('/') + '/'
+
+STATIC_URL = '{}static/'.format(SITE_PREFIX)
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_URL = '/media/'
+
+MEDIA_URL = '{}media/'.format(SITE_PREFIX)
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-AUTH_USER_MODEL = 'idcops.User'
+
+LOGIN_URL = '{}accounts/login/'.format(SITE_PREFIX)
+
+LOGIN_REDIRECT_URL = '{}accounts/profile/'.format(SITE_PREFIX)
 
 # idcops options
-SOFT_DELELE = True
+
+# SOFT_DELETE 设置为 `True`, 则执行删除的时候不会直接从数据库删除
+SOFT_DELETE = True
+
+# COLOR_TAGS 设置为 `True`, 相关标签会根据设置的颜色进行显示
 COLOR_TAGS = True
+
+# COLOR_FK_FIELD 设置为 `True`, 相关机房选项会根据设置的颜色进行显示
 COLOR_FK_FIELD = False
 
 ```

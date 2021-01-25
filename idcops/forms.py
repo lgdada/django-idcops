@@ -61,45 +61,52 @@ class Select2Media(object):
 
 
 class CheckUniqueTogether(forms.ModelForm):
+    """
+    model.Model.Meta:
+    unique_together = (('onidc', 'name'),)
+    """
 
-    def get_unique_together(self):
-        unique_together = self.instance._meta.unique_together
-        for field_set in unique_together:
-            return field_set
-        return None
+    def check_unique_fields(self, unique_fields):
+        unique_filter = {}
+        instance = self.instance
+        model_name = instance._meta.verbose_name
+        for field_name in unique_fields:
+            field = instance._meta.get_field(field_name)
+            if field.editable and field_name in self.fields:
+                unique_filter[field_name] = self.cleaned_data.get(field_name)
+            else:
+                unique_filter[field_name] = getattr(instance, field_name)
+        if 'onidc' in unique_fields:
+            unique_filter['onidc'] = self.user.onidc
+        for k, v in unique_filter.items():
+            if not v:
+                return
+        instances = type(instance).objects.filter(
+            **unique_filter
+        ).exclude(pk=instance.pk)
+        if instances:
+            field_labels = [
+                instance._meta.get_field(f).verbose_name
+                for f in unique_fields
+            ]
+            field_labels = text_type(get_text_list(field_labels, _('and')))
+            msg = _('%(model_name)s中已经存在这个 %(field_name)s 的实例.') % {
+                'model_name': model_name, 'field_name': field_labels, }
+            field_not_in_unique_fileds_total = 0
+            for unique_field in unique_fields:
+                if unique_field in self.fields:
+                    self.add_error(unique_field, msg)
+                    field_not_in_unique_fileds_total += 1
+            if field_not_in_unique_fileds_total == 0:
+                self.add_error(None, msg)
 
     def clean(self):
-        # self.validate_unique()
         cleaned_data = super(CheckUniqueTogether, self).clean()
-        unique_fields = self.get_unique_together()
-        if isinstance(unique_fields, (list, tuple)):
-            unique_filter = {}
-            instance = self.instance
-            model_name = instance._meta.verbose_name
-            for unique_field in unique_fields:
-                field = instance._meta.get_field(unique_field)
-                if field.editable and unique_field in self.fields:
-                    unique_filter[unique_field] = cleaned_data.get(
-                        unique_field)
-                else:
-                    unique_filter[unique_field] = getattr(
-                        instance, unique_field)
-            for k, v in unique_filter.items():
-                if not v:
-                    return
-            existing_instances = type(instance).objects.filter(
-                **unique_filter).exclude(pk=instance.pk)
-            if existing_instances:
-                field_labels = [
-                    instance._meta.get_field(f).verbose_name
-                    for f in unique_fields
-                ]
-                field_labels = text_type(get_text_list(field_labels, _('and')))
-                msg = _("%(model_name)s with this %(field_labels)s already exists.") % {
-                    'model_name': model_name, 'field_labels': field_labels, }
-                for unique_field in unique_fields:
-                    if unique_field in self.fields:
-                        self.add_error(unique_field, msg)
+        unique_fields = self.instance._meta.unique_together
+        for field_list in unique_fields:
+            if isinstance(field_list, (list, tuple)):
+                self.check_unique_fields(field_list)
+        return cleaned_data
 
 
 class FormBaseMixin(Select2Media, CheckUniqueTogether):

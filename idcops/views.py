@@ -402,7 +402,9 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ZonemapView, self).get_context_data(**kwargs)
         model = apps.get_model('idcops', 'zonemap')
-        title = "{} {} 数据中心运维平台".format(self.get_zone, self.onidc.name)
+        title = "{} {} 数据中心运维平台".format(
+            self.get_zone, self.request.user.onidc.name
+        )
         meta, _ = construct_model_meta(self.request, model, title)
         if self.get_mode() == 'layout':
             form = ZonemapNewForm(zone_id=self.get_zone.id)

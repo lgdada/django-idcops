@@ -30,6 +30,7 @@ from django.utils.module_loading import import_string
 from django.urls import reverse_lazy
 
 # Create your views here.
+from idcops.actions import construct_model_meta
 from idcops.lib.utils import shared_queryset, get_content_type_for_model
 from idcops.mixins import BaseRequiredMixin
 from idcops.models import (
@@ -400,10 +401,8 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ZonemapView, self).get_context_data(**kwargs)
-        from idcops.actions import construct_model_meta
-        from django.apps import apps
         model = apps.get_model('idcops', 'zonemap')
-        title = self.get_zone
+        title = "{} {} 数据中心运维平台".format(self.get_zone, self.onidc.name)
         meta, _ = construct_model_meta(self.request, model, title)
         if self.get_mode() == 'layout':
             form = ZonemapNewForm(zone_id=self.get_zone.id)

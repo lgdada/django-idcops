@@ -72,8 +72,10 @@ cd ${WorkDir}
 # git clone https://github.com/Wenvki/django-idcops.git
 git clone https://gitee.com/wenvki/django-idcops.git
 cd ${WorkDir}/django-idcops
-# 构建并启动
-docker-compose -f docker-compose.yml up --build --no-cache
+# 构建
+docker-compose -f docker-compose.yml build --no-cache
+# 启动
+docker-compose -f docker-compose.yml up
 # 新建超级管理员
 # 按提示创建一个超级管理员admin用户和密码
 docker-compose -f docker-compose.yml exec idcops python manage.py createsuperuser --username admin

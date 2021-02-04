@@ -77,7 +77,9 @@ def construct_model_meta(request, model, title=None):
     if title is None:
         title = ''
     meta['logo'] = request.user.onidc
-    meta['title'] = "{} {}".format(title, opts.verbose_name)
+    meta['title'] = "{} {} {}".format(
+        title, opts.verbose_name, request.user.onidc.name
+    )
     meta['icon'] = opts.icon
     meta['model_name'] = opts.model_name
     meta['verbose_name'] = opts.verbose_name

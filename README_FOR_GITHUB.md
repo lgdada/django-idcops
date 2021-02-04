@@ -69,15 +69,22 @@ sh auto_install.sh
 WorkDir=/opt/
 [ -d ${WorkDir} ]||mkdir -p ${WorkDir}
 cd ${WorkDir}
-git clone https://github.com/Wenvki/django-idcops.git
-# git clone https://gitee.com/wenvki/django-idcops.git
+# git clone https://github.com/Wenvki/django-idcops.git
+git clone https://gitee.com/wenvki/django-idcops.git
 cd ${WorkDir}/django-idcops
-docker-compose build
-docker-compose up -d
+# 构建
+docker-compose -f docker-compose.yml build --no-cache
+# 启动
+docker-compose -f docker-compose.yml up -d
+# 收集静态文件
 docker-compose exec -f docker-compose.yml -T idcops python manage.py collectstatic --noinput
+# 迁移
 docker-compose exec -f docker-compose.yml -T idcops python manage.py migrate
-docker-compose exec -f docker-compose.yml -T idcops python manage.py createsuperuser --username admin
+# 新建超级管理员
 # 按提示创建一个超级管理员admin用户和密码
+docker-compose exec -f docker-compose.yml -T idcops python manage.py createsuperuser --username admin
+# 停止运行
+docker-compose -f docker-compose.yml stop
 # 访问http://127.0.0.1:8000/
 ```
 

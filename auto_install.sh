@@ -32,6 +32,7 @@ case $OS in
     yum install -y gcc python3-devel openssl git
     ;;
   alpine)
+    RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev \
       tiff-dev tk-dev tcl-dev harfbuzz-dev fribidi-dev jpeg g++ openssl \
       gcc python3 python3-dev git

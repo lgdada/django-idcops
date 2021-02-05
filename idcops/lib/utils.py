@@ -300,19 +300,20 @@ def get_query_string(params, new_params=None, remove=None):
 
 
 def make_tbody_tr(
-    lmv, obj, row_num, fields, extra_fields, _only_date,
-    _verbose_name, _model_name, to_field_name
+    lmv, obj, row_num, fields, extra_fields, only_date,
+    verbose_name, to_field_name
 ):
     """Return tbody tr items."""
-    pk_val = obj.pk
     opts = lmv.opts
     detail_link = obj.get_absolute_url
     update_link = obj.get_edit_url
     rowdata = ''
     for field_name in fields:
-        td_class = "field-{}".format(field_name)
+        td_format = '<td class="{}">{}</td>'
+        td_text = ''
+        td_class = "{}".format(field_name)
         if field_name == 'field-first':
-            td_text = pk_val
+            td_text = obj.pk
             td_format = '''<td class="no-print {}">
                 <input type="checkbox" name="index" value="{}"></td>'''
         if field_name == 'field-second':
@@ -333,31 +334,34 @@ def make_tbody_tr(
             td_text = mark_safe(_edit + _show)
             td_format = '<td class="no-print {}">{}</td>'
         if field_name not in extra_fields:
+            td_class = "field-{}".format(field_name)
             td_format = '<td class="{}">{}</td>'
             classes = 'text-info'
             try:
                 field = opts.get_field(field_name)
                 value = field.value_from_object(obj)
-                td_text = display_for_field(value, field, only_date=_only_date)
+                td_text = display_for_field(value, field, only_date=only_date)
                 if field.name == to_field_name:
                     title = "点击查看 {} 为 {} 的详情信息".format(
-                        opts.verbose_name, force_text(obj))
+                        opts.verbose_name, force_text(obj)
+                    )
                     td_text = mark_safe(
                         '<a title="{}" href="{}">{}</a>'.format(
                             title, detail_link, td_text
                         )
                     )
-                if getattr(field, 'flatchoices', None)\
-                        or isinstance(field, models.ForeignKey)\
-                        or isinstance(field, models.NullBooleanField):
+                if getattr(field, 'flatchoices', None) \
+                        or isinstance(field,
+                                      (models.ForeignKey,
+                                       models.BooleanField, models.NullBooleanField)):
                     link = lmv.get_query_string(
                         {'{}'.format(field.name): '{}'.format(value)}, ['page']
                     )
                     td_title = display_for_field(
-                        value, field, html=False, only_date=_only_date
+                        value, field, html=False, only_date=only_date
                     )
                     title = "点击过滤 {} 为 {} 的所有 {}".format(
-                        field.verbose_name, td_title, _verbose_name
+                        field.verbose_name, td_title, verbose_name
                     )
                     td_text = mark_safe(
                         '<a class="{}" title="{}" href="{}">{}</a>'.format(
@@ -365,9 +369,8 @@ def make_tbody_tr(
                         )
                     )
             except BaseException:
-                _, _, td_text = lookup_field(
-                    field_name, obj, obj._meta.model)
-                td_text = mark_safe(td_text)
+                _, _, _td_text = lookup_field(field_name, obj, obj._meta.model)
+                td_text = mark_safe(_td_text)
         rowdata += format_html(td_format, td_class, td_text)
     return mark_safe(rowdata)
 

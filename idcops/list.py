@@ -402,14 +402,11 @@ class ListModelView(BaseRequiredMixin, ListView):
     def make_tbody(self, objects):
         extra_fields = ['field-first', 'field-second', 'field-last']
         fields = self.get_list_fields
-        _only_date = self.list_only_date
-        _verbose_name = self.verbose_name
-        _model_name = self.model_name
         to_field_name = self.display_link_field
         for index, obj in enumerate(objects, 1):
             yield make_tbody_tr(
-                self, obj, index, fields, extra_fields, _only_date,
-                _verbose_name, _model_name, to_field_name
+                self, obj, index, fields, extra_fields, self.list_only_date,
+                self.verbose_name, to_field_name
             )
 
     def get_context_data(self, **kwargs):

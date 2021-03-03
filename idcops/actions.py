@@ -18,8 +18,6 @@ from django.utils import timezone
 from django.utils.encoding import force_text
 from django.forms.models import model_to_dict
 
-from notifications.signals import notify as notify_user
-
 from idcops.lib.tasks import log_action
 from idcops.lib.utils import (
     diff_dict, shared_queryset,
@@ -163,11 +161,11 @@ def removeup(request, queryset):
                 obj.units.all().update(actived=False, operator=obj.operator)
             else:
                 verb = "无法恢复 {} 的U位".format(force_text(obj))
-                notify_user.send(
-                    request.user,
-                    recipient=request.user,
-                    target=obj,
-                    verb=verb,
+                log_action(
+                    user_id=request.user.pk,
+                    content_type_id=get_content_type_for_model(obj, True).pk,
+                    object_id=obj.pk, action_flag="系统通知",
+                    message=verb, content=verb
                 )
                 obj.units.clear()
             if pcan_recovery:
@@ -450,13 +448,12 @@ def release(request, queryset):
             o = copy.deepcopy(obj)
             if obj.client and obj.client.onlinenum() == 0:
                 verb = "客户 {} 没有在线设备, 是否终止".format(force_text(obj.client))
-                notify_user.send(
-                    request.user,
-                    recipient=request.user,
-                    target=obj,
-                    verb=verb,
+                log_action(
+                    user_id=request.user.pk,
+                    content_type_id=get_content_type_for_model(obj, True).pk,
+                    object_id=obj.pk, action_flag="系统通知",
+                    message=verb, content=verb
                 )
-
             obj.actived = False
             obj.client = None
             obj.cpower = 0
@@ -467,11 +464,11 @@ def release(request, queryset):
 
             if obj.jnum() != 0:
                 verb = "机柜 {} 还有跳线存在, 请回收".format(force_text(obj))
-                notify_user.send(
-                    request.user,
-                    recipient=request.user,
-                    target=obj,
-                    verb=verb,
+                log_action(
+                    user_id=request.user.pk,
+                    content_type_id=get_content_type_for_model(obj, True).pk,
+                    object_id=obj.pk, action_flag="系统通知",
+                    message=verb, content=verb
                 )
 
             obj.save()

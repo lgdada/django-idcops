@@ -20,7 +20,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import formats, timezone
-from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import logger
@@ -347,7 +347,6 @@ class Syslog(Contentable):
         verbose_name = verbose_name_plural = _('log entries')
 
 
-@python_2_unicode_compatible
 class User(AbstractUser, Onidc, Mark, ActiveDelete, Remark):
     slaveidc = models.ManyToManyField(
         'Idc',
@@ -395,7 +394,6 @@ class User(AbstractUser, Onidc, Mark, ActiveDelete, Remark):
         verbose_name = verbose_name_plural = "用户信息"
 
 
-@python_2_unicode_compatible
 class Idc(Mark, PersonTime, ActiveDelete, Remark):
     name = models.CharField(
         max_length=16,
@@ -462,7 +460,6 @@ class Idc(Mark, PersonTime, ActiveDelete, Remark):
         verbose_name = verbose_name_plural = "数据中心"
 
 
-@python_2_unicode_compatible
 class Option(
     Onidc, Parent, Mark, PersonTime, ActiveDelete, Remark
 ):
@@ -556,7 +553,6 @@ class Option(
         verbose_name = verbose_name_plural = "机房选项"
 
 
-@python_2_unicode_compatible
 class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
 
     name = models.CharField(
@@ -733,7 +729,6 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
         verbose_name = verbose_name_plural = "机柜信息"
 
 
-@python_2_unicode_compatible
 class Rextend(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
 
     ups1 = models.DecimalField(
@@ -767,7 +762,6 @@ class Rextend(Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble):
         verbose_name = verbose_name_plural = "电量温湿度"
 
 
-@python_2_unicode_compatible
 class Unit(
     Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
 ):
@@ -842,7 +836,6 @@ class Unit(
         verbose_name = verbose_name_plural = "U位信息"
 
 
-@python_2_unicode_compatible
 class Pdu(
     Onidc, Mark, PersonTime, ActiveDelete, RackAble, ClientAble
 ):
@@ -883,7 +876,6 @@ class Pdu(
         verbose_name = verbose_name_plural = "PDU信息"
 
 
-@python_2_unicode_compatible
 class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     name = models.SlugField(
         max_length=32,
@@ -1082,7 +1074,6 @@ class Offline(Device):
         verbose_name = verbose_name_plural = "下线设备"
 
 
-@python_2_unicode_compatible
 class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
 
     linenum = models.SlugField(
@@ -1194,7 +1185,6 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         verbose_name = verbose_name_plural = "跳线信息"
 
 
-@python_2_unicode_compatible
 class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
 
     name = models.CharField(
@@ -1258,7 +1248,6 @@ class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
         verbose_name = verbose_name_plural = "测试信息"
 
 
-@python_2_unicode_compatible
 class Zonemap(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     zone = models.ForeignKey(
         'Option',
@@ -1292,7 +1281,6 @@ class Zonemap(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         verbose_name = verbose_name_plural = "区域视图"
 
 
-@python_2_unicode_compatible
 class Goods(Onidc, Mark, PersonTime, ActiveDelete):
 
     name = models.CharField(
@@ -1330,7 +1318,6 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
         verbose_name = verbose_name_plural = "物品分类"
 
 
-@python_2_unicode_compatible
 class Inventory(
     Onidc, Mark, PersonTime, Parent, ActiveDelete, ClientAble, Remark
 ):
@@ -1433,7 +1420,6 @@ class Inventory(
         verbose_name = verbose_name_plural = "库存物品"
 
 
-@python_2_unicode_compatible
 class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     title = models.CharField(max_length=128, verbose_name="文档标题")
     body = models.TextField(verbose_name="文档内容")
@@ -1479,7 +1465,6 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         verbose_name = verbose_name_plural = "文档资料"
 
 
-@python_2_unicode_compatible
 class Attachment(Onidc, Mark, PersonTime, ActiveDelete, Tag, Remark):
     name = models.CharField(
         max_length=255,
@@ -1509,7 +1494,6 @@ class Attachment(Onidc, Mark, PersonTime, ActiveDelete, Tag, Remark):
         verbose_name = verbose_name_plural = "媒体文件"
 
 
-@python_2_unicode_compatible
 class IPAddress(
     Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Tag
 ):
@@ -1597,7 +1581,6 @@ class IPAddress(
         super(IPAddress, self).save(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class Network(
     Onidc, Mark, PersonTime, Parent, ActiveDelete, ClientAble, Remark,
     NamedMixin, Tag, models.Model

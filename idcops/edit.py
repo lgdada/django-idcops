@@ -16,7 +16,7 @@ from django.utils.encoding import force_text
 from django.views.generic.edit import CreateView, UpdateView
 # Create your views here.
 
-from idcops.models import User
+from idcops.models import Created, User
 from idcops.mixins import BaseRequiredMixin, PostRedirect
 from idcops.lib.utils import make_dict, diff_dict, get_content_type_for_model
 from idcops.lib.tasks import log_action, device_post_save
@@ -77,11 +77,14 @@ class NewModelView(BaseRequiredMixin, PermissionRequiredMixin,
         form.instance.creator = self.request.user
         if 'onidc' not in form.cleaned_data:
             form.instance.onidc = self.request.user.onidc
+        created = None
+        if 'created' in form.cleaned_data:
+            created = form.cleaned_data.get('created')
         response = super(NewModelView, self).form_valid(form)
         log_action(
             user_id=self.request.user.pk,
             content_type_id=get_content_type_for_model(self.object, True).pk,
-            object_id=self.object.pk,
+            object_id=self.object.pk, created=created,
             action_flag="新增"
         )
         if self.model_name == 'online':
@@ -159,6 +162,9 @@ class EditModelView(BaseRequiredMixin, PermissionRequiredMixin,
         form.instance.operator = self.request.user
         if 'onidc' not in form.cleaned_data:
             form.instance.onidc = self.request.user.onidc
+        created = None
+        if 'created' in form.cleaned_data:
+            created = form.cleaned_data.get('created')
         d1 = form.initial
         message = json.dumps(form.changed_data)
         response = super(EditModelView, self).form_valid(form)
@@ -168,7 +174,7 @@ class EditModelView(BaseRequiredMixin, PermissionRequiredMixin,
         log_action(
             user_id=self.request.user.pk,
             content_type_id=get_content_type_for_model(self.object, True).pk,
-            object_id=self.object.pk,
+            object_id=self.object.pk, created=created,
             action_flag="修改", message=message, content=content
         )
         if self.model_name == 'online':

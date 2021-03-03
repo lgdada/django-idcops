@@ -2,111 +2,22 @@
 from __future__ import unicode_literals
 
 import re
-import csv
-import copy
 import xlrd
 import operator
 from functools import reduce
 
 from django.db.models import Q
 from django.utils.timezone import datetime
+from django.utils.encoding import force_text
 
-from idcops.lib.utils import shared_queryset
-from idcops.lib.tasks import device_post_save
+from idcops.lib.utils import shared_queryset, get_content_type_for_model
+from idcops.lib.tasks import device_post_save, log_action
 from idcops.models import (
     Option, Rack, Client, Unit, Pdu, User, Online, Device
 )
 
 
 CreatorId = 1
-
-
-def import_online_for_csv(filename, onidc_id):
-    with open(filename, 'r') as csvfile:
-        csvreader = csv.reader(csvfile)
-        field_describe = [d for d in next(csvreader) if d]
-        fieldnames = [f for f in next(csvreader) if f]
-        rows = csv.DictReader(csvfile, fieldnames=fieldnames)
-        handler_error = []
-        handler_warning = []
-        handler_success = []
-        index = 0
-        for index, row in enumerate(rows, 1):
-            if index > 500:
-                # 每次只处理500条数据
-                msg = "一次最多导入500条数据"
-                handler_error.append(msg)
-                break
-            raw = copy.copy(row)
-            try:
-                _created = '-'.join(re.split(r'-|/', row.get('created')))
-                created = datetime.strptime(_created, '%Y-%m-%d')
-            except:
-                msg = "第{}行：日期格式不正确，跳过处理本行".format(index)
-                handler_error.append(msg)
-                continue
-            raw.update(**dict(created=created))
-            verify = Device.objects.filter(name=raw.get('name'))
-            if verify.exists():
-                msg = "第{}行：{}设备已存在".format(index, raw.get('name'))
-                handler_error.append(msg)
-                continue
-            style = get_or_create_style(raw.get('style'), onidc_id)
-            creator = get_creator(raw.get('creator'))
-            # 获取机柜信息
-            rack, err = get_rack(raw.get('rack'), onidc_id)
-            if not rack:
-                msg = "第{}行：{}".format(index, err)
-                handler_error.append(msg)
-                continue
-            # 获取客户信息
-            client, err = get_or_create_client(raw.get('client'), onidc_id)
-            if not client:
-                msg = "第{}行：{}".format(index, err)
-                handler_error.append(msg)
-                continue
-            # 实例化在线设备
-            instance = Online(
-                created=created, style=style, creator=creator,
-                rack=rack, client=client, name=raw.get('name'),
-                sn=raw.get('sn'), ipaddr=raw.get('ipaddr'),
-                model=raw.get('model'), onidc_id=onidc_id
-            )
-            instance.save()
-            # 保存U位
-            units, err = clean_units(raw.get('units'), rack.pk)
-            if units:
-                for u in units:
-                    instance.units.add(u)
-                units.update(actived=False)
-                instance.save()
-            else:
-                msg = "第{}行：{}".format(index, err)
-                handler_error.append(msg)
-                # U位不对，删除本实例
-                instance.delete()
-                continue
-            handler_success.append(instance.name)
-            # 保存PDU
-            pdus, err = clean_pdus(raw.get('pdus'), rack.pk)
-            if pdus:
-                for p in pdus:
-                    instance.pdus.add(p)
-                pdus.update(actived=False)
-                instance.save()
-            else:
-                msg = "第{}行：{}".format(index, err)
-                handler_warning.append(msg)
-            # 保存TAGS
-            tags = clean_tags(raw.get('tags'), onidc_id, creator.pk)
-            if tags:
-                for t in tags:
-                    instance.tags.add(t)
-                instance.save()
-            device_post_save(instance.pk, True)
-        return handler_error, handler_warning, handler_success, index
-
-
 def import_online(path, onidc_id):
     fileds = [
         'name', 'creator', 'rack', 'client', 'created', 'onidc',
@@ -122,24 +33,22 @@ def import_online(path, onidc_id):
     index = 0
     headers = None
     for index, row in enumerate(worksheet.get_rows(), 1):
-        # header = index
-        if index == 1:
+        header = index
+        if header == 1:
             # 跳过表头
             continue
-        if index == 2:
+        if header == 2:
             # 获取字段名称
             headers = [h.value for h in row]
             continue
-        if index > 502:
-            # 每次只处理500条数据
-            msg = "一次最多导入500条数据"
-            handler_error.append(msg)
-            break
         data = dict(zip(headers, [k.value for k in row]))
-        raw = {k: str(data.get(k)) for k in fileds}
-        _created = '-'.join(re.split(r'-|/', raw.get('created')))
-        created = datetime.strptime(_created, '%Y-%m-%d')
-        raw.update(**dict(created=created))
+        raw = {k: data.get(k) for k in fileds}
+        created = datetime.strptime(data.get('created'), '%Y-%m-%d')
+        raw.update(**dict(
+            created=created,
+            sn=force_text(data.get('sn'))
+            )
+        )
         verify = Device.objects.filter(name=raw.get('name'))
         if verify.exists():
             msg = "第{}行：{}设备已存在".format(index, raw.get('name'))
@@ -182,6 +91,13 @@ def import_online(path, onidc_id):
                 instance.delete()
                 continue
             handler_success.append(instance.name)
+            log_action(
+                user_id=creator.pk,
+                content_type_id=get_content_type_for_model(instance, True).pk,
+                object_id=instance.pk,
+                action_flag="新增",
+                created=instance.created
+            )
             # 保存PDU
             pdus, err = clean_pdus(raw.get('pdus'), rack.pk)
             if pdus:
@@ -192,13 +108,14 @@ def import_online(path, onidc_id):
             else:
                 msg = "第{}行：{}".format(index, err)
                 handler_warning.append(msg)
+                continue
             # 保存TAGS
             tags = clean_tags(raw.get('tags'), onidc_id, creator.pk)
             if tags:
                 for t in tags:
                     instance.tags.add(t)
                 instance.save()
-            device_post_save(instance.pk, True)
+            device_post_save(instance.pk)
     total = (index-2)
     return handler_error, handler_warning, handler_success, total
 

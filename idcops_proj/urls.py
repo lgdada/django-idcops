@@ -16,7 +16,6 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
-import notifications.urls
 
 PREFIX = getattr(settings, 'SITE_PREFIX', '')
 PREFIX = PREFIX.lstrip('/')
@@ -24,5 +23,4 @@ PREFIX = PREFIX.lstrip('/')
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^{}'.format(PREFIX), include('idcops.urls')),
-    url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
 ]

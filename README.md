@@ -175,3 +175,8 @@ COLOR_FK_FIELD = False
 ('document', '文档资料')
 ]
 ```
+
+
+#### Thanks：
+
+![JetBrains Community Support](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/jetbrains.svg)

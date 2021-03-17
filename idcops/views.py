@@ -484,49 +484,6 @@ def switch_onidc(request):
     return render(request, 'user/switch.html', {'idcs': idcs})
 
 
-class ImportOnline(BaseRequiredMixin, FormView):
-
-    template_name = 'device/import.html'
-
-    form_class = ImportOnlineForm
-
-    success_url = reverse_lazy('idcops:list', kwargs={'model': 'syslog'})
-
-    def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            excel = form.cleaned_data['excel']
-            FilePath = getattr(settings, 'MEDIA_ROOT', '../logs')
-            name, lnk, ext = excel.name.rpartition('.')
-            endfix = '-' + str(int(time.time()))
-            FileName = os.path.join(FilePath, name + endfix + lnk + ext)
-            with open(FileName, 'wb+') as destination:
-                for chunk in excel.chunks():
-                    destination.write(chunk)
-            error, warning, success, total = import_online(
-                FileName, request.user.onidc_id
-            )
-            message = "共导入{}条：成功{}条，失败{}条".format(
-                total, len(success), len(error)
-            )
-            _content = {}
-            _content['error'] = error
-            _content['warning'] = warning
-            _content['success'] = success
-            content = json.dumps(_content, ensure_ascii=False)
-            Syslog.objects.create(
-                creator_id=request.user.pk, onidc_id=self.onidc_id,
-                content_type_id=get_content_type_for_model(Online, True).pk,
-                action_flag="导入设备", object_desc="-",
-                message=message, content=content
-            )
-            messages.info(request, "导入完成，请查看日志记录！")
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-
 class ImportExcelView(BaseRequiredMixin, FormView):
 
     form_class = ImportExcelForm

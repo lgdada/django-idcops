@@ -457,7 +457,7 @@ def welcome(request):
             except Exception as e:
                 messages.error(
                     request,
-                    "loaddata initial_options.json 执行失败...,{}".format(e)
+                    "loaddata initial_options.json 执行失败..., {}".format(e)
                 )
             messages.success(
                 request, "初始化完成，请开始使用吧..."
@@ -490,7 +490,7 @@ class ImportOnline(BaseRequiredMixin, FormView):
 
     form_class = ImportOnlineForm
 
-    success_url = '/list/syslog/'
+    success_url = reverse_lazy('idcops:list', kwargs={'model': 'syslog'})
 
     def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
@@ -537,7 +537,7 @@ class ImportExcelView(BaseRequiredMixin, FormView):
             "base/import.html"
         ]
 
-    success_url = '/list/syslog/'
+    success_url = reverse_lazy('idcops:list', kwargs={'model': 'syslog'})
 
     def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()

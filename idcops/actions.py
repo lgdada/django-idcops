@@ -50,7 +50,7 @@ option = general_has_delete
 document = general_has_delete
 goods = general_has_delete
 testapply = general_has_delete
-inventory = general_has_delete
+inventory = ['download', 'outbound', 'reoutbound', 'delete']
 user = general_has_delete
 idc = general_has_delete
 

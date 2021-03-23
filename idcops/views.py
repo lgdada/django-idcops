@@ -40,7 +40,7 @@ from idcops.models import (
 )
 
 from idcops.forms import (
-    ImportExcelForm, ZonemapNewForm, InitIdcForm, ImportOnlineForm
+    ImportExcelForm, ZonemapNewForm, InitIdcForm
 )
 from idcops.imports import import_online
 
@@ -53,6 +53,7 @@ password_reset = PasswordResetView.as_view(
     template_name='accounts/password_reset_form.html',
     email_template_name='accounts/password_reset_email.html',
     subject_template_name='accounts/password_reset_subject.txt',
+    success_url=reverse_lazy('idcops:password_reset_done')
 )
 
 password_reset_done = PasswordResetDoneView.as_view(
@@ -60,7 +61,8 @@ password_reset_done = PasswordResetDoneView.as_view(
 )
 
 reset = PasswordResetConfirmView.as_view(
-    template_name='accounts/password_reset_confirm.html'
+    template_name='accounts/password_reset_confirm.html',
+    success_url=reverse_lazy('idcops:password_reset_complete')
 )
 
 reset_done = PasswordResetCompleteView.as_view(
@@ -70,7 +72,7 @@ reset_done = PasswordResetCompleteView.as_view(
 
 class PasswordChangeView(BaseRequiredMixin, PasswordChangeView):
     template_name = 'accounts/password_change_form.html'
-    success_url = reverse_lazy('idcops:index')
+    success_url = reverse_lazy('idcops:logout')
 
 
 password_change = PasswordChangeView.as_view()

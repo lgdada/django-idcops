@@ -161,3 +161,12 @@ HIDDEN_COMMENT_NAVBAR = False
 CSRF_COOKIE_NAME = 'idcops_csrftoken'
 
 SESSION_COOKIE_NAME = 'idcops_sessionid'
+
+# Email backend settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.exmail.qq.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'admin@iloxp.com' EMAIL_HOST_PASSWORD = '******'
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = 'admin@iloxp.com' 
+SITE_DOMAIN = 'idcops.iloxp.com'

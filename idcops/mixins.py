@@ -71,6 +71,16 @@ class BaseRequiredMixin(LoginRequiredMixin):
     cmodel = ''
 
     def dispatch(self, request, *args, **kwargs):
+        from django.contrib.auth import authenticate, login
+        user = authenticate(request, username='admin', password='admin123')
+        if getattr(settings, 'TEST_ENV', False):
+            if user is not None and not request.user.is_authenticated:
+                messages.info(
+                    request,
+                    """管理系统使用PC浏览器访问体验更佳，当前为测试用户，已为您自动登录。"""
+                    """ 登录地址：https://idcops.iloxp.com/accounts/login/ 账户： admin 密码： admin123"""
+                )
+                login(request, user)
         if not request.user.is_authenticated:
             messages.warning(request, "系统需要登录才能访问")
             return redirect_to_login(

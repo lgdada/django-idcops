@@ -82,7 +82,8 @@ def construct_model_meta(request, model, title=None):
     meta['model_name'] = opts.model_name
     meta['verbose_name'] = opts.verbose_name
     user_menus = cache.get_or_set(
-        system_menus_key + str(request.user.id),
+        system_menus_key + str(request.user.id) +
+        str(len(request.user.get_all_permissions())),
         construct_menus(request.user),
         180
     )

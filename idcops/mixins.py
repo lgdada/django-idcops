@@ -127,7 +127,8 @@ class BaseRequiredMixin(LoginRequiredMixin):
             self.meta['title'] = self.title
         context['meta'] = self.meta
         context['menus'] = cache.get_or_set(
-            system_menus_key + str(self.request.user.id),
+            system_menus_key + str(self.request.user.id) +
+            str(len(self.request.user.get_all_permissions())),
             construct_menus(self.request.user), 1800
         )
         return context

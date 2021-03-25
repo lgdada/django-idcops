@@ -1,4 +1,5 @@
 # 简介
+
 idcops 是一个基于Django开发，倾向于数据中心运营商使用的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一系列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
 idcops 通过“数据中心”来分类管理每个数据中心下面的资源，每个数据中心均是单独的。
 
@@ -6,20 +7,15 @@ idcops 通过“数据中心”来分类管理每个数据中心下面的资源�
 
 django-idcops 遵循 Apache License 2.0。
 
-
-# 联系
+## 联系
 
 [作者博客](https://www.iloxp.com)
 
 QQ群：185964462
 [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
 
-#### 微信公众号:
 
-![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
-
-
-#### 捐赠该项目:
+### 捐赠该项目
 
 ![weixin](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wx_qr.jpg)
 ![zhifuba](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/zfb_qr.jpg)
@@ -29,7 +25,10 @@ QQ群：185964462
 
 [演示地址](http://idcops.iloxp.com/)
 
-用户 / 密码： admin / admin123
+关注公众号回复体验获取 **体验** 账号
+
+![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
+
 
 ![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
 
@@ -46,11 +45,11 @@ QQ群：185964462
 
 ```
 cd /opt
-curl -sL https://raw.githubusercontent.com/Wenvki/django-idcops/master/auto_install.sh | sh
+curl -sL https://gitee.com/wenvki/django-idcops/raw/master/auto_install.sh | sh
 
 或
 cd /opt
-wget -q https://raw.githubusercontent.com/Wenvki/django-idcops/master/auto_install.sh
+wget -q https://gitee.com/wenvki/django-idcops/raw/master/auto_install.sh
 sh auto_install.sh
 
 # 安装目录： /opt/django-idcops/ 

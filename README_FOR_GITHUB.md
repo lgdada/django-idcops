@@ -25,7 +25,7 @@ QQ群：185964462
 
 [演示地址](http://idcops.iloxp.com/)
 
-关注公众号回复体验获取 **体验** 账号
+关注公众号回复 **体验** 获取体验账号
 
 ![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 

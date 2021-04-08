@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from datetime import date
 
 import re
 import xlrd
@@ -43,7 +44,10 @@ def import_online(path, onidc_id):
             continue
         data = dict(zip(headers, [k.value for k in row]))
         raw = {k: data.get(k) for k in fileds}
-        created = datetime.strptime(data.get('created'), '%Y-%m-%d')
+        try:
+            created = datetime.strptime(data.get('created'), '%Y-%m-%d')
+        except BaseException:
+            created = datetime.now().date().strftime('%Y-%m-%d')
         raw.update(**dict(
             created=created,
             sn=force_text(data.get('sn'))

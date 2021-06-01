@@ -252,6 +252,7 @@ class IndexView(BaseRequiredMixin, TemplateView):
         context['device_dynamic_change'] = self.make_device_dynamic_change()
         context['rack_statistics'] = self.make_rack_statistics()
         context['rack_dynamic_change'] = self.make_rack_dynamic_change()
+        context['demo'] = getattr(settings, 'TEST_ENV', False)
         return context
 
 

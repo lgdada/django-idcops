@@ -42,6 +42,9 @@
       </a>
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+          {% if demo %}
+          <li><a class="bg-red-active" href="https://gitee.com/wenvki/django-idcops" target="_blank">项目源码</a></li>
+          {% endif %}
           <li class="dropdown user user-menu">
             {% block user-menu %}{% include 'user/panel.html'%}{% endblock %}
           </li>
@@ -50,7 +53,7 @@
     </nav>
   {% endblock %}
   </header>
-  {% cache 180 main-sidebar request.user.id request.path %}
+  {% cache 1 main-sidebar request.user.id request.path %}
   <aside class="main-sidebar no-print">
     {% block main-sidebar %}
     <section class="sidebar">
@@ -64,6 +67,12 @@
           </li>
           {%endfor%}
         {%endfor%}
+        {% if demo %}
+        <li class="header"></li>
+        <li>
+          <img class="img-responsive" src="{% static 'idcops/img/qrcode_for_weixin.jpg' %}" alt="wx_qrcode" />
+        </li>
+        {% endif %}
       </ul>
     </section>
   {% endblock %}

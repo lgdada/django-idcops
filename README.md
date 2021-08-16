@@ -7,12 +7,16 @@ idcops 通过“数据中心”来分类管理每个数据中心下面的资源�
 
 django-idcops 遵循 Apache License 2.0。
 
-## 联系
+## 交流讨论
 
 [作者博客](https://www.iloxp.com)
 
 QQ群：185964462
 [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
+
+
+![微信群](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/wxq_qr.jpg)
+![个人微信](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/qrcode_for_me.jpg)
 
 
 ### 捐赠该项目

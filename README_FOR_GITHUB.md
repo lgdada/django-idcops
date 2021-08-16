@@ -15,6 +15,10 @@ QQ群：185964462
 [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
 
 
+![微信群](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wxq_qr.jpg)
+![个人微信](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_me.jpg)
+
+
 ### 捐赠该项目
 
 ![weixin](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/wx_qr.jpg)

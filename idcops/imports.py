@@ -18,6 +18,8 @@ from idcops.models import (
 
 
 CreatorId = 1
+
+
 def import_online(path, onidc_id):
     fileds = [
         'name', 'creator', 'rack', 'client', 'created', 'onidc',
@@ -50,7 +52,7 @@ def import_online(path, onidc_id):
         raw.update(**dict(
             created=created,
             sn=force_text(data.get('sn'))
-            )
+        )
         )
         verify = Device.objects.filter(name=raw.get('name'))
         if verify.exists():

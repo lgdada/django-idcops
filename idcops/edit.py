@@ -16,7 +16,7 @@ from django.utils.encoding import force_text
 from django.views.generic.edit import CreateView, UpdateView
 # Create your views here.
 
-from idcops.models import Created, User
+from idcops.models import User
 from idcops.mixins import BaseRequiredMixin, PostRedirect
 from idcops.lib.utils import make_dict, diff_dict, get_content_type_for_model
 from idcops.lib.tasks import log_action, device_post_save

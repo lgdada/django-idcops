@@ -40,7 +40,7 @@ offline = ['download', 'removeup', 'delete']
 syslog = ['download', 'actived']
 comment = ['download', 'actived', 'delete']
 rack = ['download', 'release', 'distribution', 'delete']
-configure = ['delete',]
+configure = ['delete', ]
 
 general_has_delete = ['download', 'actived', 'reactive', 'delete']
 

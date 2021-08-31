@@ -473,7 +473,7 @@ class ConfigUserListView(BaseRequiredMixin, TemplateView):
             fields_for_dict.append(dict(
                 name=field,
                 verbose_name=label_for_field(field, self.model),
-                )
+            )
             )
         return fields_for_dict
 

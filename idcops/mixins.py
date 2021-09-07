@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.cache import cache, utils
 from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.utils.encoding import force_text
@@ -71,14 +72,14 @@ class BaseRequiredMixin(LoginRequiredMixin):
     cmodel = ''
 
     def dispatch(self, request, *args, **kwargs):
-        from django.contrib.auth import authenticate, login
-        user = authenticate(request, username='admin', password='admin123')
         if getattr(settings, 'TEST_ENV', False):
+            user = authenticate(request, username='admin',
+                                password='admin.1623')
             if user is not None and not request.user.is_authenticated:
                 messages.info(
                     request,
                     """管理系统使用PC浏览器访问体验更佳，当前为测试用户，已为您自动登录。"""
-                    """ 登录地址：https://idcops.iloxp.com/accounts/login/ 账户： admin 密码： admin123"""
+                    """ 登录地址：https://idcops.iloxp.com/accounts/login/ 账户： admin 密码： admin.123"""
                 )
                 login(request, user)
         if not request.user.is_authenticated:
@@ -98,9 +99,8 @@ class BaseRequiredMixin(LoginRequiredMixin):
                 return HttpResponseRedirect('{}welcome/'.format(SITE_PREFIX))
             return self.handle_no_permission()
         model = self.kwargs.get('model', self.cmodel)
-        onidc = request.user.onidc
-        self.onidc_id = onidc.id
-        self.title = "{} 数据中心运维平台".format(onidc.name)
+        self.onidc_id = request.user.onidc_id
+        self.title = "{} 数据中心运维平台".format(request.user.onidc.name)
         if model:
             try:
                 self.model = apps.get_model('idcops', model.lower())

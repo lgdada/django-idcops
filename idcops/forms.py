@@ -36,13 +36,13 @@ class CalendarMedia(object):
         extend = True
         css = {
             'all': (
-                '{}idcops/css/daterangepicker.min.css'.format(STATIC_PREFIX),
+                f'{STATIC_PREFIX}idcops/css/daterangepicker.min.css',
             )
         }
 
         js = (
-            '{}idcops/js/moment.min.js'.format(STATIC_PREFIX),
-            '{}idcops/js/daterangepicker.min.js'.format(STATIC_PREFIX),
+            f'{STATIC_PREFIX}idcops/js/moment.min.js',
+            f'{STATIC_PREFIX}idcops/js/daterangepicker.min.js',
         )
 
 
@@ -50,13 +50,13 @@ class Select2Media(object):
     class Media:
         css = {
             'all': (
-                '{}idcops/css/select2.min.css'.format(STATIC_PREFIX),
+                f'{STATIC_PREFIX}idcops/css/select2.min.css',
             )
         }
 
         js = (
-            '{}idcops/js/select2.min.js'.format(STATIC_PREFIX),
-            '{}idcops/js/i18n/zh-CN.js'.format(STATIC_PREFIX),
+            f'{STATIC_PREFIX}idcops/js/select2.min.js',
+            f'{STATIC_PREFIX}idcops/js/i18n/zh-CN.js',
         )
 
 
@@ -477,13 +477,13 @@ class DocumentForm(FormBaseMixin, forms.ModelForm):
         extend = True
         css = {
             'all': (
-                '{}idcops/dist/summernote.css'.format(STATIC_PREFIX),
+                f'{STATIC_PREFIX}idcops/dist/summernote.css',
             )
         }
 
         js = (
-            '{}idcops/dist/summernote.js'.format(STATIC_PREFIX),
-            '{}idcops/dist/lang/summernote-zh-CN.min.js'.format(STATIC_PREFIX),
+            f'{STATIC_PREFIX}idcops/dist/summernote.js',
+            f'{STATIC_PREFIX}idcops/dist/lang/summernote-zh-CN.min.js',
         )
 
 

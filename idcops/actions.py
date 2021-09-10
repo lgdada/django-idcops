@@ -63,7 +63,7 @@ def check_multiple_clients(func):
         if hasattr(model, 'client'):
             verify = queryset.values('client').order_by('client').distinct()
             if verify.count() > 1:
-                mesg = "不允许操作多个不同客户的 {}".format(opts.verbose_name)
+                mesg = f"不允许操作多个不同客户的 {opts.verbose_name}"
                 return mesg
         return func(request, queryset)
     return wrapper
@@ -75,9 +75,7 @@ def construct_model_meta(request, model, title=None):
     if title is None:
         title = ''
     meta['logo'] = request.user.onidc
-    meta['title'] = "{} {} {}".format(
-        title, opts.verbose_name, request.user.onidc.name
-    )
+    meta['title'] = f"{title} {opts.verbose_name} {request.user.onidc.name}"
     meta['icon'] = opts.icon
     meta['model_name'] = opts.model_name
     meta['verbose_name'] = opts.verbose_name
@@ -119,7 +117,7 @@ def html_print(request, queryset):
     action_name = "打印"
     verify = queryset.values('status').order_by('status').distinct()
     if verify.count() > 1:
-        mesg = "不允许打印多个不同状态的 {}".format(opts.verbose_name)
+        mesg = f"不允许打印多个不同状态的 {opts.verbose_name}"
         return mesg
     extra_for = queryset.count() - 10 < 0
     if extra_for:
@@ -161,7 +159,7 @@ def removeup(request, queryset):
             if ucan_recovery:
                 obj.units.all().update(actived=False, operator=obj.operator)
             else:
-                verb = "无法恢复 {} 的U位".format(force_text(obj))
+                verb = f"无法恢复 {force_text(obj)} 的U位"
                 log_action(
                     user_id=request.user.pk,
                     content_type_id=get_content_type_for_model(obj, True).pk,
@@ -448,7 +446,7 @@ def release(request, queryset):
         for obj in queryset:
             o = copy.deepcopy(obj)
             if obj.client and obj.client.onlinenum() == 0:
-                verb = "客户 {} 没有在线设备, 是否终止".format(force_text(obj.client))
+                verb = f"客户 {force_text(obj.client)} 没有在线设备, 是否终止"
                 log_action(
                     user_id=request.user.pk,
                     content_type_id=get_content_type_for_model(obj, True).pk,
@@ -464,7 +462,7 @@ def release(request, queryset):
             obj.tags.clear()
 
             if obj.jnum() != 0:
-                verb = "机柜 {} 还有跳线存在, 请回收".format(force_text(obj))
+                verb = f"机柜 {force_text(obj)} 还有跳线存在, 请回收"
                 log_action(
                     user_id=request.user.pk,
                     content_type_id=get_content_type_for_model(obj, True).pk,

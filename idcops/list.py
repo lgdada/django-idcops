@@ -54,12 +54,12 @@ class ListModelView(BaseRequiredMixin, ListView):
     """
 
     def get_template_names(self):
-        return ["{0}/list.html".format(self.model_name), "base/list.html"]
+        return [f'{self.model_name}/list.html', "base/list.html"]
 
     @cached_property
     def _config(self):
         key = utils.make_template_fragment_key(
-            "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
+            f'{self.request.user.id}.{self.model_name}.list'
         )
         data = cache.get_or_set(
             key, get_user_config(self.request.user, 'list', self.model), 180
@@ -275,7 +275,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             html = ''
             for p in ranges:
                 url = self.get_query_string({'paginate_by': p})
-                li = '<li><a href="{}">显示{}项</a></li>'.format(url, p)
+                li = f'<li><a href="{url}">显示{p}项</a></li>'
                 html += li
             return mark_safe(html)
 
@@ -291,15 +291,11 @@ class ListModelView(BaseRequiredMixin, ListView):
             messages.warning(request, "您必须选中一些条目")
         else:
             try:
-                current_action = import_string(
-                    'idcops.actions.{}'.format(action))
+                current_action = import_string(f'idcops.actions.{action}')
                 description = current_action.description
                 metric = getattr(self.opts, 'metric', "条")
                 mesg = format_html(
-                    '您一共 <b>{0}</b> 了 <b>{1}</b> {2} <b>{3}</b>'.format(
-                        description, objects.count(), metric,
-                        self.opts.verbose_name
-                    )
+                    f'您一共 <b>{description}</b> 了 <b>{objects.count()}</b> {metric} <b>{self.opts.verbose_name}</b>'
                 )
                 result = current_action(request, objects)
                 # error has message.
@@ -313,7 +309,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     messages.success(request, mesg)
                 return HttpResponseRedirect(redirect_to)
             except Exception as e:
-                messages.warning(request, "未知动作: {}".format(e))
+                messages.warning(request, f"未知动作: {e}")
         return HttpResponseRedirect(redirect_to)
 
     def make_thead(self):
@@ -382,7 +378,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             toggle_link = '.'.join(i for i in new_ordering)
             toggle_url = self.get_query_string({'order': toggle_link})
             remove_url = self.get_query_string({'order': remove_link})
-            th_classes = ['sortable', 'col-{}'.format(field_name)]
+            th_classes = ['sortable', f'col-{field_name}']
             yield {
                 "text": text,
                 "checked": checked,
@@ -390,8 +386,8 @@ class ListModelView(BaseRequiredMixin, ListView):
                 "sortable": sortable,
                 "is_sorted": is_sorted,
                 "sorted_key": sorted_key,
-                "remove_link": "{}".format(remove_url),
-                "toggle_link": "{}".format(toggle_url),
+                "remove_link": f"{remove_url}",
+                "toggle_link": f"{toggle_url}",
                 "class_attrib": format_html(
                     'style="{}" class="{}"',
                     'min-width: 64px;' if is_sorted else '',
@@ -427,7 +423,7 @@ class ConfigUserListView(BaseRequiredMixin, TemplateView):
 
     def get_template_names(self):
         return [
-            "{0}/config_list.html".format(self.model_name),
+            f"{self.model_name}/config_list.html",
             "base/config_list.html"
         ]
 
@@ -505,7 +501,7 @@ class ConfigUserListView(BaseRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         key = utils.make_template_fragment_key(
-            "{}.{}.{}".format(self.request.user.id, self.model_name, 'list')
+            f'{self.request.user.id}.{self.model_name}.list'
         )
         cache.delete(key)
         data = request.POST.copy()
@@ -527,7 +523,7 @@ class ConfigUserListView(BaseRequiredMixin, TemplateView):
                 mark='list', content=content
             )
         redirect_to = reverse_lazy('idcops:list', args=[self.model_name])
-        messages.success(request, "您的{}自定义列表配置完成".format(self.verbose_name))
+        messages.success(request, f"您的{self.verbose_name}自定义列表配置完成")
         return HttpResponseRedirect(redirect_to)
 
     def get_context_data(self, **kwargs):

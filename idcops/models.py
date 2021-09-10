@@ -299,7 +299,7 @@ class Configure(Contentable):
         verbose_name = verbose_name_plural = "用户配置"
 
     def __str__(self):
-        return "{}-{} : {}".format(self.creator, self.content_type, self.pk)
+        return f"{self.creator}-{self.content_type} : {self.pk}"
 
 
 class Remark(models.Model):
@@ -331,9 +331,7 @@ class Syslog(Contentable):
 
     def title_description(self):
         time = formats.localize(timezone.template_localtime(self.created))
-        text = '{} > {} > {}了 > {}'.format(
-            time, self.creator, self.action_flag, self.content_type
-        )
+        text = f'{time} > {self.creator} > {self.action_flag}了 > {self.content_type}'
         return text
 
     class Meta(Mark.Meta):
@@ -377,9 +375,7 @@ class User(AbstractUser, Onidc, Mark, ActiveDelete, Remark):
         return self.first_name or self.username
 
     def title_description(self):
-        text = '{} > {} '.format(
-            self.onidc, self.__str__()
-        )
+        text = f'{self.onidc} > {self.__str__()} '
         return text
 
     class Meta(AbstractUser.Meta, Mark.Meta):
@@ -500,11 +496,9 @@ class Option(
         for rel in cls._meta.related_objects:
             object_name = rel.related_model._meta.object_name.capitalize()
             field_name = rel.remote_field.name.capitalize()
-            name = "{}-{}".format(object_name, field_name)
+            name = f"{object_name}-{field_name}"
             remote_model_name = rel.related_model._meta.verbose_name
-            verbose_name = "{}-{}".format(
-                remote_model_name, rel.remote_field.verbose_name
-            )
+            verbose_name = f"{remote_model_name}-{rel.remote_field.verbose_name}"
             _choices.append((name, verbose_name))
         return sorted(_choices)
 
@@ -591,7 +585,7 @@ class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         return self.name
 
     def title_description(self):
-        text = '{} > {}'.format(self.style, self.name)
+        text = f'{self.style} > {self.name}'
         return text
 
     def onlinenum(self):
@@ -689,7 +683,7 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
         return self.name
 
     def title_description(self):
-        text = '{} > {}'.format(self.zone, self.name)
+        text = f'{self.zone} > {self.name}'
         return text
 
     def onum(self):
@@ -981,16 +975,15 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
                 move_type = "跨机柜迁移" if 'rack' in data else "本机柜迁移"
                 swap['type'] = move_type
                 history.append(swap)
-            except Exception as e:
-                logger.warning(
-                    'rebuliding device history warning: {}'.format(e))
+            except Exception as err:
+                logger.warning(f'rebuliding device history warning: {err}')
         return history
 
     def last_rack(self):
         try:
             return self.move_history[0].get('rack')
-        except Exception as e:
-            logger.warning('Get device last rack warning: {}'.format(e))
+        except Exception as err:
+            logger.warning(f'Get device last rack warning: {err}')
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.sn:
@@ -1153,7 +1146,7 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
 
     def title_description(self):
         state = "有效跳线" if self.actived else "已回收跳线"
-        return '{} > {} > {}'.format(state, self.netprod, self.linenum)
+        return f'{state} > {self.netprod} > {self.linenum}'
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -1224,7 +1217,7 @@ class Testapply(Onidc, Mark, PersonTime, ActiveDelete, Intervaltime, Remark):
 
     def title_description(self):
         state = "正在测试" if self.actived else "已结束的测试"
-        text = '{} > {} '.format(state, self.name)
+        text = f'{state} > {self.name}'
         return text
 
     def expired(self):
@@ -1270,7 +1263,7 @@ class Zonemap(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     )
 
     def __str__(self):
-        return "<{}, {}>".format(self.row, self.col)
+        return f"<{self.row}, {self.col}>"
 
     class Meta(Mark.Meta):
         level = 1
@@ -1567,7 +1560,7 @@ class IPAddress(
             )
             if verify.exists():
                 raise ValidationError({
-                    'text': "机房已经存在 {} 这个公网地址".format(self.address)
+                    'text': f"机房已经存在 {self.address} 这个公网地址"
                 })
 
     def save(self, *args, **kwargs):

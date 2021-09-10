@@ -171,3 +171,5 @@ EMAIL_HOST_PASSWORD = '******'
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = 'admin@iloxp.com'
 SITE_DOMAIN = 'idcops.iloxp.com'
+
+# TEST_ENV = True

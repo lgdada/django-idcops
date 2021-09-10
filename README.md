@@ -19,12 +19,6 @@ QQ群：185964462
 ![个人微信](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/qrcode_for_me.jpg)
 
 
-### 捐赠该项目
-
-![weixin](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/wx_qr.jpg)
-![zhifuba](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/zfb_qr.jpg)
-
-
 #### 项目截图：
 
 [演示地址](http://idcops.iloxp.com/)
@@ -178,6 +172,12 @@ COLOR_FK_FIELD = False
 ('document', '文档资料')
 ]
 ```
+
+
+### 捐赠该项目
+
+![weixin](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/wx_qr.jpg)
+![zhifuba](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/zfb_qr.jpg)
 
 
 #### Thanks：

@@ -44,8 +44,9 @@ class DetailModelView(
                 "{0}/detail.html".format(self.model_name), "base/detail.html"]
 
     def get_success_message(self, cleaned_data):
-        self.success_message = u'成功添加了{0} "{1}" 的备注信息'.format(
-            self.opts.verbose_name, self.object)
+        self.success_message = f'''成功添加了{self.opts.verbose_name}
+            "{self.object}" 的备注信息
+        '''
         return self.success_message
 
     def get_object(self):

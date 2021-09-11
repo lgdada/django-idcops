@@ -39,7 +39,7 @@ def construct_menus(user):
                 'icon': opts.icon,
                 'icon_color': icon_color,
                 'level': opts.level,
-                'uri': '{}list/{}'.format(SITE_PREFIX, opts.model_name)
+                'uri': f'{SITE_PREFIX}list/{opts.model_name}/'
             }
             model_names.append(meta)
     counts = list(set([i.get('level') for i in model_names]))

@@ -319,12 +319,12 @@ def make_tbody_tr(
             if can_change(opts, lmv.request.user):
                 _edit = f'''
                     <a title="编辑" href="{update_link}">
-                    <span class="label label-default margin-r-5">编辑</span>
+                    <span class="label label-warning margin-r-5">编辑</span>
                     </a>'''
             _show = f'''
                 <a title="弹窗模式进行查看" href="{detail_link}"
                 data-toggle="modal" data-target="#modal-lg">
-                <span class="label label-default">查看</span>
+                <span class="label label-info">查看</span>
                 </a>'''
             td_text = mark_safe(_edit + _show)
             td_format = '<td class="no-print {}">{}</td>'

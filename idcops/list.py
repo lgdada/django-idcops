@@ -322,7 +322,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             checked_fields = fields
         can_sorted_fields = [f.name for f in self.opts.concrete_fields]
         for _, field_name in enumerate(fields):
-            checked = field_name in checked_fields
+            # checked = field_name in checked_fields
             sortable = field_name in can_sorted_fields
             if field_name == 'field-first':
                 yield {
@@ -359,7 +359,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                 # Not sortable
                 yield {
                     "text": text,
-                    "checked": checked,
+                    # "checked": checked,
                     "field": field_name,
                     "class_attrib": format_html(f' class="col-{field_name}"'),
                     "sortable": sortable,
@@ -383,7 +383,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             th_style = 'min-width: 64px;' if is_sorted else ''
             yield {
                 "text": text,
-                "checked": checked,
+                # "checked": checked,
                 "field": field_name,
                 "sortable": sortable,
                 "is_sorted": is_sorted,

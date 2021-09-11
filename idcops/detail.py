@@ -18,10 +18,7 @@ from idcops.mixins import BaseRequiredMixin, PostRedirect
 
 VISIBLE_XS_TR_FORMAT = '<tr class="visible-xs"><th>{th}</th><td>{td}</td></tr>'
 
-HIDDEN_XS_TH_FORMAT = '''
-<th class="hidden-xs">{th}</th>
-<td class="hidden-xs">{td}</td></tr>
-'''
+HIDDEN_XS_TH_FORMAT = '<th class="hidden-xs">{th}</th><td class="hidden-xs">{td}</td>'
 
 
 class DetailModelView(
@@ -35,13 +32,11 @@ class DetailModelView(
 
     def get_template_names(self):
         if self.request.is_ajax():
-            return [
-                "{0}/ajax_detail.html".format(self.model_name),
-                "base/ajax_detail.html"
-            ]
+            ts = [f"{self.model_name}/ajax_detail.html",
+                  "base/ajax_detail.html"]
         else:
-            return [
-                "{0}/detail.html".format(self.model_name), "base/detail.html"]
+            ts = [f"{self.model_name}/detail.html", "base/detail.html"]
+        return ts
 
     def get_success_message(self, cleaned_data):
         self.success_message = f'''成功添加了{self.opts.verbose_name}
@@ -90,11 +85,7 @@ class DetailModelView(
                 value = field.value_from_object(self.object)
                 td = display_for_field(value, field, only_date=False)
             except BaseException:
-                try:
-                    f, _, td = lookup_field(
-                        field_name, self.object, self.model)
-                except BaseException:
-                    pass
+                _, _, td = lookup_field(field_name, self.object, self.model)
             if (index % 2 == 0):
                 append = VISIBLE_XS_TR_FORMAT
                 _format = HIDDEN_XS_TH_FORMAT

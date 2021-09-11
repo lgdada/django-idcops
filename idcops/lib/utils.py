@@ -9,14 +9,11 @@ import decimal
 
 from collections import OrderedDict
 from itertools import chain
-from ipaddress import IPv4Network, IPv6Network
 
 from django.contrib.admin.utils import (
     lookup_field, NestedObjects
 )
 from django.contrib.auth import get_permission_codename
-# from django.core.cache import cache
-# from django.core.cache import utils as cache_key
 from django.db import models, router
 from django.conf import settings
 from django.utils import formats, six, timezone
@@ -226,9 +223,7 @@ def display_for_value(value):
         if value.model is Option and COLOR_TAGS:
             html = ''
             for v in value:
-                item = '<span class="badge bg-{}">{}</span>&nbsp'.format(
-                    v.color, v.text
-                )
+                item = f'<span class="badge bg-{v.color}">{v.text}</span>&nbsp'
                 html += item
             return mark_safe(html)
         else:
@@ -262,7 +257,7 @@ def display_for_field(value, field, html=True, only_date=True):
             if not text_color:
                 text_color = 'text-info'
             safe_value = format_html(
-                '<span class="text-{}">{}</span>', text_color, rel_obj.text)
+                f'<span class="text-{text_color}">{rel_obj.text}</span>')
             return safe_value
         return force_text(rel_obj)
     elif isinstance(field, models.TextField) and value:
@@ -307,7 +302,7 @@ def make_tbody_tr(
     opts = lmv.opts
     detail_link = obj.get_absolute_url
     update_link = obj.get_edit_url
-    rowdata = ''
+    rowdata = list()
     for field_name in fields:
         td_format = '<td class="{}">{}</td>'
         td_text = ''
@@ -322,15 +317,15 @@ def make_tbody_tr(
         if field_name == 'field-last':
             _edit = ''
             if can_change(opts, lmv.request.user):
-                _edit = '''
-                    <a title="编辑" href="{}">
+                _edit = f'''
+                    <a title="编辑" href="{update_link}">
                     <span class="label label-default margin-r-5">编辑</span>
-                    </a>'''.format(update_link)
-            _show = '''
-                <a title="弹窗模式进行查看" href="{}"
+                    </a>'''
+            _show = f'''
+                <a title="弹窗模式进行查看" href="{detail_link}"
                 data-toggle="modal" data-target="#modal-lg">
                 <span class="label label-default">查看</span>
-                </a>'''.format(detail_link)
+                </a>'''
             td_text = mark_safe(_edit + _show)
             td_format = '<td class="no-print {}">{}</td>'
         if field_name not in extra_fields:
@@ -342,13 +337,9 @@ def make_tbody_tr(
                 value = field.value_from_object(obj)
                 td_text = display_for_field(value, field, only_date=only_date)
                 if field.name == to_field_name:
-                    title = "点击查看 {} 为 {} 的详情信息".format(
-                        opts.verbose_name, force_text(obj)
-                    )
+                    title = f"点击查看 {opts.verbose_name} 为 {force_text(obj)} 的详情信息"
                     td_text = mark_safe(
-                        '<a title="{}" href="{}">{}</a>'.format(
-                            title, detail_link, td_text
-                        )
+                        f'<a title="{title}" href="{detail_link}">{td_text}</a>'
                     )
                 if getattr(field, 'flatchoices', None) \
                         or isinstance(field,
@@ -360,19 +351,16 @@ def make_tbody_tr(
                     td_title = display_for_field(
                         value, field, html=False, only_date=only_date
                     )
-                    title = "点击过滤 {} 为 {} 的所有 {}".format(
-                        field.verbose_name, td_title, verbose_name
-                    )
+                    title = f"点击过滤 {field.verbose_name} 为 {td_title} 的所有 {verbose_name}"
                     td_text = mark_safe(
-                        '<a class="{}" title="{}" href="{}">{}</a>'.format(
-                            classes, title, link, td_text
-                        )
+                        f'<a class="{classes}" title="{title}" href="{link}">{td_text}</a>'
                     )
             except BaseException:
                 _, _, _td_text = lookup_field(field_name, obj, obj._meta.model)
                 td_text = mark_safe(_td_text)
-        rowdata += format_html(td_format, td_class, td_text)
-    return mark_safe(rowdata)
+        tr = format_html(td_format, td_class, td_text)
+        rowdata.append(tr)
+    return mark_safe(''.join(rowdata))
 
 
 def make_dict(data_dict):

@@ -36,7 +36,7 @@ from idcops.lib.fields import IPNetwork
 _QUERY = 'search'
 # _RANGE = 'range'
 _ORDER = 'order'
-_PAGINATE = 'paginate_by'
+_PAGINATE = 'per_page'
 # _ALL_VAL = 'all'
 
 
@@ -274,7 +274,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             ranges.append(max_size)
             html = ''
             for p in ranges:
-                url = self.get_query_string({'paginate_by': p})
+                url = self.get_query_string({_PAGINATE: p})
                 li = f'<li><a href="{url}">显示{p}项</a></li>'
                 html += li
             return mark_safe(html)
@@ -334,7 +334,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     "class_attrib": mark_safe(' class="no-print field-first"'),
                     "sortable": sortable,
                 }
-                continue
+                # continue
             if field_name == 'field-second':
                 yield {
                     "text": "#",
@@ -349,7 +349,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     "class_attrib": mark_safe(' class="no-print field-last"'),
                     "sortable": sortable,
                 }
-                continue
+                # continue
             try:
                 text = label_for_field(name=field_name, model=self.model)
             except Exception:
@@ -363,7 +363,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     "class_attrib": format_html(' class="col-{}"', field_name),
                     "sortable": sortable,
                 }
-                continue
+                # continue
             # OK, it is sortable if we got this far
             is_sorted = field_name in ordering or '-' + field_name in ordering
             sorted_key = 'asc' if is_sorted and field_name in ordering else 'desc'
@@ -379,6 +379,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             toggle_url = self.get_query_string({'order': toggle_link})
             remove_url = self.get_query_string({'order': remove_link})
             th_classes = ['sortable', f'col-{field_name}']
+            th_style = 'min-width: 64px;' if is_sorted else ''
             yield {
                 "text": text,
                 "checked": checked,
@@ -390,8 +391,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                 "toggle_link": f"{toggle_url}",
                 "class_attrib": format_html(
                     'style="{}" class="{}"',
-                    'min-width: 64px;' if is_sorted else '',
-                    ' '.join(th_classes)) if th_classes else '',
+                    th_style, ' '.join(th_classes)),
 
             }
 

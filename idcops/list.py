@@ -334,7 +334,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     "class_attrib": mark_safe(' class="no-print field-first"'),
                     "sortable": sortable,
                 }
-                # continue
+                continue
             if field_name == 'field-second':
                 yield {
                     "text": "#",
@@ -342,6 +342,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                     "class_attrib": mark_safe(' class="field-second"'),
                     "sortable": sortable,
                 }
+                continue
             if field_name == 'field-last':
                 yield {
                     "text": "操作",
@@ -349,21 +350,21 @@ class ListModelView(BaseRequiredMixin, ListView):
                     "class_attrib": mark_safe(' class="no-print field-last"'),
                     "sortable": sortable,
                 }
-                # continue
+                continue
             try:
                 text = label_for_field(name=field_name, model=self.model)
-            except Exception:
-                continue
+            except BaseException:
+                text = field_name
             if field_name not in can_sorted_fields:
                 # Not sortable
                 yield {
                     "text": text,
                     "checked": checked,
                     "field": field_name,
-                    "class_attrib": format_html(' class="col-{}"', field_name),
+                    "class_attrib": format_html(f' class="col-{field_name}"'),
                     "sortable": sortable,
                 }
-                # continue
+                continue
             # OK, it is sortable if we got this far
             is_sorted = field_name in ordering or '-' + field_name in ordering
             sorted_key = 'asc' if is_sorted and field_name in ordering else 'desc'
@@ -378,7 +379,7 @@ class ListModelView(BaseRequiredMixin, ListView):
             toggle_link = '.'.join(i for i in new_ordering)
             toggle_url = self.get_query_string({'order': toggle_link})
             remove_url = self.get_query_string({'order': remove_link})
-            th_classes = ['sortable', f'col-{field_name}']
+            th_classes = ' '.join(['sortable', f'col-{field_name}'])
             th_style = 'min-width: 64px;' if is_sorted else ''
             yield {
                 "text": text,
@@ -390,9 +391,8 @@ class ListModelView(BaseRequiredMixin, ListView):
                 "remove_link": f"{remove_url}",
                 "toggle_link": f"{toggle_url}",
                 "class_attrib": format_html(
-                    'style="{}" class="{}"',
-                    th_style, ' '.join(th_classes)),
-
+                    f'style="{th_style}" class="{th_classes}"'
+                )
             }
 
     def make_tbody(self, objects):

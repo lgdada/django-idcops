@@ -38,6 +38,7 @@ _QUERY = 'search'
 _ORDER = 'order'
 _PAGINATE = 'per_page'
 # _ALL_VAL = 'all'
+_MAX_PAGE_SIZE = 200
 
 
 class ListModelView(BaseRequiredMixin, ListView):
@@ -127,13 +128,13 @@ class ListModelView(BaseRequiredMixin, ListView):
         return fields
 
     def get_paginate_by(self, queryset):
-        self.paginate_by = self.request.GET.get(_PAGINATE, 20)
-        if int(self.paginate_by) > 100:
+        per_page = self.request.GET.get(_PAGINATE, _MAX_PAGE_SIZE)
+        if int(per_page) > _MAX_PAGE_SIZE:
             messages.warning(
                 self.request,
-                "仅允许每页最多显示100条数据, 已为您显示100条."
+                f"仅允许每页最多显示{_MAX_PAGE_SIZE}条数据, 已为您显示{per_page}条."
             )
-            self.paginate_by = 100
+        self.paginate_by = min(per_page, _MAX_PAGE_SIZE)
         return self.paginate_by
 
     @cached_property

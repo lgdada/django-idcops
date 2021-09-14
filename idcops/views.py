@@ -19,9 +19,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView,
-    PasswordResetCompleteView, PasswordChangeDoneView,
-    PasswordChangeView
+    PasswordResetCompleteView, PasswordChangeDoneView
 )
+from django.contrib.auth.views import PasswordChangeView as PasswordChangeView_
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
@@ -42,7 +42,6 @@ from idcops.models import (
 from idcops.forms import (
     ImportExcelForm, ZonemapNewForm, InitIdcForm
 )
-from idcops.imports import import_online
 
 
 login = LoginView.as_view(template_name='accounts/login.html')
@@ -70,7 +69,7 @@ reset_done = PasswordResetCompleteView.as_view(
 )
 
 
-class PasswordChangeView(BaseRequiredMixin, PasswordChangeView):
+class PasswordChangeView(BaseRequiredMixin, PasswordChangeView_):
     template_name = 'accounts/password_change_form.html'
     success_url = reverse_lazy('idcops:logout')
 

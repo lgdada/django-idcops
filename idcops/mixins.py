@@ -100,7 +100,7 @@ class BaseRequiredMixin(LoginRequiredMixin):
             return self.handle_no_permission()
         model = self.kwargs.get('model', self.cmodel)
         self.onidc_id = request.user.onidc_id
-        self.title = "{} 数据中心运维平台".format(request.user.onidc.name)
+        self.title = f"{request.user.onidc.name} 数据中心运维平台"
         if model:
             try:
                 self.model = apps.get_model('idcops', model.lower())
@@ -109,8 +109,8 @@ class BaseRequiredMixin(LoginRequiredMixin):
                 self.verbose_name = self.opts.verbose_name
                 if self.kwargs.get('pk', None):
                     self.pk_url_kwarg = self.kwargs.get('pk')
-            except BaseException:
-                raise Http404("您访问的模块不存在.")
+            except LookupError as err:
+                raise Http404(f"您访问的模块不存在: {err}")
         return super(BaseRequiredMixin, self).dispatch(
             request, *args, **kwargs)
 

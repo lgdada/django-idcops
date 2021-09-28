@@ -23,6 +23,7 @@ from django.utils import formats, timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.views.generic.base import logger
 from django.urls import reverse_lazy
 
@@ -926,6 +927,10 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     status = models.SlugField(
         choices=_STATUS, default='online',
         verbose_name="状态", help_text="默认为在线")
+    expiry_date = models.DateField(
+        blank=True, null=True, verbose_name="过保日期",
+        help_text="设备保修到期日期"
+    )
     tags = models.ManyToManyField(
         'Option',
         blank=True, limit_choices_to={'flag': 'Device-Tags'},
@@ -942,6 +947,19 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
             self.client, self.get_status_display(), self.style
         )
         return text
+
+    def warranty_status(self):
+        if not self.expiry_date:
+            return mark_safe('<span class="text-muted">未录入</span>')
+        REMIND_ADVANCE_DAYS = getattr(settings, 'REMIND_ADVANCE_DAYS', 30)
+        days = (self.expiry_date-timezone.now().date()).days
+        if days >= REMIND_ADVANCE_DAYS:
+            return mark_safe(f'<span class="text-green">在保({days}天)</span>')
+        elif days >= 0 and days < REMIND_ADVANCE_DAYS:
+            return mark_safe(f'<span class="text-yellow">即将过保({days}天)</span>')
+        else:
+            return mark_safe(f'<span class="text-red">已过保({-days}天)</span>')
+    warranty_status.short_description = "保修状态"
 
     def list_units(self):
         value = [force_text(i) for i in self.units.all().order_by('name')]
@@ -1006,7 +1024,7 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         metric = "台"
         list_display = [
             'name', 'rack', 'urange', 'client', 'model', 'style',
-            'sn', 'ipaddr', 'status', 'actived', 'modified'
+            'sn', 'ipaddr', 'status', 'actived', 'warranty_status', 'modified'
         ]
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         ordering = ['-modified']
@@ -1043,7 +1061,8 @@ class Online(Device):
         dashboard = True
         list_display = [
             'name', 'rack', 'urange', 'client', 'model',
-            'sn', 'ipaddr', 'style', 'status', 'created', 'creator'
+            'sn', 'ipaddr', 'style', 'status', 'created', 'creator',
+            'warranty_status'
         ]
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         proxy = True

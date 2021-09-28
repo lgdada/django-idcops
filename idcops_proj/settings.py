@@ -173,3 +173,6 @@ DEFAULT_FROM_EMAIL = 'admin@iloxp.com'
 SITE_DOMAIN = 'idcops.iloxp.com'
 
 # TEST_ENV = True
+
+# `Device` 过保提醒提前天数
+REMIND_ADVANCE_DAYS = 30

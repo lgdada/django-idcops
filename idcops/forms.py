@@ -121,22 +121,21 @@ class FormBaseMixin(Select2Media, CheckUniqueTogether):
                 'onidc_id': onidc_id,
                 'deleted': False,
                 'actived': True}
+            forms_choices = (
+                forms.models.ModelChoiceField,
+                forms.models.ModelMultipleChoiceField
+            )
             for field_name in self.fields:
                 field = self.fields.get(field_name)
-                if isinstance(
-                        field,
-                        (forms.fields.SlugField,
-                         forms.fields.CharField)):
-                    self.fields[field_name].widget.attrs.update(
-                        {'autocomplete': "off"})
                 if isinstance(field, forms.fields.DateTimeField):
                     self.fields[field_name].widget.attrs.update(
-                        {'data-datetime': "true"})
+                        {'data-datetime': "true", 'autocomplete': "off"})
+                if isinstance(field, forms.fields.DateField):
+                    self.fields[field_name].widget.attrs.update(
+                        {'data-date': "true", 'autocomplete': "off"})
                 if isinstance(field.widget, forms.widgets.Textarea):
                     self.fields[field_name].widget.attrs.update({'rows': "3"})
-                if isinstance(field, (
-                        forms.models.ModelChoiceField,
-                        forms.models.ModelMultipleChoiceField)):
+                if isinstance(field, forms_choices):
                     fl = ''
                     if getattr(field.queryset.model, 'mark', False):
                         field.queryset = shared_queryset(
@@ -169,7 +168,7 @@ class FormBaseMixin(Select2Media, CheckUniqueTogether):
                         fk_url = ''
                     field.help_text = field.help_text + fk_url
                 self.fields[field_name].widget.attrs.update(
-                    {'class': "form-control"})
+                    {'class': "form-control", 'autocomplete': "off"})
 
 
 class UserNewForm(Select2Media, UserCreationForm):
@@ -353,7 +352,8 @@ class OnlineNewForm(
         model = Device
         fields = [
             'rack', 'client', 'created', 'style', 'name',
-            'ipaddr', 'model', 'sn', 'units', 'pdus', 'tags'
+            'ipaddr', 'model', 'sn', 'units',
+            'pdus', 'expiry_date', 'tags'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -405,7 +405,7 @@ class OnlineEditForm(
         fields = [
             'rack', 'client', 'style', 'ipaddr',
             'name', 'sn', 'model',
-            'units', 'pdus', 'tags'
+            'units', 'pdus', 'expiry_date',  'tags'
         ]
 
     def __init__(self, *args, **kwargs):

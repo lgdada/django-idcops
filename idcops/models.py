@@ -790,6 +790,7 @@ class Unit(
         return super(Unit, self).save(*args, **kwargs)
 
     def clean(self):
+        super().clean()
         if not self.pk:
             try:
                 int(self.name)

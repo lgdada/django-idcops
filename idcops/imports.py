@@ -113,7 +113,8 @@ def import_online(path, onidc_id):
             else:
                 msg = "第{}行：{}".format(index, err)
                 handler_warning.append(msg)
-                continue
+                # fix: pdus is none, no callback device_post_save function
+                # continue
             # 保存TAGS
             tags = clean_tags(raw.get('tags'), onidc_id, creator.pk)
             if tags:

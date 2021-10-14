@@ -7,10 +7,10 @@ PYTHON="${PYTHON:-python3}"
 # 备份 `settings.py` 配置文件
 if [ -f "idcops_proj/settings.py" ];then
     COMMAND="\cp -f idcops_proj/settings.py /tmp/"
-    echo "备份 settings.py 配置文件"
+    echo "backup \`settings.py\` configure file"
     eval $COMMAND
 else
-    echo "Warning: 配置文件 idcops_proj/settings.py 不存在"
+    echo "Warning: configure file \`idcops_proj/settings.py\` not exists"
 fi
 
 OLD_VER=$(git log --pretty=oneline|head -1|awk '{print $1}')
@@ -82,10 +82,10 @@ eval $COMMAND > /dev/null 2>&1 || {
 # 恢复 `settings.py` 配置文件
 if [ -f "/tmp/settings.py" ];then
     COMMAND="\cp -f /tmp/settings.py idcops_proj/settings.py"
-    echo "恢复 settings.py 配置文件"
+    echo "recovery \`settings.py\` configure file"
     eval $COMMAND
 else
-    echo "Warning: 备份文件 /tmp/settings.py 不存在"
+    echo "Warning: backup file \`/tmp/settings.py\` not exists"
 fi
 
 MIGRATE_TOTAL=$(python manage.py showmigrations|grep -E '\[ \]'|wc -l)

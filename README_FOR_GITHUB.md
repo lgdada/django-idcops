@@ -9,7 +9,7 @@ django-idcops 遵循 Apache License 2.0。
 
 ## 捐赠该项目
 
-**开源不易，可以用支付宝扫下面二维码以赏金的模式打赏支持。**
+**开源不易，可以用支付宝扫下面二维码以赏金的模式打赏支持。您的支持是我不断创作的动力**
 
 ![Bounty](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/bounty_for_zfb.png)
 

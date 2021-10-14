@@ -121,7 +121,7 @@ class Creator(models.Model):
 
 class Operator(models.Model):
     operator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         related_name="%(app_label)s_%(class)s_operator",
         blank=True, null=True,
         verbose_name="修改人", help_text="该对象的修改人"
@@ -187,7 +187,7 @@ class Parent(models.Model):
 class Onidc(models.Model):
     onidc = models.ForeignKey(
         'Idc',
-        blank=True, null=True, on_delete=models.PROTECT,
+        blank=True, null=True, on_delete=models.SET_NULL,
         related_name="%(app_label)s_%(class)s_onidc",
         verbose_name="所属机房", help_text="该资源所属的机房"
     )
@@ -212,7 +212,7 @@ class Tag(models.Model):
 class ClientAble(models.Model):
     client = models.ForeignKey(
         'Client',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name="%(app_label)s_%(class)s_client",
         verbose_name="所属客户",
@@ -562,14 +562,14 @@ class Client(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         verbose_name="客户类型", help_text="从机房选项中选取")
     sales = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Client-Sales'},
         related_name="%(app_label)s_%(class)s_sales",
         verbose_name="客户销售", help_text="从机房选项中选取")
     kf = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Client-Kf'},
         related_name="%(app_label)s_%(class)s_kf",
@@ -642,7 +642,7 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     )
     style = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True, blank=True,
         limit_choices_to={'flag': 'Rack-Style'},
         related_name="%(app_label)s_%(class)s_style",
@@ -650,7 +650,7 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     )
     status = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True, blank=True,
         limit_choices_to={'flag': 'Rack-Status'},
         related_name="%(app_label)s_%(class)s_status",
@@ -964,10 +964,8 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
 
     def list_units(self):
         value = [force_text(i) for i in self.units.all().order_by('name')]
-        if len(value) > 1:
-            value = [value[0], value[-1]]
-        units = "-".join(value)
-        return units
+        value = set([value[0], value[-1]])
+        return "-".join(value)
 
     @property
     def move_history(self):
@@ -1106,7 +1104,7 @@ class Jumpline(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     netprod = models.ForeignKey(
         'Option',
         blank=True, null=True,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         limit_choices_to={'flag': 'Jumpline-Netprod'},
         related_name="%(app_label)s_%(class)s_netprod",
         verbose_name="网络产品",
@@ -1302,7 +1300,7 @@ class Goods(Onidc, Mark, PersonTime, ActiveDelete):
     )
     brand = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Goods-Brand'},
         related_name="%(app_label)s_%(class)s_brand",
@@ -1438,7 +1436,7 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
     body = models.TextField(verbose_name="文档内容")
     category = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Document-Category'},
         related_name="%(app_label)s_%(class)s_category",
@@ -1446,7 +1444,7 @@ class Document(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         help_text="分类, 从机房选项中选取")
     status = models.ForeignKey(
         'Option',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         limit_choices_to={'flag': 'Document-Status'},
         related_name="%(app_label)s_%(class)s_status",

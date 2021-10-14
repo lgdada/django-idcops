@@ -4,6 +4,15 @@ cd "$(dirname "$0")"
 VIRTUALENV="$(pwd -P)/env"
 PYTHON="${PYTHON:-python3}"
 
+# 备份 `settings.py` 配置文件
+if [ -f "idcops_proj/settings.py" ];then
+    COMMAND="\cp -f idcops_proj/settings.py /tmp/"
+    echo "备份 settings.py 配置文件"
+    eval $COMMAND
+else
+    echo "Warning: 配置文件 idcops_proj/settings.py 不存在"
+fi
+
 OLD_VER=$(git log --pretty=oneline|head -1|awk '{print $1}')
 git fetch --all && git reset --hard origin/master && git pull
 git diff --name-only ${OLD_VER}|grep 'requirements.txt'
@@ -53,15 +62,6 @@ if [ $? -eq 0 ];then
 fi
 
 . ${VIRTUALENV}/bin/activate
-
-# 备份 `settings.py` 配置文件
-if [ -f "idcops_proj/settings.py" ];then
-    COMMAND="\cp -f idcops_proj/settings.py /tmp/"
-    echo "备份 settings.py 配置文件"
-    eval $COMMAND
-else
-    echo "Warning: 配置文件 idcops_proj/settings.py 不存在"
-fi
 
 python manage.py makemigrations
 

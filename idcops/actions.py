@@ -134,7 +134,7 @@ def html_print(request, queryset):
 
 html_print.description = "打印"
 html_print.icon = 'fa fa-print'
-download.required = 'view'
+html_print.required = 'view'
 
 
 @check_multiple_clients

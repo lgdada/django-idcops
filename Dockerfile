@@ -22,5 +22,7 @@ COPY ./idcops_proj/settings_for_docker.py  ./idcops_proj/settings.py
 
 RUN ["rm", "-fr", "/opt/django-idcops/db.sqlite3"]
 
+RUN ["chmod", "+x", "./config/entrypoint.sh"]
+
 # run entrypoint.sh
-ENTRYPOINT ["/opt/django-idcops/config/entrypoint.sh"]
+ENTRYPOINT ["./config/entrypoint.sh"]

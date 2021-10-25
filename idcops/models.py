@@ -920,6 +920,12 @@ class Device(Onidc, Mark, PersonTime, ActiveDelete, Remark):
         max_length=12, blank=True, null=True,
         verbose_name="U位范围", help_text="U位起始到结束，比如：05-08"
     )
+    height = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        verbose_name="设备高度(U)",
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text="设备高度(U)"
+    )
     _STATUS = (
         ('online', "在线"),
         ('offline', "已下线"),

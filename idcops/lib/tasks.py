@@ -91,6 +91,7 @@ def device_post_save(pk, first=False):
             status = 'online'
     Device.objects.filter(pk=obj.pk).update(status=status)
     Device.objects.filter(pk=obj.pk).update(urange=obj.list_units())
+    Device.objects.filter(pk=obj.pk).update(height=obj.units.all().count())
     '''
     if obj.sn and obj.mark != 'CheckSuccess':
         # Dell 设备

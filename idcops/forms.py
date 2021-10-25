@@ -532,20 +532,6 @@ class InitIdcForm(forms.ModelForm):
                 {'autocomplete': "off", 'class': "form-control"})
 
 
-class ImportOnlineForm(forms.Form):
-    excel = forms.FileField(
-        label="excel文件",
-        help_text="请上传xls或xlsx文件",
-        widget=forms.ClearableFileInput(
-            attrs={
-                'multiple': True,
-                # 'class': "form-control",
-                'accept': MIME_ACCEPT.strip()
-            }
-        )
-    )
-
-
 class ImportExcelForm(forms.Form):
     excel = forms.FileField(
         label="excel文件",

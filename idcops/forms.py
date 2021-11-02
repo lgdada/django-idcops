@@ -8,6 +8,7 @@ from django.db.models import Max
 from django.utils.six import text_type
 from django.utils.html import format_html
 from django.utils.text import get_text_list
+from django.utils.timezone import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
@@ -544,6 +545,44 @@ class ImportExcelForm(forms.Form):
             }
         )
     )
+
+
+class ReportForm(CalendarMedia, forms.Form):
+    SCALE_CHOICES = (
+        ("day", "天"),
+        ("week", "周"),
+        ("month", "月"),
+        ("year", "年"),
+    )
+    scale = forms.ChoiceField(
+        choices=SCALE_CHOICES,
+        initial="month", widget=forms.HiddenInput(),
+        label="放缩模式"
+    )
+    stime = forms.DateTimeField(
+        label="开始时间", widget=forms.HiddenInput(),
+        required=True,
+    )
+    etime = forms.DateTimeField(
+        label="结束时间", widget=forms.HiddenInput()
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ReportForm, self).__init__(*args, **kwargs)
+        self.fields['etime'].initial = datetime.now().strftime('%Y-%m-%d')
+        for field_name in self.fields:
+            field = self.fields.get(field_name)
+            self.fields[field_name].widget.attrs.update(
+                {'class': "form-control"}
+            )
+            if isinstance(field, forms.fields.DateTimeField):
+                self.fields[field_name].widget.attrs.update(
+                    {'data-datetime': "true", 'autocomplete': "off"}
+                )
+            if isinstance(field, forms.fields.DateField):
+                self.fields[field_name].widget.attrs.update(
+                    {'data-date': "true", 'autocomplete': "off"}
+                )
 
 
 class NetworkForm(FormBaseMixin, forms.ModelForm):

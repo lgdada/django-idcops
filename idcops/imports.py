@@ -17,7 +17,13 @@ from idcops.models import (
 )
 
 
-CreatorId = 1
+f = {'is_superuser': True, 'is_staff': True, 'is_active': True}
+superusers = User.objects.filter(**f)
+if superusers.exists():
+    Creator = superusers.order_by('pk').first()
+    CreatorId = Creator.pk
+else:
+    CreatorId = 1
 
 
 def import_online(path, onidc_id):
@@ -200,6 +206,13 @@ def import_rack(path, onidc_id):
             )
             instance.save()
             handler_success.append(instance.name)
+            # log_action(
+            #     user_id=creator.pk,
+            #     content_type_id=get_content_type_for_model(instance, True).pk,
+            #     object_id=instance.pk,
+            #     action_flag="新增",
+            #     created=instance.created
+            # )
             # 保存标签
             tags = get_or_create_tags(
                 raw.get('tags'), onidc_id, CreatorId, 'Rack-Tags'
@@ -269,9 +282,10 @@ def get_or_create_client(name, onidc_id):
     if qs.exists():
         instance = qs.first()
     else:
-        types = Option.objects.filter(
-            onidc_id=onidc_id, flag='Client-Style'
+        f = dict(
+            flag='Client-Style'
         )
+        types = shared_queryset(Option.objects.filter(**f), onidc_id)
         if types.exists():
             default = types.filter(master=True)
             if default.exists():

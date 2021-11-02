@@ -181,6 +181,7 @@ class UserNewForm(Select2Media, UserCreationForm):
             "email",
             "mobile",
             "groups",
+            "onidc",
             "slaveidc")
 
     def __init__(self, *args, **kwargs):
@@ -193,7 +194,9 @@ class UserNewForm(Select2Media, UserCreationForm):
         for field in self.fields:
             self.fields[field].widget.attrs.update(
                 {'autocomplete': "off", 'class': "form-control"})
+        self.fields['onidc'].required = True
         if not self.user.is_superuser:
+            self.fields['onidc'].queryset = self.user.slaveidc.all()
             self.fields['slaveidc'].queryset = self.user.slaveidc.all()
             self.fields['groups'].queryset = self.user.groups.all()
 
@@ -220,6 +223,7 @@ class UserEditForm(Select2Media, forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'autocomplete': "off", 'class': "form-control"
             })
+        self.fields['onidc'].required = True
         if self.user and not self.user.is_superuser:
             self.fields['onidc'].queryset = self.user.slaveidc.all()
             self.fields['slaveidc'].queryset = self.user.slaveidc.all()

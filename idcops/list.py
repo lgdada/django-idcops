@@ -260,7 +260,7 @@ class ListModelView(BaseRequiredMixin, ListView):
                 str = [models.Q(**{k: q}) for k in self.allow_search_fields]
                 lst.extend(str)
             query_str = reduce(operator.or_, lst)
-            queryset = _all.filter(query_str).order_by(*ordering)
+            queryset = queryset.filter(query_str).order_by(*ordering)
         return queryset
 
     def make_paginate(self, max_size):

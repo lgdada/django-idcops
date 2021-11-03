@@ -6,16 +6,16 @@ import ipaddress
 from django.apps import apps
 from django.dispatch import receiver
 from django.db.models import signals
-# from django.contrib.auth.signals import user_logged_in
+from django.contrib.auth.signals import user_logged_in
 
 from idcops.lib.utils import (
     get_content_type_for_model, fields_for_model,
-    # get_client_ip
+    get_client_ip
 )
 from idcops.models import (
     Device, Network, Rack, Unit, Pdu, User, Configure,
     IPAddress,
-    # Syslog
+    Syslog
 )
 
 
@@ -121,19 +121,19 @@ def initial_user_configuration(instance, created, **kwargs):
         Configure.objects.bulk_create(configures)
 
 
-# @receiver(user_logged_in)
-# def on_login(sender, user, request, **kwargs):
-#     ip = get_client_ip(request)
-#     # content_type = get_content_type_for_model(user._meta.model)
-#     message = "{} 从 {} 登录成功".format(str(user), ip)
-#     user_agent = request.META.get('HTTP_USER_AGENT')
-#     Syslog.objects.create(
-#         creator_id=user.id,
-#         onidc_id=user.onidc_id,
-#         object_repr=user,
-#         action_flag='登录',
-#         message=message,
-#         object_desc=str(user),
-#         content='{}, {}'.format(message, user_agent),
-#         actived=True
-#     )
+@receiver(user_logged_in)
+def on_login(sender, user, request, **kwargs):
+    ip = get_client_ip(request)
+    # content_type = get_content_type_for_model(user._meta.model)
+    message = f"{str(user)} 从 {ip} 登录成功"
+    user_agent = request.META.get('HTTP_USER_AGENT')
+    Syslog.objects.create(
+        creator_id=user.id,
+        onidc_id=user.onidc_id,
+        object_repr=user,
+        action_flag='登录',
+        message=message,
+        object_desc=str(user),
+        content=f'{message}, {user_agent}',
+        actived=True
+    )

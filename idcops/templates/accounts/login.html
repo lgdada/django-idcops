@@ -48,7 +48,14 @@
         <!-- /.col -->
       </div>
     </form>
-    <a href="{% url 'idcops:password_reset' %}">{% trans 'Forgotten your password or username?' %}</a>
+    <a href="{% url 'idcops:password_reset' %}">{% trans 'Forgotten your password or username?' %}</a>   
+  {% if demo %}
+    <hr>
+    <div class="text-center">
+      <p>关注公众号回复数字 <b class="text-red">7</b> 获取体验账号</p>
+      <img src="{% static 'idcops/img/qrcode_for_weixin.jpg' %}" alt="wx_qrcode" />
+    </div>
+  {% endif %}
   </div>
   <!-- /.login-box-body -->
 </div>

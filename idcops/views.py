@@ -17,13 +17,14 @@ from django.views.generic.edit import FormView
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
-    LoginView, LogoutView, PasswordResetView,
+    LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView,
     PasswordResetCompleteView, PasswordChangeDoneView
 )
+from django.contrib.auth.views import LoginView as LoginView_
 from django.contrib.auth.views import PasswordChangeView as PasswordChangeView_
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
+from django.utils.translation import templatize, ugettext as _
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
@@ -44,7 +45,18 @@ from idcops.forms import (
 )
 
 
-login = LoginView.as_view(template_name='accounts/login.html')
+class LoginView(LoginView_):
+
+    template_name='accounts/login.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(LoginView, self).get_context_data(**kwargs)
+        context['demo'] = getattr(settings, 'TEST_ENV', False)
+        return context
+
+login = LoginView.as_view()
+
+
 
 logout = LogoutView.as_view(template_name='accounts/logout.html')
 

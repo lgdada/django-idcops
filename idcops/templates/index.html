@@ -34,7 +34,32 @@
   <div class="clearfix visible-sm-block"></div>
   
 </div>
+{% if demo %}
+<div class="box box-danger">
+  <div class="box-header with-border no-print hidden-xs">
+    <h3 class="box-title">需要购买服务器的可以通过下面链接购买，可以顺便打赏支持本项目哦</h3>
+  </div>
+  <div class="box-body">
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <a href="https://curl.qcloud.com/iTvJzyHc" target="blank">
+          <div style="padding-top: 5px;">
+            <img class="img-responsive" src="{%static 'idcops/img/tx1200x90.jpg' %}">
+          </div>
+        </a>
+      </div>
+      <div class="col-md-6 col-xs-12">
+        <a href="https://www.aliyun.com/activity/1111?userCode=iv54ajtq" target="blank">
+          <div style="padding-top: 5px;">
+            <img style="padding-top: 0.125rem;" class="img-responsive" src="{%static 'idcops/img/al1200-90.png' %}">
+          </div>
+        </a>
+      </div>
+    </div>
 
+  </div>
+</div>
+{% endif %}
 <div class="box">
   <div class="box-header with-border">
     <h3 class="box-title">设备报表与统计数据</h3>

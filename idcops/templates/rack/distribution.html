@@ -37,8 +37,9 @@
         <th>机柜名称</th>
         <th>机柜别名</th>
         <th>所在区域</th>
-        <th width="30%">分配客户</th>
+        <th width="25%">分配客户</th>
         <th width="10%">合同电力(A)</th>
+        <th width="10%">到期时间</th>
         <th width="13%">机柜状态</th>
         <th width="13%">机柜类型</th>
       </tr>
@@ -65,6 +66,10 @@
 
         <td style="vertical-align:middle;">
           <input id="cpower-{{obj.pk}}" required="required" class="form-control" type="number" name="cpower-{{obj.pk}}" value="10" />
+        </td>
+
+        <td style="vertical-align:middle;">
+          <input id="expiry_date-{{obj.pk}}" class="form-control" type="date" name="expiry_date-{{obj.pk}}" />
         </td>
 
         <td class="clearfix" style="vertical-align:middle;">

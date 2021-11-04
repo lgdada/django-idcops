@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import json
+from django.core.serializers import serialize
 
 import hashlib
 import uuid
@@ -480,3 +482,18 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def serialize_object(obj, extra=None):
+    """
+    Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
+    change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
+    can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
+    implicitly excluded.
+    """
+    json_str = serialize('json', [obj])
+    data = json.loads(json_str)[0]['fields']
+    # Append any extra data
+    if extra is not None:
+        data.update(extra)
+    return data

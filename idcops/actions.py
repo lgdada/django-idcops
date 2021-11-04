@@ -16,13 +16,12 @@ from django.db.models import Sum
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.encoding import force_text
-from django.forms.models import model_to_dict
 
 from idcops.lib.tasks import log_action
 from idcops.lib.utils import (
     diff_dict, shared_queryset,
     get_content_type_for_model,
-    get_deleted_objects
+    get_deleted_objects, serialize_object
 )
 from idcops.mixins import construct_menus, system_menus_key
 from idcops.exports import make_to_excel
@@ -35,11 +34,11 @@ general = ['download', 'actived', 'reactive']
 unit = ['download']
 pdu = ['download']
 device = ['download', ]
-online = ['download', 'movedown']
+online = ['download', 'renew_device', 'movedown', ]
 offline = ['download', 'removeup', 'delete']
 syslog = ['download', 'actived']
 comment = ['download', 'actived', 'delete']
-rack = ['download', 'release', 'distribution', 'delete']
+rack = ['download', 'release', 'distribution', 'renewal', 'delete']
 configure = ['delete', ]
 
 general_has_delete = ['download', 'actived', 'reactive', 'delete']
@@ -172,7 +171,7 @@ def removeup(request, queryset):
             else:
                 obj.pdus.clear()
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             message = json.dumps(list(diffs.keys()))
             old_units = [force_text(u) for u in lastunits]
             old_pdus = [force_text(p) for p in lastpdus]
@@ -206,7 +205,7 @@ def movedown(request, queryset):
             obj.units.all().update(actived=True, operator=obj.operator)
             obj.pdus.all().update(actived=True, operator=obj.operator)
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -224,6 +223,46 @@ movedown.icon = 'fa fa-level-down'
 
 
 @check_multiple_clients
+def renew_device(request, queryset):
+    action = sys._getframe().f_code.co_name
+    action_name = "续保"
+    queryset = queryset.filter(actived=True)
+    if request.POST.get('post') and request.POST.getlist('items'):
+        def construct_item(index):
+            obj = queryset.get(pk=int(index))
+            expiry_date = request.POST.get(f'expiry_date-{index}')
+            return obj, expiry_date
+
+        for item in request.POST.getlist('items'):
+            obj, expiry_date = construct_item(item)
+            try:
+                expiry_date = timezone.datetime.strptime(
+                    expiry_date, '%Y-%m-%d').date()
+            except BaseException:
+                expiry_date = None
+            o = copy.deepcopy(obj)
+            obj.operator = request.user
+            obj.expiry_date = expiry_date
+            obj.save()
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
+            log_action(
+                user_id=request.user.pk,
+                content_type_id=get_content_type_for_model(obj, True).pk,
+                object_id=obj.pk,
+                action_flag=action_name,
+                message=json.dumps(list(diffs.keys())),
+                content=json.dumps(diffs)
+            )
+        return None
+    context = construct_context(request, queryset, action, action_name)
+    return TemplateResponse(request, 'online/renewal.html', context)
+
+
+renew_device.description = "续保"
+renew_device.icon = 'fa fa-rotate-right'
+
+
+@check_multiple_clients
 def actived(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "停用"
@@ -232,7 +271,7 @@ def actived(request, queryset):
             o = copy.deepcopy(obj)
             obj.actived = False
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -259,7 +298,7 @@ def reclaim(request, queryset):
             o = copy.deepcopy(obj)
             obj.actived = False
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -286,7 +325,7 @@ def cancel_reclaim(request, queryset):
             o = copy.deepcopy(obj)
             obj.actived = True
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -313,7 +352,7 @@ def reactive(request, queryset):
             o = copy.deepcopy(obj)
             obj.actived = True
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -379,7 +418,7 @@ def outbound(request, queryset):
                 Comment.objects.create(
                     object_repr=comment_obj, content=comment,
                     creator=request.user, onidc=obj.onidc)
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -412,7 +451,7 @@ def reoutbound(request, queryset):
             o = copy.deepcopy(obj)
             obj.actived = True
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -458,6 +497,7 @@ def release(request, queryset):
             obj.cpower = 0
             obj.style = None
             obj.status = None
+            obj.expiry_date = None
             obj.operator = request.user
             obj.tags.clear()
 
@@ -471,7 +511,7 @@ def release(request, queryset):
                 )
 
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -507,23 +547,31 @@ def distribution(request, queryset):
                 client = int(request.POST.get('client-' + str(index)))
             except BaseException:
                 client = 0
-            status = int(request.POST.get('status-' + str(index)))
-            style = int(request.POST.get('style-' + str(index)))
-            cpower = request.POST.get('cpower-' + str(index))
-            comment = request.POST.get(('comment-' + index), None)
-            return obj, client, status, style, cpower, comment
+            status = int(request.POST.get(f'status-{index}'))
+            style = int(request.POST.get(f'style-{index}'))
+            expiry_date = request.POST.get(f'expiry_date-{index}')
+            cpower = request.POST.get(f'cpower-{index}')
+            comment = request.POST.get((f'comment-{index}'), None)
+            return obj, client, status, style, expiry_date, cpower, comment
 
         for item in request.POST.getlist('items'):
-            obj, client, status, style, cpower, _comment = construct_item(item)
+            obj, client, status, style, expiry_date, cpower, _ = construct_item(
+                item)
+            try:
+                expiry_date = timezone.datetime.strptime(
+                    expiry_date, '%Y-%m-%d').date()
+            except BaseException:
+                expiry_date = None
             o = copy.deepcopy(obj)
             if client != 0:
                 obj.client_id = client
             obj.status_id = status
             obj.style_id = style
             obj.cpower = cpower
+            obj.expiry_date = expiry_date
             obj.actived = True
             obj.save()
-            diffs = diff_dict(model_to_dict(o), model_to_dict(obj))
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
             log_action(
                 user_id=request.user.pk,
                 content_type_id=get_content_type_for_model(obj, True).pk,
@@ -542,6 +590,47 @@ def distribution(request, queryset):
 
 distribution.description = "分配"
 distribution.icon = 'fa fa-puzzle-piece'
+
+
+@check_multiple_clients
+def renewal(request, queryset):
+    action = sys._getframe().f_code.co_name
+    action_name = "机柜续期"
+    queryset = queryset.filter(actived=True)
+    if request.POST.get('post') and request.POST.getlist('items'):
+        def construct_item(index):
+            obj = queryset.get(pk=int(index))
+            expiry_date = request.POST.get(f'expiry_date-{index}')
+            return obj, expiry_date
+
+        for item in request.POST.getlist('items'):
+            obj, expiry_date = construct_item(item)
+            try:
+                expiry_date = timezone.datetime.strptime(
+                    expiry_date, '%Y-%m-%d').date()
+            except BaseException:
+                expiry_date = None
+            o = copy.deepcopy(obj)
+            obj.operator = request.user
+            obj.expiry_date = expiry_date
+            obj.save()
+            diffs = diff_dict(serialize_object(o), serialize_object(obj))
+            log_action(
+                user_id=request.user.pk,
+                content_type_id=get_content_type_for_model(obj, True).pk,
+                object_id=obj.pk,
+                action_flag=action_name,
+                message=json.dumps(list(diffs.keys())),
+                content=json.dumps(diffs)
+            )
+        return None
+
+    context = construct_context(request, queryset, action, action_name)
+    return TemplateResponse(request, 'rack/renewal.html', context)
+
+
+renewal.description = "续期"
+renewal.icon = 'fa fa-rotate-right'
 
 
 def delete(request, queryset):

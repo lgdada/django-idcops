@@ -672,6 +672,10 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
         verbose_name="合同电力 (A)",
         help_text="跟客户签署的合同电力,用于计算客户是否超电"
     )
+    expiry_date = models.DateField(
+        blank=True, null=True, verbose_name="到期时间",
+        help_text="机柜合同到期日期"
+    )
     tags = models.ManyToManyField(
         'Option',
         blank=True, limit_choices_to={'flag': 'Rack-Tags'},
@@ -686,6 +690,20 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
     def title_description(self):
         text = f'{self.zone} > {self.name}'
         return text
+
+    def warranty_status(self):
+        if not self.expiry_date:
+            return mark_safe('<span class="text-muted">未录入</span>')
+        RACK_REMIND_ADVANCE_DAYS = getattr(
+            settings, 'RACK_REMIND_ADVANCE_DAYS', 30)
+        days = (self.expiry_date-timezone.now().date()).days
+        if days >= RACK_REMIND_ADVANCE_DAYS:
+            return mark_safe(f'<span class="text-green">({days}天)后到期</span>')
+        elif days >= 0 and days < RACK_REMIND_ADVANCE_DAYS:
+            return mark_safe(f'<span class="text-yellow">即将到期({days}天)</span>')
+        else:
+            return mark_safe(f'<span class="text-red">已到期({-days}天)</span>')
+    warranty_status.short_description = "租赁状态"
 
     def onum(self):
         return Online.objects.filter(rack_id=self.pk).count()
@@ -715,9 +733,10 @@ class Rack(Onidc, Mark, PersonTime, ActiveDelete, ClientAble, Remark):
         default_filters = {'deleted': False, 'actived': True}
         list_display = [
             'name', 'cname', 'zone', 'client', 'status', 'style',
-            'unitc', 'pduc', 'cpower', 'onum', 'jnum', 'actived', 'tags'
+            'warranty_status', 'unitc', 'pduc', 'cpower',
+            'onum', 'jnum', 'actived', 'tags'
         ]
-        extra_fields = ['jnum', 'onum']
+        extra_fields = ['jnum', 'onum', 'warranty_status']
         default_permissions = ('view', 'add', 'change', 'delete', 'exports')
         ordering = ['-actived', '-modified']
         unique_together = (('zone', 'name'), ('zone', 'cname'))

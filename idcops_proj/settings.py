@@ -176,3 +176,6 @@ SITE_DOMAIN = 'idcops.iloxp.com'
 
 # `Device` 过保提醒提前天数
 REMIND_ADVANCE_DAYS = 30
+
+# `Rack` 租赁到期提醒提前天数
+RACK_REMIND_ADVANCE_DAYS = 30

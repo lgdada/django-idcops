@@ -225,7 +225,7 @@ movedown.icon = 'fa fa-level-down'
 @check_multiple_clients
 def renew_device(request, queryset):
     action = sys._getframe().f_code.co_name
-    action_name = "续保"
+    action_name = "设备续保"
     queryset = queryset.filter(actived=True)
     if request.POST.get('post') and request.POST.getlist('items'):
         def construct_item(index):

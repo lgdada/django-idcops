@@ -1,0 +1,59 @@
+site_name: idcops 文档
+site_dir: django-idcops/docs
+site_url: https://django-idcops.readthedocs.io/
+repo_name: Wenvki/django-idcops
+repo_url: https://github.com/Wenvki/django-idcops
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to Dark Mode
+    - scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to Light Mode
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Wenvki/django-idcops
+    # - icon: fontawesome/brands/slack
+    #   link: https://netdev.chat/
+extra_css:
+    - extra.css
+nav:
+    - 引言: 'index.md'
+    - 安装:
+        - 安装 idcops: 'installation/index.md'
+        - 1. MySQL: 'installation/1-mysql.md'
+        - 2. idcops: 'installation/2-idcops.md'
+        - 3. Gunicorn: 'installation/3-gunicorn.md'
+        - 4. HTTP Server: 'installation/4-http-server.md'
+        - 升级 idcops: 'installation/upgrading.md'
+        - 配置 systemd: 'installation/migrating-to-systemd.md'
+    - 配置:
+        - 配置 idcops: 'configuration/index.md'
+        - 必须设置: 'configuration/required-settings.md'
+        - 可选设置: 'configuration/optional-settings.md'
+    - 核心功能:
+        - 系统选项: 'functionality/options.md'
+        - 数据中心: 'functionality/idc.md'
+        - 用户与用户组: 'functionality/users-and-groups.md'
+        - 机房和机柜: 'functionality/zone-and-racks.md'
+        - 设备管理: 'functionality/devices.md'
+        - 客户管理: 'functionality/clinet.md'
+        - 跳线管理: 'functionality/jumpline.md'
+        - 物品分类: 'functionality/goods.md'
+        - 库存管理: 'functionality/inventory.md'
+        - 测试信息: 'functionality/testapply.md'
+    - 管理:
+        - 权限: 'administration/permissions.md'
+        - idcops Shell: 'administration/netbox-shell.md'
+    - 发行说明:
+        - Version 2.3: 'release/version-2.3.md'
+        - Version 2.2: 'release/version-2.2.md'
+        - Version 2.1: 'release/version-2.1.md'
+        - Version 2.0: 'release/version-2.0.md'

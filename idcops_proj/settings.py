@@ -116,7 +116,7 @@ USE_TZ = False
 
 DATE_FORMAT = 'Y-m-d'
 
-DATETIME_FORMAT = 'Y-m-d H:i:s'
+DATETIME_FORMAT = 'Y-m-d H:i'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -129,17 +129,17 @@ if SITE_PREFIX:
     SITE_PREFIX = SITE_PREFIX.rstrip('/') + '/'
 
 
-STATIC_URL = '{}static/'.format(SITE_PREFIX)
+STATIC_URL = f'{SITE_PREFIX}static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '{}media/'.format(SITE_PREFIX)
+MEDIA_URL = f'{SITE_PREFIX}media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_URL = '{}accounts/login/'.format(SITE_PREFIX)
+LOGIN_URL = f'{SITE_PREFIX}accounts/login/'
 
-LOGIN_REDIRECT_URL = '{}accounts/profile/'.format(SITE_PREFIX)
+LOGIN_REDIRECT_URL = f'{SITE_PREFIX}accounts/profile/'
 
 AUTH_USER_MODEL = 'idcops.User'
 

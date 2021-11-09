@@ -45,7 +45,7 @@ def get_fk_search_fileds(model):
 
 
 if app_models:
-    exclude_fields = ['actived', 'deleted', 'modified', 'operator']
+    exclude_fields = ['mark', 'actived', 'deleted', 'modified', 'operator']
     for model in app_models:
         if not admin.site.is_registered(model):
             opts = model._meta

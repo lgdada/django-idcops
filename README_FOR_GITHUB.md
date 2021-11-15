@@ -1,18 +1,13 @@
-# 简介
+# idcops 简介
 
-idcops 是一个基于Django开发，倾向于数据中心运营商使用的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一系列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
+idcops 是一个基于 Django 开发，倾向于数据中心运营商使用的，拥有数据中心、客户、机柜、设备、跳线、物品、测试、文档等一系列模块的资源管理平台，解决各类资源集中管理与数据可视化的问题。
 idcops 通过“数据中心”来分类管理每个数据中心下面的资源，每个数据中心均是单独的。
 
 软件许可协议
 
 django-idcops 遵循 Apache License 2.0。
 
-## 捐赠该项目
-
-**开源不易，可以用支付宝扫下面二维码以赏金的模式打赏支持。您的支持是我不断创作的动力**
-
-![Bounty](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/bounty_for_zfb.png)
-
+GitHub: [https://github.com/Wenvki/django-idcops](https://github.com/Wenvki/django-idcops)
 
 ## 交流讨论
 
@@ -21,7 +16,9 @@ django-idcops 遵循 Apache License 2.0。
 QQ群：185964462
 [数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
 
-#### 项目截图：
+---
+
+## 项目截图
 
 [演示地址](http://idcops.iloxp.com/)
 
@@ -29,21 +26,19 @@ QQ群：185964462
 
 ![weixin_qrcode](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/qrcode_for_weixin.jpg)
 
-
 ![仪表盘](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/2018-12-25_173535.jpg)
-
 
 ---
 
-# 快速开始
+## 快速开始
 
-#### 一、安装：
+### 一、安装
 
-##### **1. 极速安装，支持WSL部署（推荐）**
+#### **1. 极速安装，支持WSL部署（推荐）**
 
 需要联网，脚本一键自动安装
 
-```
+```bash
 cd /opt
 curl -sL https://gitee.com/wenvki/django-idcops/raw/master/auto_install.sh | sh
 
@@ -57,24 +52,20 @@ sh auto_install.sh
 # 默认idcops版本：develop，参数：VERSION develop[master]
 # nginx 反向代理 18113 端口即可
 ```
+
 [快速部署参考链接](https://mp.weixin.qq.com/s/fOcdTfr6274_Erh3fOftQw)
 
-
-##### **2. 手动部署线上生产环境**
+#### **2. 手动部署线上生产环境**
 
 一步一步手动安装，可以进一步理解Django运行部署
 
 [部署线上生产环境](https://www.iloxp.com/archive/2390/)
 
-
----
-
-
 #### 二、配置settings.py
 
 `/opt/django-idcops/idcops_proj/settings.py`
 
-```
+```python
 # django options
 
 STATIC_URL = '{}static/'.format(SITE_PREFIX)
@@ -118,6 +109,14 @@ REMIND_ADVANCE_DAYS = 30
 
 ---
 
-#### Thanks：
+## Thanks
 
 ![JetBrains Community Support](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/jetbrains.svg)
+
+---
+
+## 捐赠该项目
+
+开源不易，可以用支付宝扫下面二维码以赏金的模式打赏支持。您的支持是我不断创作的动力
+
+![Bounty](https://raw.githubusercontent.com/Wenvki/django-idcops/master/screenshots/bounty_for_zfb.png)

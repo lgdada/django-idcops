@@ -266,7 +266,10 @@ renew_device.icon = 'fa fa-rotate-right'
 def actived(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "停用"
-    if request.POST.get('post'):
+    queryset = queryset.filter(actived=True)
+    if not queryset.exists():
+        return "选择无结果"
+    if request.POST.get('post') and queryset.exists():
         for obj in queryset:
             o = copy.deepcopy(obj)
             obj.actived = False
@@ -347,7 +350,10 @@ cancel_reclaim.icon = 'fa fa-check-circle-o'
 def reactive(request, queryset):
     action = sys._getframe().f_code.co_name
     action_name = "启用"
-    if request.POST.get('post'):
+    queryset = queryset.filter(actived=False)
+    if not queryset.exists():
+        return "选择无结果"
+    if request.POST.get('post') and queryset.exists():
         for obj in queryset:
             o = copy.deepcopy(obj)
             obj.actived = True

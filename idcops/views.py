@@ -302,6 +302,10 @@ class ZonemapView(BaseRequiredMixin, TemplateView):
             if self.get_zones.filter(master=True).exists():
                 zone = self.get_zones.filter(master=True).first()
             else:
+                messages.warning(
+                    self.request,
+                    "您没有设置一个默认的机房区域，请在 `机房选项` 中设置一个默认使用的机房区域。"
+                )
                 zone = None
         return zone
 

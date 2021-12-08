@@ -28,10 +28,10 @@ class Command(BaseCommand):
         onlines = Online.objects.filter(rack=obj)
         units = QuerySet.union(*[o.units.all() for o in onlines])
         Unit.objects.filter(rack=obj).exclude(
-            pk__in=[u.name for u in units]).update(actived=True)
+            pk__in=[u.pk for u in units]).update(actived=True)
         pdus = QuerySet.union(*[o.pdus.all() for o in onlines])
         Pdu.objects.filter(rack=obj).exclude(
-            pk__in=[u.name for u in pdus]).update(actived=True)
+            pk__in=[u.pk for u in pdus]).update(actived=True)
 
     def handle(self, *args, **options):
         per_page = options['size']

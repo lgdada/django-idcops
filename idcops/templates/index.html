@@ -31,6 +31,40 @@
   </div>
   <!-- /.col -->
   {%endfor state_items%}
+
+  {%if demo%}
+  <div class="col-md-4 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-red"><i class="fa fa-cogs"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">起步价：￥10,000元</span>
+        <span class="info-box-number">定制开发</span>
+        <span class="text-muted">根据需求进行开发，协商定价</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-red"><i class="fa fa-cogs"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">￥299元/单</span>
+        <span class="info-box-number">服务器环境安装</span>
+        <span class="text-muted">服务器Python、MYSQL、环境搭建以及初始化，已服务：27单</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-green"><i class="fa fa-weixin"></i></span>
+      <div class="info-box-content">
+        <!-- <span class="info-box-text">每次：￥299元</span> -->
+        <span class="info-box-number">联系我</span>
+        <span class="text-muted">页面左下角，扫一扫<b>关注微信号</b>，点击 <b>加我微信</b></span>
+      </div>
+    </div>
+  </div>
+  {%endif%}
+  
   <div class="clearfix visible-sm-block"></div>
   
 </div>

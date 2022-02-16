@@ -264,7 +264,7 @@ class IndexView(BaseRequiredMixin, TemplateView):
         context['rack_statistics'] = self.make_rack_statistics()
         context['rack_dynamic_change'] = self.make_rack_dynamic_change()
         context['demo'] = getattr(settings, 'TEST_ENV', False)
-        context['cloud_ad'] = getattr(settings, 'AD', False)
+        context['cloud_ad'] = getattr(settings, 'DISPLAY_AD', False)
         return context
 
 

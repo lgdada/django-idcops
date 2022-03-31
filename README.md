@@ -11,20 +11,10 @@ django-idcops 遵循 Apache License 2.0。
 
 GitHub: [https://github.com/Wenvki/django-idcops](https://github.com/Wenvki/django-idcops)
 
-## 交流讨论
 
-[作者博客](https://www.iloxp.com)
-
-QQ群：185964462
-[数据中心运维管理idcops](https://jq.qq.com/?_wv=1027&k=5SVIbPP)
-
----
 
 ## 项目截图
 
-[演示地址](http://idcops.iloxp.com/)
-
-关注公众号回复数字 **7** 获取体验账号
 
 ![weixin_qrcode](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/qrcode_for_weixin.jpg)
 
@@ -110,15 +100,3 @@ REMIND_ADVANCE_DAYS = 30
 ```
 
 ---
-
-## Thanks
-
-![JetBrains Community Support](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/jetbrains.svg)
-
----
-
-## 捐赠该项目
-
-开源不易，可以用支付宝扫下面二维码以赏金的模式打赏支持。您的支持是我不断创作的动力
-
-![Bounty](https://gitee.com/wenvki/django-idcops/raw/master/screenshots/bounty_for_zfb.png)
